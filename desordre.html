@@ -42,13 +42,9 @@ html,body{width:100%;height:100%;overflow:hidden;background:var(--dark);font-fam
   background:#0d1a0a;
 }
 #map-atmosphere{
-  position:absolute;inset:-60px;z-index:0;pointer-events:none;
+  position:absolute;inset:-40px;z-index:0;pointer-events:none;
   background:url(map.png) center/cover no-repeat;
-  filter:blur(28px) brightness(0.22) saturate(0.6);
-  transform:scale(1.06);
-}
-#map-viewport{
-  position:relative;z-index:1;
+  filter:blur(22px) brightness(0.32) saturate(0.7);
 }
 #map-wrapper:active{cursor:grabbing;}
 #map-viewport{
@@ -56,6 +52,7 @@ html,body{width:100%;height:100%;overflow:hidden;background:var(--dark);font-fam
   transform-origin:0 0;
   transition:none;
   will-change:transform;
+  z-index:1;
 }
 #map-img{
   display:block;
@@ -438,7 +435,7 @@ const ZONES = {
   playroom_ext: { name:'Playroom ext.', type:'high', cap:4, baseProd:{vibe:2.2,soin:0}, bonus:'night_x2', desc:'⚡ Haute énergie. Structures de play en extérieur. Prod x2 la nuit.' },
   tente_cer:    { name:'Tente cérémonie', type:'high', cap:3, baseProd:{vibe:1.8,soin:0.3}, bonus:'day_x2', desc:'🎪 Haute énergie. Espace rituel et festif. Boost les arrivées.' },
   mixroom:      { name:'Mix-room', type:'high', cap:3, baseProd:{vibe:1.4,soin:0.6}, bonus:'night_x2', desc:'🌀 Haute énergie. Coussins et atmosphère. Prod x2 la nuit.' },
-  bat1:         { name:'Bâtiment 1', type:'mixed', cap:4, baseProd:{vibe:0.9,soin:0.9}, bonus:'cycle', desc:'💜 Espace mixte. Vibe le jour, Soin la nuit. Versatile.' },
+  bat1:         { name:'Chambres', type:'mixed', cap:4, baseProd:{vibe:0.9,soin:0.9}, bonus:'cycle', desc:'💜 Espace mixte. Vibe le jour, Soin la nuit. Versatile.' },
   bat2:         { name:'Playroom int.', type:'high', cap:4, baseProd:{vibe:2.0,soin:0}, bonus:null, desc:'⚡ Haute énergie intérieure. Stable jour/nuit.' },
   cantina:      { name:'Cantina', type:'low', cap:3, baseProd:{vibe:0,soin:1.7}, bonus:'meal_boost', desc:'🍽 Basse énergie. Les repas boostent tous les pax 2×/jour.' },
   welfare:      { name:'Espace Welfare', type:'low', cap:2, baseProd:{vibe:0,soin:2.2}, bonus:'regen', desc:'💜 Soin maximal. Régénère les pax épuisé·es.' },
@@ -1369,9 +1366,13 @@ function setupMapInteraction() {
   applyTransform();
 
   function applyTransform() {
-    const maxTx = 60, maxTy = 60;
-    const minTx = wr.width - CFG.MAP_W * scale - 60;
-    const minTy = wr.height - CFG.MAP_H * scale - 60;
+    const mapW = CFG.MAP_W * scale;
+    const mapH = CFG.MAP_H * scale;
+    // Si la carte tient dans l'écran : centrage fixe. Sinon : panning avec marge.
+    const maxTx = mapW <= wr.width  ? (wr.width  - mapW) / 2 : 60;
+    const minTx = mapW <= wr.width  ? (wr.width  - mapW) / 2 : wr.width  - mapW - 60;
+    const maxTy = mapH <= wr.height ? (wr.height - mapH) / 2 : 60;
+    const minTy = mapH <= wr.height ? (wr.height - mapH) / 2 : wr.height - mapH - 60;
     tx = Math.max(Math.min(tx, maxTx), minTx);
     ty = Math.max(Math.min(ty, maxTy), minTy);
     vp.style.transform = `translate(${tx}px, ${ty}px) scale(${scale})`;
