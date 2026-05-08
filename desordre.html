@@ -50,7 +50,7 @@ html,body{width:100%;height:100%;overflow:hidden;background:var(--dark);font-fam
 }
 #map-img{
   display:block;
-  width:900px;height:675px;
+  width:1400px;height:1050px;
   image-rendering:auto;
 }
 
@@ -318,15 +318,15 @@ html,body{width:100%;height:100%;overflow:hidden;background:var(--dark);font-fam
   <div id="map-viewport">
     <img id="map-img" src="map.png" alt="Carte du Désordre" draggable="false"/>
     <!-- Zones interactives (positionnées en % de 900x675) -->
-    <div class="zone" id="zone-playroom-ext" data-zone="playroom_ext" style="left:60px;top:230px;width:160px;height:130px;" onclick="openZone('playroom_ext')"></div>
-    <div class="zone" id="zone-tente-cer" data-zone="tente_cer" style="left:100px;top:430px;width:160px;height:150px;" onclick="openZone('tente_cer')"></div>
-    <div class="zone" id="zone-mixroom" data-zone="mixroom" style="left:280px;top:440px;width:170px;height:120px;" onclick="openZone('mixroom')"></div>
-    <div class="zone" id="zone-bat1" data-zone="bat1" style="left:320px;top:160px;width:150px;height:130px;" onclick="openZone('bat1')"></div>
-    <div class="zone" id="zone-bat2" data-zone="bat2" style="left:480px;top:140px;width:140px;height:130px;" onclick="openZone('bat2')"></div>
-    <div class="zone" id="zone-cantina" data-zone="cantina" style="left:630px;top:180px;width:130px;height:110px;" onclick="openZone('cantina')"></div>
-    <div class="zone" id="zone-welfare" data-zone="welfare" style="left:580px;top:410px;width:160px;height:120px;" onclick="openZone('welfare')"></div>
-    <div class="zone" id="zone-isoloir" data-zone="isoloir" style="left:420px;top:395px;width:70px;height:80px;" onclick="openZone('isoloir')"></div>
-    <div class="zone" id="zone-pmu" data-zone="pmu" style="left:440px;top:155px;width:70px;height:80px;" onclick="openZone('pmu')"></div>
+    <div class="zone" id="zone-playroom-ext" data-zone="playroom_ext" style="left:93px;top:358px;width:249px;height:202px;" onclick="openZone('playroom_ext')"></div>
+    <div class="zone" id="zone-tente-cer" data-zone="tente_cer" style="left:156px;top:669px;width:249px;height:233px;" onclick="openZone('tente_cer')"></div>
+    <div class="zone" id="zone-mixroom" data-zone="mixroom" style="left:436px;top:684px;width:264px;height:187px;" onclick="openZone('mixroom')"></div>
+    <div class="zone" id="zone-bat1" data-zone="bat1" style="left:498px;top:249px;width:233px;height:202px;" onclick="openZone('bat1')"></div>
+    <div class="zone" id="zone-bat2" data-zone="bat2" style="left:747px;top:218px;width:218px;height:202px;" onclick="openZone('bat2')"></div>
+    <div class="zone" id="zone-cantina" data-zone="cantina" style="left:980px;top:280px;width:202px;height:171px;" onclick="openZone('cantina')"></div>
+    <div class="zone" id="zone-welfare" data-zone="welfare" style="left:902px;top:638px;width:249px;height:187px;" onclick="openZone('welfare')"></div>
+    <div class="zone" id="zone-isoloir" data-zone="isoloir" style="left:653px;top:614px;width:109px;height:124px;" onclick="openZone('isoloir')"></div>
+    <div class="zone" id="zone-pmu" data-zone="pmu" style="left:684px;top:241px;width:109px;height:124px;" onclick="openZone('pmu')"></div>
   </div>
 </div>
 
@@ -408,28 +408,32 @@ html,body{width:100%;height:100%;overflow:hidden;background:var(--dark);font-fam
 
 // ===== CONFIG =====
 const CFG = {
-  PROD_TICK: 200,      // ms
-  EVENT_TICK: 1000,    // ms
-  DAY_SECS: 90,        // secondes réelles par jour
+  PROD_TICK: 200,
+  EVENT_TICK: 1000,
+  DAY_SECS: 90,
   VIBE_MAX: 500,
   SOIN_MAX: 300,
-  INVADER_INTERVAL: 20000,  // ms entre spawns
+  INVADER_INTERVAL: 25000,
   BOOST_DURATION: 4000,
   BOOST_COOLDOWN: 12000,
+  MAP_W: 1400,
+  MAP_H: 1050,
+  ENERGY_DRAIN: 0.10,
+  ENERGY_RECOVER: 0.22,
   DAYS: ['LUN','MAR','MER','JEU','VEN','SAM','DIM'],
 };
 
 // ===== ZONES =====
 const ZONES = {
-  playroom_ext: { name:'Playroom ext.', type:'high', cap:4, baseProd:{vibe:8,soin:0}, bonus:'night_x2', desc:'⚡ Haute énergie. Structures de play en extérieur. Prod x2 la nuit.' },
-  tente_cer:    { name:'Tente cérémonie', type:'high', cap:3, baseProd:{vibe:6,soin:1}, bonus:'day_x2', desc:'🎪 Haute énergie. Espace rituel et festif. Boost les arrivées.' },
-  mixroom:      { name:'Mix-room', type:'high', cap:3, baseProd:{vibe:5,soin:2}, bonus:'night_x2', desc:'🌀 Haute énergie. Coussins et atmosphère. Prod x2 la nuit.' },
-  bat1:         { name:'Bâtiment 1', type:'mixed', cap:4, baseProd:{vibe:3,soin:3}, bonus:'cycle', desc:'💜 Espace mixte. Vibe le jour, Soin la nuit. Versatile.' },
-  bat2:         { name:'Playroom int.', type:'high', cap:4, baseProd:{vibe:7,soin:0}, bonus:null, desc:'⚡ Haute énergie intérieure. Stable jour/nuit.' },
-  cantina:      { name:'Cantina', type:'low', cap:3, baseProd:{vibe:0,soin:6}, bonus:'meal_boost', desc:'🍽 Basse énergie. Les repas boostent tous les pax 2×/jour.' },
-  welfare:      { name:'Espace Welfare', type:'low', cap:2, baseProd:{vibe:0,soin:8}, bonus:'regen', desc:'💜 Soin maximal. Régénère les pax épuisé·es.' },
-  isoloir:      { name:'Isoloir', type:'low', cap:1, baseProd:{vibe:0,soin:5}, bonus:'solo_boost', desc:'🌿 1 pax max. Régénération profonde pour cellui qui en a besoin.' },
-  pmu:          { name:'PMU', type:'high', cap:2, baseProd:{vibe:4,soin:1}, bonus:'event_trigger', desc:'🍺 Buvette. Déclenche des événements aléatoires rigolos.' },
+  playroom_ext: { name:'Playroom ext.', type:'high', cap:4, baseProd:{vibe:2.2,soin:0}, bonus:'night_x2', desc:'⚡ Haute énergie. Structures de play en extérieur. Prod x2 la nuit.' },
+  tente_cer:    { name:'Tente cérémonie', type:'high', cap:3, baseProd:{vibe:1.8,soin:0.3}, bonus:'day_x2', desc:'🎪 Haute énergie. Espace rituel et festif. Boost les arrivées.' },
+  mixroom:      { name:'Mix-room', type:'high', cap:3, baseProd:{vibe:1.4,soin:0.6}, bonus:'night_x2', desc:'🌀 Haute énergie. Coussins et atmosphère. Prod x2 la nuit.' },
+  bat1:         { name:'Bâtiment 1', type:'mixed', cap:4, baseProd:{vibe:0.9,soin:0.9}, bonus:'cycle', desc:'💜 Espace mixte. Vibe le jour, Soin la nuit. Versatile.' },
+  bat2:         { name:'Playroom int.', type:'high', cap:4, baseProd:{vibe:2.0,soin:0}, bonus:null, desc:'⚡ Haute énergie intérieure. Stable jour/nuit.' },
+  cantina:      { name:'Cantina', type:'low', cap:3, baseProd:{vibe:0,soin:1.7}, bonus:'meal_boost', desc:'🍽 Basse énergie. Les repas boostent tous les pax 2×/jour.' },
+  welfare:      { name:'Espace Welfare', type:'low', cap:2, baseProd:{vibe:0,soin:2.2}, bonus:'regen', desc:'💜 Soin maximal. Régénère les pax épuisé·es.' },
+  isoloir:      { name:'Isoloir', type:'low', cap:1, baseProd:{vibe:0,soin:1.5}, bonus:'solo_boost', desc:'🌿 1 pax max. Régénération profonde pour cellui qui en a besoin.' },
+  pmu:          { name:'PMU', type:'high', cap:2, baseProd:{vibe:1.1,soin:0.3}, bonus:'event_trigger', desc:'🍺 Buvette. Déclenche des événements aléatoires rigolos.' },
 };
 
 // ===== ARCHÉTYPES =====
@@ -509,6 +513,69 @@ const CRIEE = [
   '📢 La Criée : rappel — les isoloirs sont pour le soin, pas pour le play.',
 ];
 
+
+// ===== SCÈNES (combos pax+zone) =====
+const SCENES = [
+  { id:'scene_play', archs:['dom','sub'], zones:['playroom_ext','bat2'], minEach:1,
+    msg:'🔥 Scène de jeu en cours ! La Vibe explose.',
+    effect:{ vibe:70 }, cooldown:50000 },
+  { id:'scene_shibari', archs:['top','bottom'], zones:['playroom_ext','mixroom','bat2'], minEach:1,
+    msg:'🪢 Session shibari. C\'est magnifique.',
+    effect:{ vibe:55 }, cooldown:60000 },
+  { id:'scene_orgie', archs:['slut'], zones:['mixroom','bat2'], minEach:1, minTotal:4,
+    msg:"💋 L\'espace déborde. C\'est la fête totale.",
+    effect:{ vibe:100, soin:20 }, cooldown:90000 },
+  { id:'scene_aftercare', archs:['soigneurice'], zones:['welfare'], minEach:1,
+    msg:"💜 Cercle d\'aftercare. Toustes les pax récupèrent.",
+    effect:{ healAll:true, soin:50 }, cooldown:35000 },
+  { id:'scene_cuisine', archs:['servicetop'], zones:['cantina'], minEach:1,
+    msg:"🍳 Un festin préparé avec amour. Boost de Soin.",
+    effect:{ soin:60 }, cooldown:55000 },
+  { id:'scene_pet_walk', archs:['pet','dom'], zones:null, minEach:1,
+    msg:"🐾 Promenade dans le domaine.",
+    effect:{ vibe:20, soin:20 }, cooldown:30000 },
+  { id:'scene_chaos_pmu', archs:['chaotique'], zones:['pmu'], minEach:1,
+    msg:"🤡 Will McClick prend le micro. Le chaos est parfait.",
+    effect:{ random:true }, cooldown:40000 },
+  { id:'scene_creatif', archs:['creatif','festif'], zones:null, minEach:1,
+    msg:"🎨 Collab artistique ! Une installation apparaît dans le potager.",
+    effect:{ vibe:40, soin:40 }, cooldown:70000 },
+  { id:'scene_toybottom', archs:['toy','servicetop'], zones:['isoloir','bat2','bat1'], minEach:1,
+    msg:"🎀 Scène privée. Production x2 pendant 15s.",
+    effect:{ vibex2:true, soin:10 }, cooldown:80000 },
+  { id:'scene_switch', archs:['switch'], zones:['bat1'], minEach:1, minTotal:2,
+    msg:"🔄 Les switch se retrouvent. La nuit sera polyvalente.",
+    effect:{ vibe:35, soin:35 }, cooldown:45000 },
+];
+
+// ===== QUÊTES QUOTIDIENNES =====
+const QUEST_POOL = [
+  { id:'q_2pax_play', text:"Mets 2 pax dans une Playroom ce soir ⚡",
+    check:()=> ['playroom_ext','bat2'].some(z=> state.zones[z].occupants.length >= 2),
+    reward:{ vibe:60 } },
+  { id:'q_welfare', text:"Envoie un·e pax au Welfare 💜",
+    check:()=> state.zones['welfare'].occupants.length >= 1,
+    reward:{ soin:50 } },
+  { id:'q_cantina3', text:"Remplis la Cantina (3 pax) 🍽",
+    check:()=> state.zones['cantina'].occupants.length >= 3,
+    reward:{ soin:80 } },
+  { id:'q_queerise', text:"Queerise un envahisseur 🌈",
+    check:()=> state.stats.queerised > (state.quests._prevQueer||0),
+    reward:{ vibe:80 } },
+  { id:'q_scene', text:"Déclenche une scène spéciale 🔥",
+    check:()=> state.scenesTriggered > (state.quests._prevScenes||0),
+    reward:{ vibe:50, soin:30 } },
+  { id:'q_pmu_night', text:"Envoie quelqu\'un au PMU cette nuit 🍺",
+    check:()=> state.zones['pmu'].occupants.length >= 1 && state.isNight,
+    reward:{ vibe:40 } },
+  { id:'q_mixroom_night', text:"Fête à la Mix-room cette nuit 🌙",
+    check:()=> state.zones['mixroom'].occupants.length >= 2 && state.isNight,
+    reward:{ vibe:70 } },
+  { id:'q_all_zones', text:"Mets un·e pax dans chaque zone high ⚡",
+    check:()=> ['playroom_ext','bat2','mixroom'].every(z=> state.zones[z].occupants.length >= 1),
+    reward:{ vibe:100 } },
+];
+
 // ===== PAX UNLOCK QUOTES =====
 const PAX_UNLOCK = {
   aioli:     { quote:'Aïoli débarque. Iel pique, mais iel protège.', gift:'+15 Vibe' },
@@ -542,12 +609,16 @@ const state = {
   invaderTimer: null,
   mealBoosted: false,
   gameEnded: false,
+  quests: [],
+  questsDone: 0,
+  scenes: {},
+  scenesTriggered: 0,
 };
 
 // ===== INIT =====
 function initState() {
   PAX_DATA.forEach(p => {
-    state.pax[p.id] = { state:'locked', energy:100, placedIn:null };
+    state.pax[p.id] = { state:'locked', energy:100, maxEnergy:100, placedIn:null };
   });
   Object.keys(ZONES).forEach(z => {
     state.zones[z] = { occupants:[], lastBoost:0, boostActive:false };
@@ -621,11 +692,37 @@ function productionTick() {
       soinGain += sBase / 10;
     });
   });
+  // --- Fatigue des pax ---
+  PAX_DATA.forEach(p => {
+    const ps = state.pax[p.id];
+    if (ps.state === 'placed') {
+      ps.energy = Math.max(0, ps.energy - CFG.ENERGY_DRAIN);
+      // Welfare récupère l'énergie
+      if (ps.placedIn === 'welfare') ps.energy = Math.min(ps.maxEnergy, ps.energy + CFG.ENERGY_RECOVER);
+      if (ps.energy <= 0) {
+        toast(`😴 ${p.emoji} ${p.name} est épuisé·e !`);
+        const oldZone = ps.placedIn;
+        if (oldZone) state.zones[oldZone].occupants = state.zones[oldZone].occupants.filter(id => id !== p.id);
+        ps.state = 'exhausted';
+        ps.placedIn = null;
+        renderZones();
+        if (state.selectedZone === oldZone) openZone(oldZone);
+      }
+    } else if (ps.state === 'exhausted') {
+      ps.energy = Math.min(ps.maxEnergy, ps.energy + CFG.ENERGY_RECOVER * 0.4);
+      if (ps.energy >= 35) {
+        ps.state = 'available';
+        toast(`✨ ${p.emoji} ${p.name} est disponible.`);
+        renderSidebar();
+      }
+    }
+  });
   state.vibe = Math.min(CFG.VIBE_MAX, state.vibe + vibeGain);
   state.soin = Math.min(CFG.SOIN_MAX, state.soin + soinGain);
   state.vibeTotal += vibeGain;
   state.soinTotal += soinGain;
   if (state.vibe > state.stats.maxVibe) state.stats.maxVibe = Math.round(state.vibe);
+  checkScenes();
   renderHUD();
 }
 
@@ -673,6 +770,16 @@ function onNewDay() {
   const dayName = CFG.DAYS[state.day];
   toast(`🌅 Nouveau jour : ${dayName}`);
   updateCriee(`📢 La Criée de ${dayName} : bonne journée à toustes.`);
+  // Nouvelles quêtes du jour
+  const shuffled = QUEST_POOL.slice().sort(() => Math.random() - 0.5);
+  state.quests = shuffled.slice(0, 2);
+  state.quests._prevQueer = state.stats.queerised;
+  state.quests._prevScenes = state.scenesTriggered;
+  state.quests.forEach(q => { q.done = false; });
+  setTimeout(() => {
+    if (state.quests[0]) toast(`📋 Quête du jour : ${state.quests[0].text}`);
+    if (state.quests[1]) setTimeout(() => toast(`📋 Quête 2 : ${state.quests[1].text}`), 2500);
+  }, 600);
   // Vendredi : accélération
   if (state.day === 4) {
     clearInterval(state.invaderTimer);
@@ -689,13 +796,13 @@ function spawnInvader() {
   // Position de départ (bords de la carte)
   const side = Math.floor(Math.random() * 4);
   let sx, sy;
-  if (side === 0) { sx = Math.random() * 860 + 20; sy = -40; }
-  else if (side === 1) { sx = 940; sy = Math.random() * 600 + 20; }
-  else if (side === 2) { sx = Math.random() * 860 + 20; sy = 720; }
-  else { sx = -40; sy = Math.random() * 600 + 20; }
+  if (side === 0) { sx = Math.random() * 1360 + 20; sy = -40; }
+  else if (side === 1) { sx = 1450; sy = Math.random() * 1010 + 20; }
+  else if (side === 2) { sx = Math.random() * 1360 + 20; sy = 1090; }
+  else { sx = -40; sy = Math.random() * 1010 + 20; }
   // Target = centre de la carte
-  const tx = 400 + (Math.random() - 0.5) * 200;
-  const ty = 300 + (Math.random() - 0.5) * 200;
+  const tx = 650 + (Math.random() - 0.5) * 350;
+  const ty = 490 + (Math.random() - 0.5) * 300;
   const invObj = { id: Date.now(), type:inv.type, data:inv, x:sx, y:sy, tx, ty, health:100, el:null, barEl:null };
   state.invaders.push(invObj);
   renderInvader(invObj);
@@ -961,6 +1068,11 @@ function renderZones() {
         if (!p) return;
         const span = document.createElement('span');
         span.className = 'zone-pax-dot';
+        const ps2 = state.pax[p.id];
+        const energyPct = Math.round((ps2.energy||0) / (ps2.maxEnergy||100) * 100);
+        span.style.outline = energyPct > 60 ? '2px solid transparent' : energyPct > 30 ? '2px solid #ffe93f' : '2px solid #e74c3c';
+        span.style.borderRadius = '50%';
+        span.title = p.name + ' — énergie ' + energyPct + '%';
         span.textContent = p.emoji;
         span.style.animationDelay = Math.random() * 2 + 's';
         row.appendChild(span);
@@ -986,7 +1098,8 @@ function renderSidebar() {
     const arch = ARCHETYPES[p.archetype];
     const div = document.createElement('div');
     div.style.cssText = 'background:rgba(127,255,90,0.08);border:1.5px solid var(--green);padding:8px;margin-bottom:8px;border-radius:4px;';
-    div.innerHTML = `<span style="font-size:24px">${p.emoji}</span> <strong style="font-family:'Press Start 2P',monospace;font-size:8px;color:var(--cream);">${p.name}</strong><br><span style="font-size:14px;color:var(--purple);">${arch.label}</span><br><span style="font-size:12px;opacity:0.6;">${ps.placedIn ? '📍 ' + ZONES[ps.placedIn].name : '⌛ Disponible'}</span>`;
+    const eBar = ps.energy !== undefined ? `<div style='margin-top:4px;background:#222;border-radius:3px;height:4px;width:100%;'><div style='height:4px;border-radius:3px;width:${Math.round(ps.energy)}%;background:${ps.energy>60?'var(--green)':ps.energy>30?'var(--yellow)':'var(--red)'};'></div></div>` : '';
+    div.innerHTML = `<span style="font-size:24px">${p.emoji}</span> <strong style="font-family:'Press Start 2P',monospace;font-size:8px;color:var(--cream);">${p.name}</strong><br><span style="font-size:14px;color:var(--purple);">${arch.label}</span><br><span style="font-size:12px;opacity:0.6;">${ps.state === 'exhausted' ? '😴 Épuisé·e' : ps.placedIn ? '📍 ' + ZONES[ps.placedIn].name : '⌛ Disponible'}</span>${eBar}`;
     return div;
   }
   avail.forEach(p => content.appendChild(makePaxCard(p)));
@@ -1051,9 +1164,77 @@ function closeModal(id) {
   document.getElementById(id).classList.remove('show');
 }
 
+
+// ===== SCENES ENGINE =====
+function checkScenes() {
+  if (!state.started || state.gameEnded) return;
+  const now = Date.now();
+  SCENES.forEach(scene => {
+    if ((now - (state.scenes[scene.id]||0)) < scene.cooldown) return;
+    const zonesToCheck = scene.zones || Object.keys(ZONES);
+    zonesToCheck.forEach(zid => {
+      const zoneState = state.zones[zid];
+      if (!zoneState || !zoneState.occupants.length) return;
+      const archetypes = zoneState.occupants.map(pid => {
+        const p = PAX_DATA.find(d => d.id === pid); return p ? p.archetype : null;
+      }).filter(Boolean);
+      const allPresent = scene.archs.every(a => archetypes.includes(a));
+      if (!allPresent) return;
+      if (scene.minTotal && zoneState.occupants.length < scene.minTotal) return;
+      // TRIGGER
+      state.scenes[scene.id] = now;
+      state.scenesTriggered++;
+      toast(scene.msg);
+      updateCriee(scene.msg);
+      const e = scene.effect;
+      if (e.vibe) state.vibe = Math.min(CFG.VIBE_MAX, state.vibe + e.vibe);
+      if (e.soin) state.soin = Math.min(CFG.SOIN_MAX, state.soin + e.soin);
+      if (e.healAll) {
+        PAX_DATA.forEach(p => { if (state.pax[p.id]) state.pax[p.id].energy = Math.min(100, state.pax[p.id].energy + 30); });
+        toast('💜 Toustes les pax récupèrent de l\'énergie !');
+      }
+      if (e.vibex2) {
+        if (state.zones[zid]) { state.zones[zid].boostActive = true; setTimeout(() => { if(state.zones[zid]) state.zones[zid].boostActive=false; }, 15000); }
+        toast('⚡ Production x2 pendant 15s !');
+      }
+      if (e.random) {
+        const r = Math.random();
+        if (r < 0.4) { state.vibe = Math.min(CFG.VIBE_MAX, state.vibe+80); toast('🎲 Jackpot Vibe ! +80'); }
+        else if (r < 0.7) { state.soin = Math.min(CFG.SOIN_MAX, state.soin+60); toast('🎲 Soirée Soin ! +60'); }
+        else { toast('🎲 Quelque chose d\'étrange se passe.'); }
+      }
+      // Confettis
+      const zEl = document.getElementById('zone-' + zid.replace(/_/g,'-'));
+      if (zEl) {
+        const emojis = ['🌈','🔥','💜','✨','🎉','🪄','💫'];
+        for (let i = 0; i < 6; i++) setTimeout(() => spawnConfetti(parseInt(zEl.style.left)+40, parseInt(zEl.style.top)+40, emojis[Math.floor(Math.random()*emojis.length)]), i*120);
+      }
+      checkQuests();
+    });
+  });
+}
+
+function checkQuests() {
+  if (!state.quests || !Array.isArray(state.quests)) return;
+  state.quests.forEach(q => {
+    if (q.done) return;
+    try {
+      if (q.check && q.check()) {
+        q.done = true;
+        state.questsDone++;
+        toast(`🏆 Quête accomplie : ${q.text}`);
+        if (q.reward) {
+          if (q.reward.vibe) state.vibe = Math.min(CFG.VIBE_MAX, state.vibe + q.reward.vibe);
+          if (q.reward.soin) state.soin = Math.min(CFG.SOIN_MAX, state.soin + q.reward.soin);
+        }
+      }
+    } catch(e) {}
+  });
+}
+
 // ===== END =====
 function checkEnd() {
-  if (state.stats.queerised >= 4 && state.day >= 5) {
+  if (state.stats.queerised >= 8 && state.day >= 5) {
     setTimeout(endGame, 1000);
   }
 }
@@ -1074,19 +1255,19 @@ function endGame() {
 function setupMapInteraction() {
   const wrapper = document.getElementById('map-wrapper');
   const vp = document.getElementById('map-viewport');
-  let scale = 0.7, tx = 0, ty = 0;
+  let scale = 0.55, tx = 0, ty = 0;
   let dragging = false, lastX = 0, lastY = 0;
   let pinchDist = null;
   // Centre initial
   const wr = wrapper.getBoundingClientRect();
-  tx = (wr.width - 900 * scale) / 2;
-  ty = (wr.height - 675 * scale) / 2;
+  tx = (wr.width - CFG.MAP_W * scale) / 2;
+  ty = (wr.height - CFG.MAP_H * scale) / 2;
   applyTransform();
 
   function applyTransform() {
     const maxTx = 60, maxTy = 60;
-    const minTx = wr.width - 900 * scale - 60;
-    const minTy = wr.height - 675 * scale - 60;
+    const minTx = wr.width - CFG.MAP_W * scale - 60;
+    const minTy = wr.height - CFG.MAP_H * scale - 60;
     tx = Math.max(Math.min(tx, maxTx), minTx);
     ty = Math.max(Math.min(ty, maxTy), minTy);
     vp.style.transform = `translate(${tx}px, ${ty}px) scale(${scale})`;
