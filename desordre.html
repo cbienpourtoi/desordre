@@ -1,0 +1,1151 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Le Désordre — Un été qui change tout</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=VT323&family=Press+Start+2P&family=DM+Mono:wght@400;500&display=swap');
+:root {
+  --pink:#ff2d95; --pink-soft:#ffb3d9; --green:#7fff5a; --green-deep:#1a6b1a;
+  --yellow:#ffe93f; --purple:#9d4edd; --orange:#ff7b3d; --cream:#fff5e1;
+  --dark:#1a0e2e; --dark2:#2d1b3d; --teal:#5fcfe8; --red:#c0392b;
+}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+html,body{width:100%;height:100%;overflow:hidden;background:var(--dark);font-family:'VT323',monospace;color:var(--cream);image-rendering:pixelated;}
+
+/* ===== HUD TOP ===== */
+#hud{
+  position:fixed;top:0;left:0;right:0;z-index:100;
+  background:rgba(26,14,46,0.92);backdrop-filter:blur(6px);
+  border-bottom:2px solid var(--pink);
+  display:flex;align-items:center;gap:8px;padding:6px 10px;
+  height:52px;
+}
+#hud-title{font-family:'Press Start 2P',monospace;font-size:9px;color:var(--yellow);text-shadow:1px 1px 0 var(--pink);white-space:nowrap;line-height:1.3;}
+#hud-title span{color:var(--green);font-size:7px;display:block;}
+.res-bar{display:flex;align-items:center;gap:5px;background:rgba(0,0,0,0.4);border:1.5px solid;padding:3px 8px;border-radius:3px;flex:1;min-width:80px;}
+.res-bar.vibe{border-color:var(--pink);}
+.res-bar.soin{border-color:var(--teal);}
+.res-label{font-size:13px;white-space:nowrap;}
+.res-track{flex:1;height:6px;background:rgba(255,255,255,0.1);border-radius:3px;overflow:hidden;}
+.res-fill{height:100%;border-radius:3px;transition:width 0.3s;}
+.res-fill.vibe{background:linear-gradient(90deg,var(--pink),var(--yellow));}
+.res-fill.soin{background:linear-gradient(90deg,var(--teal),var(--green));}
+.res-val{font-size:16px;font-family:'Press Start 2P',monospace;font-size:8px;min-width:28px;text-align:right;}
+#hud-day{font-family:'Press Start 2P',monospace;font-size:8px;color:var(--yellow);text-align:center;line-height:1.4;background:rgba(0,0,0,0.4);border:1.5px solid var(--yellow);padding:3px 6px;border-radius:3px;white-space:nowrap;}
+
+/* ===== MAP WRAPPER ===== */
+#map-wrapper{
+  position:fixed;top:52px;left:0;right:0;bottom:44px;
+  overflow:hidden;cursor:grab;
+  background:#1a2a0e;
+}
+#map-wrapper:active{cursor:grabbing;}
+#map-viewport{
+  position:absolute;top:0;left:0;
+  transform-origin:0 0;
+  transition:none;
+  will-change:transform;
+}
+#map-img{
+  display:block;
+  width:900px;height:675px;
+  image-rendering:auto;
+}
+
+/* ===== ZONES CLIQUABLES sur la carte ===== */
+.zone{
+  position:absolute;border-radius:6px;cursor:pointer;
+  border:2px solid transparent;
+  transition:all 0.2s;
+  display:flex;align-items:center;justify-content:center;
+  flex-direction:column;gap:2px;
+  background:rgba(0,0,0,0.0);
+}
+.zone:hover{border-color:var(--yellow);background:rgba(255,233,63,0.15);}
+.zone.active{border-color:var(--green);background:rgba(127,255,90,0.2);}
+.zone.boosted{border-color:var(--pink);animation:zonePulse 0.5s ease-in-out 3;}
+@keyframes zonePulse{0%,100%{box-shadow:0 0 0 0 var(--pink);}50%{box-shadow:0 0 12px 4px var(--pink);}}
+.zone-label{
+  font-family:'Press Start 2P',monospace;font-size:6px;color:var(--cream);
+  background:rgba(26,14,46,0.85);padding:2px 4px;border-radius:2px;
+  white-space:nowrap;pointer-events:none;text-align:center;line-height:1.3;
+}
+.zone-pax-row{display:flex;gap:1px;flex-wrap:wrap;justify-content:center;pointer-events:none;}
+.zone-pax-dot{font-size:14px;filter:drop-shadow(1px 1px 0 #000);animation:paxBob 2s ease-in-out infinite;}
+@keyframes paxBob{0%,100%{transform:translateY(0);}50%{transform:translateY(-3px);}}
+.zone-cap{font-size:10px;color:var(--yellow);pointer-events:none;}
+
+/* ===== PAX QUI MARCHENT ===== */
+.walking-pax{
+  position:absolute;font-size:20px;pointer-events:none;z-index:30;
+  filter:drop-shadow(1px 1px 0 #000);
+  transition:left 1s linear, top 1s linear;
+  animation:paxWalk 0.4s steps(2) infinite;
+}
+@keyframes paxWalk{0%{transform:scaleX(1);}50%{transform:scaleX(-1) translateX(-2px);}100%{transform:scaleX(1);}}
+
+/* ===== ENVAHISSEURS ===== */
+.invader{
+  position:absolute;font-size:28px;cursor:pointer;z-index:40;
+  filter:drop-shadow(2px 2px 0 rgba(0,0,0,0.6));
+  animation:invMarch 1s steps(2) infinite;
+  transition:left 0.8s linear,top 0.8s linear;
+}
+@keyframes invMarch{0%{transform:rotate(-5deg);}50%{transform:rotate(5deg);}100%{transform:rotate(-5deg);}}
+.invader:hover{filter:drop-shadow(0 0 8px var(--pink));}
+.invader-bar{
+  position:absolute;bottom:-8px;left:50%;transform:translateX(-50%);
+  width:30px;height:4px;background:rgba(0,0,0,0.5);border-radius:2px;overflow:hidden;
+}
+.invader-bar-fill{height:100%;background:var(--red);transition:width 0.3s;}
+.inv-bubble{
+  position:absolute;top:-28px;left:50%;transform:translateX(-50%);
+  background:var(--cream);color:var(--dark);
+  font-size:10px;font-family:'DM Mono',monospace;
+  padding:2px 5px;border-radius:3px;border:1.5px solid var(--dark);
+  white-space:nowrap;pointer-events:none;
+  animation:bubFade 4s ease-out forwards;
+}
+@keyframes bubFade{0%,70%{opacity:1;}100%{opacity:0;}}
+
+/* ===== PARTICULES / CONFETTIS ===== */
+.confetti{
+  position:absolute;font-size:18px;pointer-events:none;z-index:200;
+  animation:confettiFly 1.2s ease-out forwards;
+}
+@keyframes confettiFly{
+  0%{transform:scale(0) rotate(0);opacity:1;}
+  60%{transform:scale(1.5) rotate(360deg);opacity:1;}
+  100%{transform:scale(0.5) rotate(720deg) translateY(-60px);opacity:0;}
+}
+
+/* ===== CRIÉE ===== */
+#criee{
+  position:fixed;bottom:0;left:0;right:0;z-index:100;
+  background:var(--pink);color:var(--dark);
+  font-family:'DM Mono',monospace;font-weight:500;font-size:15px;
+  height:44px;display:flex;align-items:center;padding:0 12px;gap:8px;
+  border-top:2px solid var(--yellow);
+}
+#criee-icon{font-size:18px;animation:crieeB 1s ease-in-out infinite;}
+@keyframes crieeB{0%,100%{transform:translateY(0);}50%{transform:translateY(-3px);}}
+#criee-text{flex:1;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;}
+
+/* ===== SIDEBAR ===== */
+#sidebar{
+  position:fixed;top:52px;right:0;bottom:44px;width:260px;z-index:90;
+  background:rgba(26,14,46,0.97);border-left:2px solid var(--green);
+  display:flex;flex-direction:column;transform:translateX(100%);
+  transition:transform 0.3s ease;
+}
+#sidebar.open{transform:translateX(0);}
+#sidebar-header{
+  padding:10px 12px;border-bottom:2px solid var(--pink);
+  display:flex;justify-content:space-between;align-items:center;
+}
+#sidebar-header h2{font-family:'Press Start 2P',monospace;font-size:9px;color:var(--yellow);}
+#sidebar-close{background:var(--pink);border:none;color:var(--cream);font-family:'Press Start 2P',monospace;font-size:9px;padding:4px 8px;cursor:pointer;border-radius:3px;}
+#sidebar-content{flex:1;overflow-y:auto;padding:10px;}
+#sidebar-content::-webkit-scrollbar{width:6px;}
+#sidebar-content::-webkit-scrollbar-thumb{background:var(--pink);border-radius:3px;}
+
+/* ===== ZONE DETAIL PANEL ===== */
+#zone-panel{
+  position:fixed;bottom:44px;left:0;right:260px;z-index:85;
+  background:rgba(26,14,46,0.97);border-top:2px solid var(--green);
+  padding:10px 14px;transform:translateY(100%);transition:transform 0.3s;
+  display:flex;align-items:flex-start;gap:12px;
+}
+#zone-panel.open{transform:translateY(0);}
+#zone-panel-info{flex:1;}
+#zone-panel-name{font-family:'Press Start 2P',monospace;font-size:10px;color:var(--yellow);margin-bottom:4px;}
+#zone-panel-desc{font-size:15px;color:var(--cream);margin-bottom:6px;line-height:1.3;}
+#zone-panel-pax{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:6px;}
+.pax-chip{background:rgba(127,255,90,0.15);border:1.5px solid var(--green);padding:3px 7px;border-radius:3px;font-size:14px;cursor:pointer;transition:all 0.2s;}
+.pax-chip:hover{background:rgba(255,45,149,0.3);border-color:var(--pink);}
+.pax-chip.remove{border-color:var(--red);}
+#zone-panel-actions{display:flex;flex-direction:column;gap:6px;}
+.panel-btn{border:none;font-family:'Press Start 2P',monospace;font-size:8px;padding:8px 10px;cursor:pointer;border-radius:3px;letter-spacing:0.5px;}
+.panel-btn.boost{background:var(--yellow);color:var(--dark);}
+.panel-btn.add-pax{background:var(--green);color:var(--dark);}
+.panel-btn.close-panel{background:transparent;border:1.5px solid var(--cream);color:var(--cream);}
+.panel-btn:disabled{opacity:0.4;cursor:not-allowed;}
+
+/* ===== MODALS ===== */
+.modal-overlay{
+  position:fixed;inset:0;z-index:500;background:rgba(0,0,0,0.75);
+  display:none;align-items:center;justify-content:center;padding:16px;
+  backdrop-filter:blur(4px);
+}
+.modal-overlay.show{display:flex;}
+.modal-card{
+  background:var(--cream);color:var(--dark);
+  border:3px solid var(--pink);border-radius:6px;
+  padding:20px;max-width:360px;width:100%;
+  box-shadow:6px 6px 0 var(--purple);
+  animation:popIn 0.4s cubic-bezier(.34,1.56,.64,1);
+  max-height:80vh;overflow-y:auto;
+}
+@keyframes popIn{from{transform:scale(0) rotate(-8deg);}to{transform:scale(1) rotate(0);}}
+.modal-title{font-family:'Press Start 2P',monospace;font-size:11px;color:var(--pink);margin-bottom:12px;letter-spacing:1px;text-align:center;}
+.modal-emoji{font-size:52px;display:block;text-align:center;margin-bottom:8px;}
+.modal-desc{font-family:'DM Mono',monospace;font-size:14px;color:var(--dark);margin-bottom:12px;line-height:1.5;text-align:center;}
+.modal-savais{background:var(--yellow);border:1.5px dashed var(--dark);padding:8px 10px;font-size:13px;font-family:'DM Mono',monospace;margin-bottom:12px;line-height:1.4;}
+.modal-savais strong{font-family:'Press Start 2P',monospace;font-size:8px;color:var(--pink);display:block;margin-bottom:4px;}
+.modal-btn{background:var(--pink);color:var(--cream);border:none;width:100%;padding:10px;font-family:'Press Start 2P',monospace;font-size:10px;cursor:pointer;border-radius:3px;box-shadow:3px 3px 0 var(--dark);}
+.modal-btn:hover{background:var(--purple);}
+
+/* ===== PAX PICKER ===== */
+#pax-picker .pax-list{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px;}
+.pax-option{background:rgba(127,255,90,0.1);border:2px solid var(--green);padding:8px;border-radius:4px;cursor:pointer;text-align:center;transition:all 0.2s;}
+.pax-option:hover{background:rgba(127,255,90,0.3);transform:scale(1.03);}
+.pax-option.exhausted{opacity:0.4;cursor:not-allowed;border-color:var(--red);}
+.pax-option.placed{opacity:0.5;cursor:not-allowed;border-style:dashed;}
+.pax-opt-emoji{font-size:28px;display:block;margin-bottom:3px;}
+.pax-opt-name{font-family:'Press Start 2P',monospace;font-size:7px;color:var(--cream);background:var(--dark);padding:2px 4px;border-radius:2px;display:block;margin-bottom:2px;}
+.pax-opt-arch{font-size:13px;color:var(--purple);}
+
+/* ===== END SCREEN ===== */
+#end-screen{
+  position:fixed;inset:0;z-index:1000;
+  background:rgba(26,14,46,0.97);
+  display:none;flex-direction:column;align-items:center;justify-content:center;
+  gap:16px;padding:20px;
+  background:radial-gradient(circle at 30% 30%,rgba(255,45,149,0.3) 0,transparent 50%),
+             radial-gradient(circle at 70% 70%,rgba(127,255,90,0.3) 0,transparent 50%),
+             var(--dark);
+}
+#end-screen.show{display:flex;}
+.end-title{font-family:'Press Start 2P',monospace;font-size:20px;color:var(--yellow);text-shadow:3px 3px 0 var(--pink);text-align:center;line-height:1.5;}
+.end-card{background:rgba(255,45,149,0.1);border:2px solid var(--pink);padding:16px 24px;border-radius:6px;text-align:center;font-size:18px;width:100%;max-width:360px;}
+.end-card div{margin:6px 0;color:var(--cream);}
+.end-card span{color:var(--green);font-family:'Press Start 2P',monospace;font-size:12px;}
+.end-title-label{font-family:'Press Start 2P',monospace;font-size:9px;color:var(--teal);margin-top:8px;letter-spacing:1px;}
+
+/* ===== START SCREEN ===== */
+#start-screen{
+  position:fixed;inset:0;z-index:1000;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  gap:16px;padding:20px;
+  background:radial-gradient(circle at 30% 30%,rgba(255,45,149,0.3) 0,transparent 50%),
+             radial-gradient(circle at 70% 70%,rgba(127,255,90,0.3) 0,transparent 50%),
+             var(--dark);
+}
+#start-screen.hidden{display:none;}
+.start-logo{font-family:'Press Start 2P',monospace;font-size:26px;color:var(--yellow);text-shadow:4px 4px 0 var(--pink),8px 8px 0 var(--purple);text-align:center;line-height:1.4;animation:logoFloat 3s ease-in-out infinite;}
+@keyframes logoFloat{0%,100%{transform:translateY(0);}50%{transform:translateY(-8px);}}
+.start-sub{font-size:22px;color:var(--green);text-align:center;}
+.start-box{background:rgba(0,0,0,0.4);border:2px dashed var(--pink);border-radius:6px;padding:14px 18px;max-width:340px;font-family:'DM Mono',monospace;font-size:14px;line-height:1.7;color:var(--cream);text-align:center;}
+.start-btn{background:var(--green);color:var(--dark);border:none;padding:14px 32px;font-family:'Press Start 2P',monospace;font-size:13px;cursor:pointer;border-radius:4px;letter-spacing:1px;box-shadow:5px 5px 0 var(--pink);transition:all 0.1s;}
+.start-btn:hover{transform:translate(2px,2px);box-shadow:3px 3px 0 var(--pink);}
+
+/* ===== FAB BUTTON ===== */
+#fab{
+  position:fixed;bottom:54px;right:8px;z-index:95;
+  background:var(--yellow);color:var(--dark);border:none;
+  width:48px;height:48px;border-radius:50%;
+  font-family:'Press Start 2P',monospace;font-size:10px;
+  cursor:pointer;box-shadow:3px 3px 0 var(--dark);
+  display:flex;align-items:center;justify-content:center;
+  transition:all 0.2s;
+}
+#fab:hover{transform:scale(1.1);}
+
+/* ===== NIGHT OVERLAY ===== */
+#night-overlay{
+  position:fixed;top:52px;left:0;right:0;bottom:44px;
+  background:rgba(10,5,30,0.0);pointer-events:none;z-index:20;
+  transition:background 8s ease;
+}
+#night-overlay.night{background:rgba(10,5,30,0.45);}
+
+/* ===== NOTIFICATION TOAST ===== */
+.toast{
+  position:fixed;top:60px;left:50%;transform:translateX(-50%);z-index:600;
+  background:var(--dark2);border:2px solid var(--green);
+  color:var(--cream);font-family:'DM Mono',monospace;font-size:15px;
+  padding:8px 16px;border-radius:4px;white-space:nowrap;
+  animation:toastAnim 3s ease forwards;pointer-events:none;
+}
+@keyframes toastAnim{0%{opacity:0;transform:translateX(-50%) translateY(-10px);}10%,80%{opacity:1;transform:translateX(-50%) translateY(0);}100%{opacity:0;transform:translateX(-50%) translateY(-10px);}}
+
+/* MOBILE SPECIFIC */
+@media(max-width:600px){
+  #hud-title{display:none;}
+  #sidebar{width:100%;}
+  #zone-panel{right:0;}
+}
+</style>
+</head>
+<body>
+
+<!-- START SCREEN -->
+<div id="start-screen">
+  <div class="start-logo">LE DÉSORDRE<br><span style="font-size:0.45em;color:var(--pink);">un été qui change tout</span></div>
+  <div class="start-sub">🌱 Idle tycoon queer kinky</div>
+  <div class="start-box">
+    📍 Tu coordonnes une semaine au Désordre.<br>
+    ⚡ Place des pax dans les espaces pour générer de la Vibe.<br>
+    💜 Soigne et prends soin de la communauté.<br>
+    👔 Queerise La Norme avant qu'elle désherbe tout.
+  </div>
+  <button class="start-btn" onclick="startGame()">▶ COMMENCER</button>
+</div>
+
+<!-- HUD TOP -->
+<div id="hud">
+  <div id="hud-title">LE DÉSORDRE<span>un été qui change tout</span></div>
+  <div class="res-bar vibe">
+    <span class="res-label">⚡</span>
+    <div class="res-track"><div class="res-fill vibe" id="vibe-fill" style="width:0%"></div></div>
+    <span class="res-val" id="vibe-val">0</span>
+  </div>
+  <div class="res-bar soin">
+    <span class="res-label">💜</span>
+    <div class="res-track"><div class="res-fill soin" id="soin-fill" style="width:0%"></div></div>
+    <span class="res-val" id="soin-val">0</span>
+  </div>
+  <div id="hud-day">LUN<br><span id="hud-time" style="color:var(--teal);font-size:6px;">☀ 08h</span></div>
+</div>
+
+<!-- NIGHT OVERLAY -->
+<div id="night-overlay"></div>
+
+<!-- MAP -->
+<div id="map-wrapper">
+  <div id="map-viewport">
+    <img id="map-img" src="map.png" alt="Carte du Désordre" draggable="false"/>
+    <!-- Zones interactives (positionnées en % de 900x675) -->
+    <div class="zone" id="zone-playroom-ext" data-zone="playroom_ext" style="left:60px;top:230px;width:160px;height:130px;" onclick="openZone('playroom_ext')"></div>
+    <div class="zone" id="zone-tente-cer" data-zone="tente_cer" style="left:100px;top:430px;width:160px;height:150px;" onclick="openZone('tente_cer')"></div>
+    <div class="zone" id="zone-mixroom" data-zone="mixroom" style="left:280px;top:440px;width:170px;height:120px;" onclick="openZone('mixroom')"></div>
+    <div class="zone" id="zone-bat1" data-zone="bat1" style="left:320px;top:160px;width:150px;height:130px;" onclick="openZone('bat1')"></div>
+    <div class="zone" id="zone-bat2" data-zone="bat2" style="left:480px;top:140px;width:140px;height:130px;" onclick="openZone('bat2')"></div>
+    <div class="zone" id="zone-cantina" data-zone="cantina" style="left:630px;top:180px;width:130px;height:110px;" onclick="openZone('cantina')"></div>
+    <div class="zone" id="zone-welfare" data-zone="welfare" style="left:580px;top:410px;width:160px;height:120px;" onclick="openZone('welfare')"></div>
+    <div class="zone" id="zone-isoloir" data-zone="isoloir" style="left:420px;top:395px;width:70px;height:80px;" onclick="openZone('isoloir')"></div>
+    <div class="zone" id="zone-pmu" data-zone="pmu" style="left:440px;top:155px;width:70px;height:80px;" onclick="openZone('pmu')"></div>
+  </div>
+</div>
+
+<!-- FAB ROSTER -->
+<button id="fab" onclick="openRoster()" title="Voir les pax">👥</button>
+
+<!-- ZONE PANEL -->
+<div id="zone-panel">
+  <div id="zone-panel-info">
+    <div id="zone-panel-name">—</div>
+    <div id="zone-panel-desc">—</div>
+    <div id="zone-panel-pax"></div>
+  </div>
+  <div id="zone-panel-actions">
+    <button class="panel-btn add-pax" id="btn-add-pax" onclick="openPaxPicker()">+ PAX</button>
+    <button class="panel-btn boost" id="btn-boost" onclick="boostZone()">⚡ BOOST</button>
+    <button class="panel-btn close-panel" onclick="closeZonePanel()">✕ FERMER</button>
+  </div>
+</div>
+
+<!-- SIDEBAR ROSTER -->
+<div id="sidebar">
+  <div id="sidebar-header">
+    <h2>👥 LES PAX</h2>
+    <button id="sidebar-close" onclick="closeSidebar()">✕</button>
+  </div>
+  <div id="sidebar-content" id="roster-list"></div>
+</div>
+
+<!-- DISCOVERY MODAL -->
+<div class="modal-overlay" id="discovery-modal">
+  <div class="modal-card">
+    <span class="modal-emoji" id="disc-emoji">🎉</span>
+    <div class="modal-title">★ QUEERISÉ·E ★</div>
+    <div id="disc-name" style="font-family:'Press Start 2P',monospace;font-size:12px;color:var(--purple);text-align:center;margin-bottom:8px;"></div>
+    <div class="modal-desc" id="disc-msg"></div>
+    <div class="modal-savais" id="disc-savais" style="display:none;">
+      <strong>LE SAVAIS-TU ?</strong>
+      <span id="disc-savais-text"></span>
+    </div>
+    <button class="modal-btn" onclick="closeModal('discovery-modal')">SUPER, CONTINUE !</button>
+  </div>
+</div>
+
+<!-- PAX PICKER MODAL -->
+<div class="modal-overlay" id="pax-picker">
+  <div class="modal-card" style="background:var(--dark2);color:var(--cream);border-color:var(--green);">
+    <div class="modal-title" style="color:var(--green);">CHOISIR UN·E PAX</div>
+    <div class="pax-list" id="pax-list-grid"></div>
+    <button class="modal-btn" style="background:var(--purple);" onclick="closeModal('pax-picker')">ANNULER</button>
+  </div>
+</div>
+
+<!-- END SCREEN -->
+<div id="end-screen">
+  <div class="end-title">🎉 LE DÉSORDRE<br>A TRIOMPHÉ 🎉</div>
+  <div class="end-title-label">La Norme s'enfuit en pleurant.<br>Tout le monde danse autour du compost.</div>
+  <div class="end-card">
+    <div>Vibe maximale : <span id="end-vibe">0</span></div>
+    <div>Soin produit : <span id="end-soin">0</span></div>
+    <div>Queerisé·es : <span id="end-queer">0</span></div>
+    <div>Pax recruté·es : <span id="end-pax">0</span></div>
+    <div id="end-title-label" style="margin-top:10px;font-size:16px;color:var(--pink);"></div>
+  </div>
+  <button class="start-btn" onclick="location.reload()">REJOUER</button>
+</div>
+
+<!-- CRIÉE -->
+<div id="criee">
+  <span id="criee-icon">📢</span>
+  <span id="criee-text">La Criée : bienvenue au Désordre. Pose des pax sur la carte pour commencer.</span>
+</div>
+
+<script>
+// ============================================================
+// LE DÉSORDRE — Un été qui change tout
+// TODO avant mise en ligne: régulariser pronoms (Léo → il/masc)
+// ============================================================
+
+// ===== CONFIG =====
+const CFG = {
+  PROD_TICK: 200,      // ms
+  EVENT_TICK: 1000,    // ms
+  DAY_SECS: 90,        // secondes réelles par jour
+  VIBE_MAX: 500,
+  SOIN_MAX: 300,
+  INVADER_INTERVAL: 20000,  // ms entre spawns
+  BOOST_DURATION: 4000,
+  BOOST_COOLDOWN: 12000,
+  DAYS: ['LUN','MAR','MER','JEU','VEN','SAM','DIM'],
+};
+
+// ===== ZONES =====
+const ZONES = {
+  playroom_ext: { name:'Playroom ext.', type:'high', cap:4, baseProd:{vibe:8,soin:0}, bonus:'night_x2', desc:'⚡ Haute énergie. Structures de play en extérieur. Prod x2 la nuit.' },
+  tente_cer:    { name:'Tente cérémonie', type:'high', cap:3, baseProd:{vibe:6,soin:1}, bonus:'day_x2', desc:'🎪 Haute énergie. Espace rituel et festif. Boost les arrivées.' },
+  mixroom:      { name:'Mix-room', type:'high', cap:3, baseProd:{vibe:5,soin:2}, bonus:'night_x2', desc:'🌀 Haute énergie. Coussins et atmosphère. Prod x2 la nuit.' },
+  bat1:         { name:'Bâtiment 1', type:'mixed', cap:4, baseProd:{vibe:3,soin:3}, bonus:'cycle', desc:'💜 Espace mixte. Vibe le jour, Soin la nuit. Versatile.' },
+  bat2:         { name:'Playroom int.', type:'high', cap:4, baseProd:{vibe:7,soin:0}, bonus:null, desc:'⚡ Haute énergie intérieure. Stable jour/nuit.' },
+  cantina:      { name:'Cantina', type:'low', cap:3, baseProd:{vibe:0,soin:6}, bonus:'meal_boost', desc:'🍽 Basse énergie. Les repas boostent tous les pax 2×/jour.' },
+  welfare:      { name:'Espace Welfare', type:'low', cap:2, baseProd:{vibe:0,soin:8}, bonus:'regen', desc:'💜 Soin maximal. Régénère les pax épuisé·es.' },
+  isoloir:      { name:'Isoloir', type:'low', cap:1, baseProd:{vibe:0,soin:5}, bonus:'solo_boost', desc:'🌿 1 pax max. Régénération profonde pour cellui qui en a besoin.' },
+  pmu:          { name:'PMU', type:'high', cap:2, baseProd:{vibe:4,soin:1}, bonus:'event_trigger', desc:'🍺 Buvette. Déclenche des événements aléatoires rigolos.' },
+};
+
+// ===== ARCHÉTYPES =====
+const ARCHETYPES = {
+  dom:        { label:'🔥 Dom',         vibeX:1.5, soinX:0.8, synergy:['sub','pet'] },
+  sub:        { label:'🌸 Sub',         vibeX:1.0, soinX:1.0, synergy:['dom','top'], synergyBonus:0.4 },
+  switch:     { label:'🔄 Switch',      vibeX:1.0, soinX:1.0, synergy:[], dayBonus:'vibe', nightBonus:'soin' },
+  top:        { label:'🪢 Top',         vibeX:1.3, soinX:0.7, synergy:['bottom','toy'] },
+  bottom:     { label:'🎀 Bottom',      vibeX:0.8, soinX:1.2, synergy:['top'], synergyBonus:0.6 },
+  servicetop: { label:'🛠 Service top', vibeX:1.1, soinX:1.1, synergy:['toy','bottom'] },
+  pet:        { label:'🧸 Pet',         vibeX:0.7, soinX:1.4, synergy:['dom'], synergyBonus:0.5 },
+  slut:       { label:'💋 Slut',        vibeX:1.0, soinX:1.0, synergy:[], crowdBonus:true },
+  toy:        { label:'🪀 Toy',         vibeX:0.5, soinX:0.5, synergy:['top','servicetop'], soloMalus:true },
+  soigneurice:{ label:'🌿 Soigneurice', vibeX:0.6, soinX:2.0, synergy:[] },
+  festif:     { label:'🎉 Festif',      vibeX:1.2, soinX:1.2, synergy:[], areaBonus:0.2 },
+  creatif:    { label:'🎨 Créatif',     vibeX:1.0, soinX:1.0, synergy:[], special:true },
+  chaotique:  { label:'🤡 Chaotique',   vibeX:1.0, soinX:1.0, synergy:[], random:true },
+};
+
+// ===== PAX =====
+// TODO: régulariser pronoms avant mise en ligne (Léo → il/masc)
+const PAX_DATA = [
+  { id:'aioli',     name:'Aïoli',          emoji:'🧄', archetype:'dom',        affinity:'playroom_ext', pref:'any',   unlockDay:0 },
+  { id:'ananas',    name:'Ananas',         emoji:'🍍', archetype:'festif',     affinity:'mixroom',      pref:'night', unlockDay:0 },
+  { id:'avril',     name:'Avril',          emoji:'🌷', archetype:'sub',        affinity:'tente_cer',    pref:'day',   unlockDay:0 },
+  { id:'chaton',    name:'Chaton',         emoji:'🐈', archetype:'switch',     affinity:'bat1',         pref:'any',   unlockDay:1 },
+  { id:'dodo',      name:'Dodo',           emoji:'🦤', archetype:'creatif',    affinity:'tente_cer',    pref:'day',   unlockDay:1 },
+  { id:'choufleur', name:'Prince Choufleur',emoji:'🥦',archetype:'top',        affinity:'playroom_ext', pref:'night', unlockDay:1 },
+  { id:'nuageon',   name:'Nuageon',        emoji:'☁️', archetype:'soigneurice',affinity:'welfare',      pref:'any',   unlockDay:2 },
+  { id:'onigiri',   name:'Onigiri',        emoji:'🍙', archetype:'dom',        affinity:'bat2',         pref:'night', unlockDay:2 },
+  { id:'pasteque',  name:'Pastèque',       emoji:'🍉', archetype:'servicetop', affinity:'cantina',      pref:'day',   unlockDay:3 },
+  { id:'papille',   name:'Papille',        emoji:'👅', archetype:'slut',       affinity:'mixroom',      pref:'night', unlockDay:3 },
+  { id:'vigne',     name:'Vigne',          emoji:'🍇', archetype:'bottom',     affinity:'bat2',         pref:'any',   unlockDay:4 },
+  { id:'mcclick',   name:'Will McClick',   emoji:'🖱️', archetype:'chaotique',  affinity:'pmu',          pref:'day',   unlockDay:5 },
+];
+
+// ===== INVADERS =====
+const INVADERS_DATA = [
+  { type:'patriarche', emoji:'🤵', name:'Le Patriarche',
+    quote:'Mais c\'est pas naturel !', damage:{vibe:5},
+    queerEmoji:'🩰', queerName:'Le Pater en jupe',
+    queerMsg:'Iel a essayé un cours de danse. Plus jamais iel ne jugera personne.',
+    savaisTu:'Le BDSM queer célèbre toutes les expressions de genre — y compris celles que personne n\'attendait.', threshold:80 },
+  { type:'flic_genre', emoji:'👮', name:'Le Flic du Genre',
+    quote:'Il y a deux genres, c\'est tout.',  damage:{soin:6},
+    queerEmoji:'🌈', queerName:'L\'ex-flic non-binaire',
+    queerMsg:'Iel a rendu son insigne et s\'est inscrit·e à un atelier drag. Un nouveau monde s\'ouvre.',
+    savaisTu:'La non-binarité est reconnue dans de nombreux pays. La France avance doucement, mais elle avance.', threshold:90 },
+  { type:'cishet', emoji:'💼', name:'Le Cishet Productiviste',
+    quote:'Vous êtes pas un peu... perdus ?', damage:{soin:4,vibe:3},
+    queerEmoji:'🛋️', queerName:'Le mec en burn-out libéré',
+    queerMsg:'Il a posé son ordinateur. Il découvre l\'oisiveté radicale. Il pleure un peu (de soulagement).',
+    savaisTu:'Le repos comme acte de résistance au capitalisme, c\'est une vraie pratique politique queer.', threshold:70 },
+  { type:'morale', emoji:'⛪', name:'La Morale',
+    quote:'Pensez aux enfants !', damage:{vibe:8},
+    queerEmoji:'📚', queerName:'L\'ex-bigot·e qui lit bell hooks',
+    queerMsg:'Iel a lu "tout le monde peut aimer". Iel demande où s\'inscrire au prochain atelier.',
+    savaisTu:'bell hooks a écrit sur l\'amour, la féminisme et la libération — des incontournables.', threshold:100 },
+];
+
+// ===== CRIÉE MESSAGES =====
+const CRIEE = [
+  '📢 La Criée : atelier shibari à 15h dans la playroom intérieure.',
+  '📢 La Criée : quelqu\'un a perdu son harnais en latex — réclamation au PMU.',
+  '📢 La Criée : la cantina a besoin de main d\'œuvre pour les pâtes !',
+  '📢 La Criée : Will McClick essaie encore de coordonner. Ignorez-iel gentiment.',
+  '📢 La Criée : nouveau fil rouge → « câlinothérapie », sur le tableau.',
+  '📢 La Criée : tique repérée près du camping. Sortez le beurre.',
+  '📢 La Criée : Nuageon distribue des couronnes de fleurs au Welfare.',
+  '📢 La Criée : Ananas a organisé une orgie de cucurbitacées. On est au courant.',
+  '📢 La Criée : rappel — test Covid pour les arrivant·es du jeudi.',
+  '📢 La Criée : le Courrier du Cœur et du Cul déborde. Quelqu\'un peut le vider ?',
+  '📢 La Criée : Avril attend pour le cercle de parole à la tente.',
+  '📢 La Criée : Pastèque est en cuisine. Ça sent incroyablement bon.',
+  '📢 La Criée : Prince Choufleur proclame un royaume de 3m² autour du PMU.',
+  '📢 La Criée : Onigiri propose un atelier "beaucoup de couches" — interprétation libre.',
+  '📢 La Criée : rappel — les isoloirs sont pour le soin, pas pour le play.',
+];
+
+// ===== PAX UNLOCK QUOTES =====
+const PAX_UNLOCK = {
+  aioli:     { quote:'Aïoli débarque. Iel pique, mais iel protège.', gift:'+15 Vibe' },
+  ananas:    { quote:'Ananas arrive avec une playlist. La nuit va être longue.', gift:'+Vibe bonus nocturne' },
+  avril:     { quote:'Avril t\'accueille avec un sourire. Bienvenue ma belle graine.', gift:'+10 Soin' },
+  chaton:    { quote:'Chaton ronronne. Frrrr. Ramène ta tige.', gift:'+Switch bonus' },
+  dodo:      { quote:'Dodo est officiellement disparu·e, et pourtant très là.', gift:'+Créatif bonus' },
+  choufleur: { quote:'Prince Choufleur proclame son règne. Mon royaume pour une graine.', gift:'+20 Vibe' },
+  nuageon:   { quote:'Nuageon arrive. Tiens, un peu de rosée pour toi.', gift:'+25 Soin' },
+  onigiri:   { quote:'Onigiri s\'installe. Beaucoup de couches, beaucoup de profondeur.', gift:'+Dom bonus' },
+  pasteque:  { quote:'Pastèque est là quand t\'as soif. Comme toujours.', gift:'+Cantina boost' },
+  papille:   { quote:'Papille rapplique. Goûte-moi ça, c\'est nouveau.', gift:'+Slut bonus nocturne' },
+  vigne:     { quote:'Vigne s\'accroche partout. Iel fait des grappes.', gift:'+Bottom synergy' },
+  mcclick:   { quote:'Will McClick veut coordonner. Personne ne lui a demandé.', gift:'🎲 Effet aléatoire' },
+};
+
+// ===== STATE =====
+const state = {
+  started: false,
+  vibe: 0, soin: 0,
+  vibeTotal: 0, soinTotal: 0,
+  day: 0, hour: 8, isNight: false,
+  dayProgress: 0,
+  pax: {},            // id → {state:'available'|'placed'|'exhausted', energy:100, placedIn:zoneId}
+  zones: {},          // zoneId → {occupants:[], lastBoost:0, boostActive:false}
+  invaders: [],       // actifs
+  stats: { queerised:0, normeChased:0, maxVibe:0 },
+  unlockedPax: [],
+  selectedZone: null,
+  boostCooldowns: {},
+  invaderTimer: null,
+  mealBoosted: false,
+  gameEnded: false,
+};
+
+// ===== INIT =====
+function initState() {
+  PAX_DATA.forEach(p => {
+    state.pax[p.id] = { state:'locked', energy:100, placedIn:null };
+  });
+  Object.keys(ZONES).forEach(z => {
+    state.zones[z] = { occupants:[], lastBoost:0, boostActive:false };
+  });
+  // Unlock pax du jour 0
+  PAX_DATA.filter(p => p.unlockDay === 0).forEach(p => {
+    state.pax[p.id].state = 'available';
+    state.unlockedPax.push(p.id);
+  });
+}
+
+function startGame() {
+  document.getElementById('start-screen').classList.add('hidden');
+  initState();
+  state.started = true;
+  setInterval(productionTick, CFG.PROD_TICK);
+  setInterval(eventTick, CFG.EVENT_TICK);
+  setInterval(updateCriee, 9000);
+  state.invaderTimer = setInterval(spawnInvader, CFG.INVADER_INTERVAL);
+  setupMapInteraction();
+  renderHUD();
+  renderZones();
+  toast('Bienvenue au Désordre ! Place des pax sur la carte pour commencer. 🌱');
+}
+
+// ===== PRODUCTION TICK =====
+function productionTick() {
+  if (!state.started || state.gameEnded) return;
+  let vibeGain = 0, soinGain = 0;
+  Object.keys(ZONES).forEach(zid => {
+    const zone = ZONES[zid];
+    const zstate = state.zones[zid];
+    const occ = zstate.occupants;
+    if (occ.length === 0) return;
+    occ.forEach(paxId => {
+      const pData = PAX_DATA.find(p => p.id === paxId);
+      if (!pData) return;
+      const arch = ARCHETYPES[pData.archetype];
+      let vBase = zone.baseProd.vibe * arch.vibeX;
+      let sBase = zone.baseProd.soin * arch.soinX;
+      // Pref jour/nuit
+      if (pData.pref === 'day' && !state.isNight) { vBase *= 1.3; sBase *= 1.3; }
+      if (pData.pref === 'night' && state.isNight) { vBase *= 1.5; sBase *= 1.5; }
+      // Bonus zone nuit/jour
+      if (zone.bonus === 'night_x2' && state.isNight) { vBase *= 2; sBase *= 2; }
+      if (zone.bonus === 'day_x2' && !state.isNight) { vBase *= 2; sBase *= 2; }
+      if (zone.bonus === 'cycle') { if (state.isNight) sBase *= 2; else vBase *= 2; }
+      // Switch
+      if (pData.archetype === 'switch') { if (state.isNight) sBase *= 1.5; else vBase *= 1.5; }
+      // Synergies
+      const coOcc = occ.filter(o => o !== paxId);
+      coOcc.forEach(otherId => {
+        const oth = PAX_DATA.find(p => p.id === otherId);
+        if (!oth) return;
+        if (arch.synergy && arch.synergy.includes(oth.archetype)) {
+          vBase *= 1 + (arch.synergyBonus || 0.3);
+          sBase *= 1 + (arch.synergyBonus || 0.3);
+        }
+      });
+      // Slut crowd bonus
+      if (pData.archetype === 'slut') { const bonus = (occ.length - 1) * 0.25; vBase *= (1+bonus); }
+      // Toy solo malus
+      if (pData.archetype === 'toy' && occ.length === 1) { vBase *= 0.3; sBase *= 0.3; }
+      // Festif area bonus
+      if (pData.archetype === 'festif') { coOcc.forEach(() => { vBase *= 1.15; }); }
+      // Boost actif
+      if (zstate.boostActive) { vBase *= 2.5; sBase *= 2.5; }
+      // Welfare regen (soin boost)
+      if (zone.bonus === 'regen') { sBase *= 2; }
+      vibeGain += vBase / 10; // divisé par nb ticks/sec
+      soinGain += sBase / 10;
+    });
+  });
+  state.vibe = Math.min(CFG.VIBE_MAX, state.vibe + vibeGain);
+  state.soin = Math.min(CFG.SOIN_MAX, state.soin + soinGain);
+  state.vibeTotal += vibeGain;
+  state.soinTotal += soinGain;
+  if (state.vibe > state.stats.maxVibe) state.stats.maxVibe = Math.round(state.vibe);
+  renderHUD();
+}
+
+// ===== EVENT TICK =====
+function eventTick() {
+  if (!state.started || state.gameEnded) return;
+  // Avance le temps
+  state.dayProgress += (1 / CFG.DAY_SECS);
+  if (state.dayProgress >= 1) {
+    state.dayProgress = 0;
+    state.day++;
+    if (state.day >= 7) { endGame(); return; }
+    onNewDay();
+  }
+  // Heure simulée (8h → 8h le lendemain)
+  state.hour = 8 + Math.floor(state.dayProgress * 24);
+  if (state.hour >= 32) state.hour -= 24;
+  const wasNight = state.isNight;
+  state.isNight = state.hour >= 22 || state.hour < 6;
+  if (wasNight !== state.isNight) {
+    document.getElementById('night-overlay').classList.toggle('night', state.isNight);
+    updateCriee(state.isNight ? '🌙 La nuit tombe sur le Désordre. Les playrooms s\'animent.' : '☀️ Le soleil se lève. Bonjour la communauté.');
+  }
+  // Meal boost (midi + soir)
+  if ((state.hour === 13 || state.hour === 20) && !state.mealBoosted) {
+    if (state.zones['cantina'].occupants.length > 0) {
+      toast('🍽 Le repas est servi ! Boost de Soin pour tout le monde.');
+      state.soin = Math.min(CFG.SOIN_MAX, state.soin + 40);
+      state.mealBoosted = true;
+      setTimeout(() => state.mealBoosted = false, 3000);
+    }
+  }
+  // Unlock pax selon le jour
+  PAX_DATA.filter(p => p.unlockDay === state.day && state.pax[p.id].state === 'locked').forEach(p => {
+    state.pax[p.id].state = 'available';
+    state.unlockedPax.push(p.id);
+    const uq = PAX_UNLOCK[p.id];
+    showPaxArrival(p, uq);
+  });
+  renderHUD();
+  updateInvaders();
+}
+
+function onNewDay() {
+  const dayName = CFG.DAYS[state.day];
+  toast(`🌅 Nouveau jour : ${dayName}`);
+  updateCriee(`📢 La Criée de ${dayName} : bonne journée à toustes.`);
+  // Vendredi : accélération
+  if (state.day === 4) {
+    clearInterval(state.invaderTimer);
+    state.invaderTimer = setInterval(spawnInvader, 12000);
+    toast('🎉 VENDREDI ! Grosse soirée Teuf — les invaders arrivent plus vite !');
+  }
+}
+
+// ===== INVADERS =====
+function spawnInvader() {
+  if (!state.started || state.gameEnded) return;
+  if (state.invaders.length >= 4) return;
+  const inv = INVADERS_DATA[Math.floor(Math.random() * INVADERS_DATA.length)];
+  // Position de départ (bords de la carte)
+  const side = Math.floor(Math.random() * 4);
+  let sx, sy;
+  if (side === 0) { sx = Math.random() * 860 + 20; sy = -40; }
+  else if (side === 1) { sx = 940; sy = Math.random() * 600 + 20; }
+  else if (side === 2) { sx = Math.random() * 860 + 20; sy = 720; }
+  else { sx = -40; sy = Math.random() * 600 + 20; }
+  // Target = centre de la carte
+  const tx = 400 + (Math.random() - 0.5) * 200;
+  const ty = 300 + (Math.random() - 0.5) * 200;
+  const invObj = { id: Date.now(), type:inv.type, data:inv, x:sx, y:sy, tx, ty, health:100, el:null, barEl:null };
+  state.invaders.push(invObj);
+  renderInvader(invObj);
+}
+
+function renderInvader(inv) {
+  const vp = document.getElementById('map-viewport');
+  const el = document.createElement('div');
+  el.className = 'invader';
+  el.id = 'inv-' + inv.id;
+  el.textContent = inv.data.emoji;
+  el.style.left = inv.x + 'px';
+  el.style.top = inv.y + 'px';
+  // Barre de vie
+  const bar = document.createElement('div');
+  bar.className = 'invader-bar';
+  const fill = document.createElement('div');
+  fill.className = 'invader-bar-fill';
+  fill.style.width = '100%';
+  bar.appendChild(fill);
+  el.appendChild(bar);
+  // Bulle
+  const bubble = document.createElement('div');
+  bubble.className = 'inv-bubble';
+  bubble.textContent = inv.data.quote;
+  el.appendChild(bubble);
+  // Click
+  el.addEventListener('click', () => clickInvader(inv.id));
+  vp.appendChild(el);
+  inv.el = el;
+  inv.barEl = fill;
+  // Apply damage
+  if (inv.data.damage.vibe) state.vibe = Math.max(0, state.vibe - inv.data.damage.vibe);
+  if (inv.data.damage.soin) state.soin = Math.max(0, state.soin - inv.data.damage.soin);
+}
+
+function updateInvaders() {
+  if (!state.invaders.length) return;
+  state.invaders.forEach(inv => {
+    // Mouvement vers target
+    const dx = inv.tx - inv.x; const dy = inv.ty - inv.y;
+    const dist = Math.sqrt(dx*dx + dy*dy);
+    if (dist > 5) {
+      inv.x += (dx / dist) * 3;
+      inv.y += (dy / dist) * 3;
+      if (inv.el) { inv.el.style.left = inv.x + 'px'; inv.el.style.top = inv.y + 'px'; }
+    }
+    // Vibe locale = vibe globale / 10 (simplifié)
+    const localVibe = state.vibe / 10;
+    const vibeNeeded = inv.data.threshold;
+    // Réduire la santé si vibe assez haute
+    if (localVibe >= vibeNeeded / 10) {
+      inv.health -= 3;
+      if (inv.barEl) inv.barEl.style.width = Math.max(0, inv.health) + '%';
+      if (inv.health <= 0) queeriseInvader(inv.id);
+    }
+  });
+}
+
+function clickInvader(id) {
+  const inv = state.invaders.find(i => i.id === id);
+  if (!inv) return;
+  inv.health -= 20;
+  if (inv.barEl) inv.barEl.style.width = Math.max(0, inv.health) + '%';
+  state.stats.normeChased++;
+  if (inv.health <= 0) queeriseInvader(id);
+  else { spawnConfetti(inv.x, inv.y, '✊'); toast('✊ Résistance ! Continue !'); }
+}
+
+function queeriseInvader(id) {
+  const idx = state.invaders.findIndex(i => i.id === id);
+  if (idx === -1) return;
+  const inv = state.invaders[idx];
+  state.invaders.splice(idx, 1);
+  // Confettis
+  for (let i = 0; i < 6; i++) {
+    setTimeout(() => spawnConfetti(inv.x + (Math.random()-0.5)*60, inv.y + (Math.random()-0.5)*60,
+      ['🌈','🎉','💜','⭐','🦋','✨'][Math.floor(Math.random()*6)]), i * 80);
+  }
+  if (inv.el) inv.el.remove();
+  state.stats.queerised++;
+  // Cadeau aléatoire
+  const roll = Math.random();
+  let gift = '';
+  if (roll < 0.4) { state.vibe = Math.min(CFG.VIBE_MAX, state.vibe + 50); gift = '+50 Vibe'; }
+  else if (roll < 0.7) { state.soin = Math.min(CFG.SOIN_MAX, state.soin + 30); gift = '+30 Soin'; }
+  else { gift = '🎁 Un souvenir de sa révélation'; }
+  // Modal
+  showDiscovery(inv.data, gift);
+  checkEnd();
+}
+
+function showDiscovery(invData, gift) {
+  document.getElementById('disc-emoji').textContent = invData.queerEmoji;
+  document.getElementById('disc-name').textContent = invData.queerName;
+  document.getElementById('disc-msg').textContent = invData.queerMsg + ' (' + gift + ')';
+  const savais = document.getElementById('disc-savais');
+  if (invData.savaisTu) {
+    savais.style.display = 'block';
+    document.getElementById('disc-savais-text').textContent = invData.savaisTu;
+  } else { savais.style.display = 'none'; }
+  document.getElementById('discovery-modal').classList.add('show');
+}
+
+function showPaxArrival(pData, uq) {
+  toast(`${pData.emoji} ${pData.name} rejoint le Désordre ! ${uq ? uq.gift : ''}`);
+  updateCriee(`📢 ${pData.name} est arrivé·e. « ${uq ? uq.quote : ''} »`);
+}
+
+// ===== PAX PLACEMENT =====
+function openPaxPicker() {
+  if (!state.selectedZone) return;
+  const zone = ZONES[state.selectedZone];
+  const zstate = state.zones[state.selectedZone];
+  if (zstate.occupants.length >= zone.cap) { toast('⚠️ Cet espace est plein !'); return; }
+  const grid = document.getElementById('pax-list-grid');
+  grid.innerHTML = '';
+  PAX_DATA.forEach(p => {
+    const ps = state.pax[p.id];
+    if (ps.state === 'locked') return;
+    const div = document.createElement('div');
+    div.className = 'pax-option' + (ps.state !== 'available' ? ' placed' : '');
+    div.innerHTML = `<span class="pax-opt-emoji">${p.emoji}</span><span class="pax-opt-name">${p.name}</span><span class="pax-opt-arch">${ARCHETYPES[p.archetype].label}</span>`;
+    if (ps.state === 'available') {
+      div.onclick = () => placePax(p.id, state.selectedZone);
+    }
+    grid.appendChild(div);
+  });
+  document.getElementById('pax-picker').classList.add('show');
+}
+
+function placePax(paxId, zoneId) {
+  const ps = state.pax[paxId];
+  if (ps.state !== 'available') return;
+  // Retirer de l\'ancienne zone si placé
+  if (ps.placedIn) {
+    const old = state.zones[ps.placedIn];
+    old.occupants = old.occupants.filter(id => id !== paxId);
+  }
+  ps.state = 'placed';
+  ps.placedIn = zoneId;
+  state.zones[zoneId].occupants.push(paxId);
+  closeModal('pax-picker');
+  renderZones();
+  openZone(zoneId);
+  const p = PAX_DATA.find(d => d.id === paxId);
+  toast(`${p.emoji} ${p.name} rejoint ${ZONES[zoneId].name}`);
+}
+
+function removePaxFromZone(paxId) {
+  const ps = state.pax[paxId];
+  if (!ps || !ps.placedIn) return;
+  state.zones[ps.placedIn].occupants = state.zones[ps.placedIn].occupants.filter(id => id !== paxId);
+  ps.state = 'available';
+  ps.placedIn = null;
+  renderZones();
+  if (state.selectedZone) openZone(state.selectedZone);
+  const p = PAX_DATA.find(d => d.id === paxId);
+  toast(`${p.emoji} ${p.name} est disponible.`);
+}
+
+// ===== ZONE INTERACTION =====
+function openZone(zoneId) {
+  state.selectedZone = zoneId;
+  const zone = ZONES[zoneId];
+  const zstate = state.zones[zoneId];
+  document.getElementById('zone-panel-name').textContent = zone.name;
+  document.getElementById('zone-panel-desc').textContent = zone.desc;
+  // Pax dans la zone
+  const paxRow = document.getElementById('zone-panel-pax');
+  paxRow.innerHTML = '';
+  zstate.occupants.forEach(pid => {
+    const p = PAX_DATA.find(d => d.id === pid);
+    if (!p) return;
+    const chip = document.createElement('div');
+    chip.className = 'pax-chip remove';
+    chip.textContent = p.emoji + ' ' + p.name;
+    chip.title = 'Retirer';
+    chip.onclick = () => removePaxFromZone(pid);
+    paxRow.appendChild(chip);
+  });
+  if (zstate.occupants.length === 0) {
+    paxRow.innerHTML = '<span style="font-size:14px;opacity:0.5;">Aucun·e pax ici</span>';
+  }
+  // Boutons
+  const btnBoost = document.getElementById('btn-boost');
+  const now = Date.now();
+  const lastBoost = state.boostCooldowns[zoneId] || 0;
+  const canBoost = (now - lastBoost) > CFG.BOOST_COOLDOWN;
+  btnBoost.disabled = !canBoost || zstate.occupants.length === 0;
+  btnBoost.textContent = canBoost ? '⚡ BOOST' : '⏳ COOLDOWN';
+  // Cap
+  const btnAdd = document.getElementById('btn-add-pax');
+  btnAdd.disabled = zstate.occupants.length >= zone.cap;
+  btnAdd.textContent = `+ PAX (${zstate.occupants.length}/${zone.cap})`;
+  document.getElementById('zone-panel').classList.add('open');
+  // Highlight zone
+  document.querySelectorAll('.zone').forEach(z => z.classList.remove('active'));
+  const el = document.getElementById('zone-' + zoneId.replace(/_/g,'-'));
+  if (el) el.classList.add('active');
+}
+
+function closeZonePanel() {
+  document.getElementById('zone-panel').classList.remove('open');
+  document.querySelectorAll('.zone').forEach(z => z.classList.remove('active'));
+  state.selectedZone = null;
+}
+
+function boostZone() {
+  if (!state.selectedZone) return;
+  const now = Date.now();
+  const last = state.boostCooldowns[state.selectedZone] || 0;
+  if ((now - last) < CFG.BOOST_COOLDOWN) { toast('⏳ Cooldown !'); return; }
+  state.boostCooldowns[state.selectedZone] = now;
+  const zstate = state.zones[state.selectedZone];
+  zstate.boostActive = true;
+  const zEl = document.getElementById('zone-' + state.selectedZone.replace(/_/g,'-'));
+  if (zEl) zEl.classList.add('boosted');
+  toast(`⚡ Boost activé sur ${ZONES[state.selectedZone].name} !`);
+  setTimeout(() => {
+    zstate.boostActive = false;
+    if (zEl) zEl.classList.remove('boosted');
+  }, CFG.BOOST_DURATION);
+  openZone(state.selectedZone);
+}
+
+// ===== RENDER =====
+function renderHUD() {
+  const vPct = Math.round((state.vibe / CFG.VIBE_MAX) * 100);
+  const sPct = Math.round((state.soin / CFG.SOIN_MAX) * 100);
+  document.getElementById('vibe-fill').style.width = vPct + '%';
+  document.getElementById('soin-fill').style.width = sPct + '%';
+  document.getElementById('vibe-val').textContent = Math.round(state.vibe);
+  document.getElementById('soin-val').textContent = Math.round(state.soin);
+  const day = CFG.DAYS[Math.min(state.day, 6)];
+  const h = state.hour % 24;
+  const icon = state.isNight ? '🌙' : '☀';
+  document.getElementById('hud-day').innerHTML = day + '<br><span style="color:var(--teal);font-size:6px;">' + icon + ' ' + String(h).padStart(2,'0') + 'h</span>';
+}
+
+function renderZones() {
+  Object.keys(ZONES).forEach(zid => {
+    const zstate = state.zones[zid];
+    const elId = 'zone-' + zid.replace(/_/g,'-');
+    let el = document.getElementById(elId);
+    if (!el) return;
+    // Vider et re-rendre
+    // Garder les classes de base
+    const isActive = el.classList.contains('active');
+    const isBoosted = el.classList.contains('boosted');
+    el.innerHTML = '';
+    // Label
+    const label = document.createElement('div');
+    label.className = 'zone-label';
+    label.textContent = ZONES[zid].name;
+    el.appendChild(label);
+    // Pax
+    if (zstate.occupants.length > 0) {
+      const row = document.createElement('div');
+      row.className = 'zone-pax-row';
+      zstate.occupants.forEach(pid => {
+        const p = PAX_DATA.find(d => d.id === pid);
+        if (!p) return;
+        const span = document.createElement('span');
+        span.className = 'zone-pax-dot';
+        span.textContent = p.emoji;
+        span.style.animationDelay = Math.random() * 2 + 's';
+        row.appendChild(span);
+      });
+      el.appendChild(row);
+    }
+    // Cap indicator
+    const cap = document.createElement('div');
+    cap.className = 'zone-cap';
+    cap.textContent = zstate.occupants.length + '/' + ZONES[zid].cap;
+    el.appendChild(cap);
+  });
+}
+
+function renderSidebar() {
+  const content = document.getElementById('sidebar-content');
+  content.innerHTML = '<div style="font-family:\'Press Start 2P\',monospace;font-size:8px;color:var(--yellow);margin-bottom:12px;">DISPONIBLES</div>';
+  const avail = PAX_DATA.filter(p => state.pax[p.id].state === 'available');
+  const placed = PAX_DATA.filter(p => state.pax[p.id].state === 'placed');
+  const locked = PAX_DATA.filter(p => state.pax[p.id].state === 'locked');
+  function makePaxCard(p) {
+    const ps = state.pax[p.id];
+    const arch = ARCHETYPES[p.archetype];
+    const div = document.createElement('div');
+    div.style.cssText = 'background:rgba(127,255,90,0.08);border:1.5px solid var(--green);padding:8px;margin-bottom:8px;border-radius:4px;';
+    div.innerHTML = `<span style="font-size:24px">${p.emoji}</span> <strong style="font-family:'Press Start 2P',monospace;font-size:8px;color:var(--cream);">${p.name}</strong><br><span style="font-size:14px;color:var(--purple);">${arch.label}</span><br><span style="font-size:12px;opacity:0.6;">${ps.placedIn ? '📍 ' + ZONES[ps.placedIn].name : '⌛ Disponible'}</span>`;
+    return div;
+  }
+  avail.forEach(p => content.appendChild(makePaxCard(p)));
+  if (placed.length) {
+    const h = document.createElement('div');
+    h.style.cssText = 'font-family:\'Press Start 2P\',monospace;font-size:8px;color:var(--teal);margin:10px 0 8px;';
+    h.textContent = 'EN POSTE';
+    content.appendChild(h);
+    placed.forEach(p => content.appendChild(makePaxCard(p)));
+  }
+  if (locked.length) {
+    const h = document.createElement('div');
+    h.style.cssText = 'font-family:\'Press Start 2P\',monospace;font-size:8px;color:var(--red);margin:10px 0 8px;opacity:0.6;';
+    h.textContent = '🔒 À DÉBLOQUER';
+    content.appendChild(h);
+    locked.forEach(p => {
+      const div = document.createElement('div');
+      div.style.cssText = 'opacity:0.4;background:rgba(0,0,0,0.3);border:1.5px dashed var(--red);padding:8px;margin-bottom:6px;border-radius:4px;';
+      div.innerHTML = `<span style="font-size:20px;filter:grayscale(1)">❓</span> <strong style="font-family:'Press Start 2P',monospace;font-size:7px;color:var(--cream);">${p.name}</strong><br><span style="font-size:11px;">Jour ${CFG.DAYS[p.unlockDay]}</span>`;
+      content.appendChild(div);
+    });
+  }
+}
+
+function openRoster() {
+  renderSidebar();
+  document.getElementById('sidebar').classList.add('open');
+}
+function closeSidebar() {
+  document.getElementById('sidebar').classList.remove('open');
+}
+
+// ===== CONFETTI =====
+function spawnConfetti(x, y, emoji) {
+  const vp = document.getElementById('map-viewport');
+  const el = document.createElement('div');
+  el.className = 'confetti';
+  el.textContent = emoji;
+  el.style.left = (x + (Math.random()-0.5)*40) + 'px';
+  el.style.top = (y + (Math.random()-0.5)*40) + 'px';
+  vp.appendChild(el);
+  setTimeout(() => el.remove(), 1200);
+}
+
+// ===== CRIÉE =====
+function updateCriee(msg) {
+  const text = msg || CRIEE[Math.floor(Math.random() * CRIEE.length)];
+  document.getElementById('criee-text').textContent = text;
+}
+
+// ===== TOAST =====
+function toast(msg) {
+  const el = document.createElement('div');
+  el.className = 'toast';
+  el.textContent = msg;
+  document.body.appendChild(el);
+  setTimeout(() => el.remove(), 3000);
+}
+
+// ===== MODALS =====
+function closeModal(id) {
+  document.getElementById(id).classList.remove('show');
+}
+
+// ===== END =====
+function checkEnd() {
+  if (state.stats.queerised >= 4 && state.day >= 5) {
+    setTimeout(endGame, 1000);
+  }
+}
+function endGame() {
+  if (state.gameEnded) return;
+  state.gameEnded = true;
+  const titles = ['Architecte du Désordre', 'Maîtresse du Chaos Doux', 'Champion·ne du Soin', 'Reine du PMU', 'Légende de la Vibe'];
+  const title = titles[Math.floor(Math.random() * titles.length)];
+  document.getElementById('end-vibe').textContent = state.stats.maxVibe;
+  document.getElementById('end-soin').textContent = Math.round(state.soinTotal);
+  document.getElementById('end-queer').textContent = state.stats.queerised;
+  document.getElementById('end-pax').textContent = state.unlockedPax.length;
+  document.getElementById('end-title-label').textContent = '🏆 ' + title;
+  document.getElementById('end-screen').classList.add('show');
+}
+
+// ===== MAP INTERACTION (pan + zoom) =====
+function setupMapInteraction() {
+  const wrapper = document.getElementById('map-wrapper');
+  const vp = document.getElementById('map-viewport');
+  let scale = 0.7, tx = 0, ty = 0;
+  let dragging = false, lastX = 0, lastY = 0;
+  let pinchDist = null;
+  // Centre initial
+  const wr = wrapper.getBoundingClientRect();
+  tx = (wr.width - 900 * scale) / 2;
+  ty = (wr.height - 675 * scale) / 2;
+  applyTransform();
+
+  function applyTransform() {
+    const maxTx = 60, maxTy = 60;
+    const minTx = wr.width - 900 * scale - 60;
+    const minTy = wr.height - 675 * scale - 60;
+    tx = Math.max(Math.min(tx, maxTx), minTx);
+    ty = Math.max(Math.min(ty, maxTy), minTy);
+    vp.style.transform = `translate(${tx}px, ${ty}px) scale(${scale})`;
+  }
+
+  // Mouse
+  wrapper.addEventListener('mousedown', e => {
+    if (e.target.closest('.zone') || e.target.closest('.invader')) return;
+    dragging = true; lastX = e.clientX; lastY = e.clientY;
+  });
+  window.addEventListener('mousemove', e => {
+    if (!dragging) return;
+    tx += e.clientX - lastX; ty += e.clientY - lastY;
+    lastX = e.clientX; lastY = e.clientY;
+    applyTransform();
+  });
+  window.addEventListener('mouseup', () => dragging = false);
+  wrapper.addEventListener('wheel', e => {
+    e.preventDefault();
+    const delta = e.deltaY > 0 ? -0.08 : 0.08;
+    scale = Math.max(0.5, Math.min(1.6, scale + delta));
+    applyTransform();
+  }, {passive:false});
+
+  // Touch
+  wrapper.addEventListener('touchstart', e => {
+    if (e.target.closest('.zone') || e.target.closest('.invader')) return;
+    if (e.touches.length === 1) {
+      dragging = true; lastX = e.touches[0].clientX; lastY = e.touches[0].clientY;
+    } else if (e.touches.length === 2) {
+      dragging = false;
+      pinchDist = Math.hypot(e.touches[0].clientX - e.touches[1].clientX, e.touches[0].clientY - e.touches[1].clientY);
+    }
+  }, {passive:true});
+  wrapper.addEventListener('touchmove', e => {
+    if (e.touches.length === 1 && dragging) {
+      tx += e.touches[0].clientX - lastX; ty += e.touches[0].clientY - lastY;
+      lastX = e.touches[0].clientX; lastY = e.touches[0].clientY;
+      applyTransform();
+    } else if (e.touches.length === 2 && pinchDist) {
+      const d = Math.hypot(e.touches[0].clientX - e.touches[1].clientX, e.touches[0].clientY - e.touches[1].clientY);
+      scale = Math.max(0.5, Math.min(1.6, scale * (d / pinchDist)));
+      pinchDist = d;
+      applyTransform();
+    }
+  }, {passive:true});
+  wrapper.addEventListener('touchend', () => { dragging = false; pinchDist = null; });
+
+  // Double tap to zoom in
+  let lastTap = 0;
+  wrapper.addEventListener('touchend', e => {
+    const now = Date.now();
+    if (now - lastTap < 300) {
+      scale = scale < 1.1 ? 1.3 : 0.7;
+      applyTransform();
+    }
+    lastTap = now;
+  });
+}
+</script>
+</body>
+</html>
