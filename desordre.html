@@ -1097,34 +1097,88 @@ function renderZones() {
   });
 }
 
+function sendToWelfare(paxId) {
+  const ps = state.pax[paxId];
+  const welfare = state.zones['welfare'];
+  if (welfare.occupants.includes(paxId)) return;
+  if (welfare.occupants.length >= ZONES['welfare'].cap) { toast('💜 Le Welfare est plein !'); return; }
+  if (ps.placedIn) {
+    state.zones[ps.placedIn].occupants = state.zones[ps.placedIn].occupants.filter(id => id !== paxId);
+    if (state.selectedZone === ps.placedIn) openZone(ps.placedIn);
+  }
+  ps.state = 'placed';
+  ps.placedIn = 'welfare';
+  welfare.occupants.push(paxId);
+  renderZones();
+  renderSidebar();
+  const p = PAX_DATA.find(d => d.id === paxId);
+  toast(`${p.emoji} ${p.name} part au Welfare 💜`);
+}
+
 function renderSidebar() {
   const content = document.getElementById('sidebar-content');
-  content.innerHTML = '<div style="font-family:\'Press Start 2P\',monospace;font-size:8px;color:var(--yellow);margin-bottom:12px;">DISPONIBLES</div>';
-  const avail = PAX_DATA.filter(p => state.pax[p.id].state === 'available');
-  const placed = PAX_DATA.filter(p => state.pax[p.id].state === 'placed');
-  const locked = PAX_DATA.filter(p => state.pax[p.id].state === 'locked');
-  function makePaxCard(p) {
+  content.innerHTML = '';
+
+  const avail    = PAX_DATA.filter(p => state.pax[p.id].state === 'available');
+  const exhausted = PAX_DATA.filter(p => state.pax[p.id].state === 'exhausted');
+  const inWelfare = PAX_DATA.filter(p => state.pax[p.id].placedIn === 'welfare');
+  const placed   = PAX_DATA.filter(p => state.pax[p.id].state === 'placed' && state.pax[p.id].placedIn !== 'welfare');
+  const locked   = PAX_DATA.filter(p => state.pax[p.id].state === 'locked');
+
+  function sectionHeader(label, color) {
+    const h = document.createElement('div');
+    h.style.cssText = `font-family:'Press Start 2P',monospace;font-size:8px;color:${color};margin:10px 0 8px;`;
+    h.textContent = label;
+    content.appendChild(h);
+  }
+
+  function welfareBtn(paxId, inW) {
+    const btn = document.createElement('button');
+    if (inW) {
+      btn.textContent = '↩ Sortir';
+      btn.style.cssText = 'margin-top:6px;width:100%;padding:4px;background:rgba(95,207,232,0.15);border:1.5px solid var(--teal);color:var(--teal);font-family:\'Press Start 2P\',monospace;font-size:7px;border-radius:3px;cursor:pointer;';
+      btn.onclick = () => { removePaxFromZone(paxId); renderSidebar(); };
+    } else {
+      btn.textContent = '💜 Welfare';
+      btn.style.cssText = 'margin-top:6px;width:100%;padding:4px;background:rgba(157,78,221,0.15);border:1.5px solid var(--purple);color:var(--purple);font-family:\'Press Start 2P\',monospace;font-size:7px;border-radius:3px;cursor:pointer;';
+      btn.onclick = () => sendToWelfare(paxId);
+    }
+    return btn;
+  }
+
+  function makePaxCard(p, opts = {}) {
     const ps = state.pax[p.id];
     const arch = ARCHETYPES[p.archetype];
     const div = document.createElement('div');
-    div.style.cssText = 'background:rgba(127,255,90,0.08);border:1.5px solid var(--green);padding:8px;margin-bottom:8px;border-radius:4px;';
-    const eBar = ps.energy !== undefined ? `<div style='margin-top:4px;background:#222;border-radius:3px;height:4px;width:100%;'><div style='height:4px;border-radius:3px;width:${Math.round(ps.energy)}%;background:${ps.energy>60?'var(--green)':ps.energy>30?'var(--yellow)':'var(--red)'};'></div></div>` : '';
-    div.innerHTML = `<span style="font-size:24px">${p.emoji}</span> <strong style="font-family:'Press Start 2P',monospace;font-size:8px;color:var(--cream);">${p.name}</strong><br><span style="font-size:14px;color:var(--purple);">${arch.label}</span><br><span style="font-size:12px;opacity:0.6;">${ps.state === 'exhausted' ? '😴 Épuisé·e' : ps.placedIn ? '📍 ' + ZONES[ps.placedIn].name : '⌛ Disponible'}</span>${eBar}`;
+    const borderColor = opts.exhausted ? 'var(--red)' : opts.welfare ? 'var(--teal)' : 'var(--green)';
+    const bgColor = opts.exhausted ? 'rgba(192,57,43,0.08)' : opts.welfare ? 'rgba(95,207,232,0.08)' : 'rgba(127,255,90,0.08)';
+    div.style.cssText = `background:${bgColor};border:1.5px solid ${borderColor};padding:8px;margin-bottom:8px;border-radius:4px;`;
+    const energyPct = Math.round((ps.energy || 0) / (ps.maxEnergy || 100) * 100);
+    const eBar = `<div style='margin-top:4px;background:#222;border-radius:3px;height:4px;width:100%;'><div style='height:4px;border-radius:3px;width:${energyPct}%;background:${energyPct>60?'var(--green)':energyPct>30?'var(--yellow)':'var(--red)'};'></div></div>`;
+    const location = opts.exhausted ? '😴 Épuisé·e — repos forcé' : ps.placedIn ? '📍 ' + ZONES[ps.placedIn].name : '⌛ Disponible';
+    div.innerHTML = `<span style="font-size:24px">${p.emoji}</span> <strong style="font-family:'Press Start 2P',monospace;font-size:8px;color:var(--cream);">${p.name}</strong><br><span style="font-size:14px;color:var(--purple);">${arch.label}</span><br><span style="font-size:12px;opacity:0.6;">${location}</span>${eBar}`;
+    div.appendChild(welfareBtn(p.id, opts.welfare));
     return div;
   }
-  avail.forEach(p => content.appendChild(makePaxCard(p)));
+
+  if (avail.length) {
+    sectionHeader('DISPONIBLES', 'var(--yellow)');
+    avail.forEach(p => content.appendChild(makePaxCard(p)));
+  }
+  if (exhausted.length) {
+    sectionHeader('😴 ÉPUISÉ·ES', 'var(--red)');
+    exhausted.forEach(p => content.appendChild(makePaxCard(p, { exhausted: true })));
+  }
+  if (inWelfare.length) {
+    sectionHeader('💜 AU WELFARE', 'var(--teal)');
+    inWelfare.forEach(p => content.appendChild(makePaxCard(p, { welfare: true })));
+  }
   if (placed.length) {
-    const h = document.createElement('div');
-    h.style.cssText = 'font-family:\'Press Start 2P\',monospace;font-size:8px;color:var(--teal);margin:10px 0 8px;';
-    h.textContent = 'EN POSTE';
-    content.appendChild(h);
+    sectionHeader('EN POSTE', 'var(--teal)');
     placed.forEach(p => content.appendChild(makePaxCard(p)));
   }
   if (locked.length) {
-    const h = document.createElement('div');
-    h.style.cssText = 'font-family:\'Press Start 2P\',monospace;font-size:8px;color:var(--red);margin:10px 0 8px;opacity:0.6;';
-    h.textContent = '🔒 À DÉBLOQUER';
-    content.appendChild(h);
+    sectionHeader('🔒 À DÉBLOQUER', 'var(--red)');
     locked.forEach(p => {
       const div = document.createElement('div');
       div.style.cssText = 'opacity:0.4;background:rgba(0,0,0,0.3);border:1.5px dashed var(--red);padding:8px;margin-bottom:6px;border-radius:4px;';
