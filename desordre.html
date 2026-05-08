@@ -422,7 +422,7 @@ html,body{width:100%;height:100%;overflow:hidden;background:var(--dark);font-fam
   <button class="start-btn" id="start-tuto-btn"
     style="background:transparent;color:var(--purple);border:2px solid var(--purple);box-shadow:none;font-size:9px;padding:8px 20px;margin-top:-8px;"
     onclick="startGame(); setTimeout(() => { localStorage.removeItem('tuto_done'); tutoStart(); }, 500);">
-    🎓 REVOIR LE TUTO
+    🌱 NOUVELLEAU ?
   </button>
 </div>
 
@@ -983,8 +983,8 @@ const TUTORIAL_STEPS = [
   },
   {
     target: null,
-    title: '👔 LES ENVAHISSEURS',
-    text: 'La Norme va débarquer régulièrement. Ces personnages pompent ta Vibe ou ton Soin.\n<strong style="color:var(--pink)">Clique dessus</strong> pour les queeriser — c\'est comme ça qu\'on gagne la partie !',
+    title: '👔 LES AGENTS DE LA NORME',
+    text: 'La Norme va débarquer régulièrement sur la carte.\nCes personnages pompent ta Vibe ou ton Soin — et si plusieurs arrivent en même temps, tes pax s\'épuisent encore plus vite !\n<strong style="color:var(--pink)">Clique dessus</strong> pour les queeriser. C\'est comme ça qu\'on gagne.',
     pos: 'center',
   },
   {
@@ -1005,9 +1005,16 @@ function tutoStart() {
 }
 
 function tutoNext() {
+  // Cacher le fake invader si on quitte l'étape 8
+  if (_tutoStep === 8) tutoHideFakeInvader();
+
   _tutoStep++;
   if (_tutoStep >= TUTORIAL_STEPS.length) { tutoEnd(); return; }
   const step = TUTORIAL_STEPS[_tutoStep];
+
+  // Montrer le fake invader à l'étape 8 (agents de la norme)
+  if (_tutoStep === 8) tutoShowFakeInvader();
+
   const spotlight = document.getElementById('tuto-spotlight');
   const tooltip   = document.getElementById('tuto-tooltip');
   const pulse     = document.getElementById('tuto-pulse');
@@ -1097,14 +1104,46 @@ function tutoPositionTooltip(tooltip, r, pos, pad) {
   tooltip.style.left = left + 'px';
 }
 
-function tutoSkip() { tutoEnd(); }
+function tutoSkip() { tutoHideFakeInvader(); tutoEnd(); }
 
 function tutoEnd() {
+  tutoHideFakeInvader();
   document.getElementById('tuto-spotlight').style.display = 'none';
   document.getElementById('tuto-tooltip').style.display   = 'none';
   document.getElementById('tuto-pulse').style.display     = 'none';
   localStorage.setItem('tuto_done', '1');
   _tutoStep = -1;
+}
+
+function tutoShowFakeInvader() {
+  tutoHideFakeInvader();
+  const vp = document.getElementById('map-viewport');
+  if (!vp) return;
+  // On prend le patriarche comme exemple
+  const inv = INVADERS_DATA.find(i => i.type === 'patriarche') || INVADERS_DATA[0];
+  const el = document.createElement('div');
+  el.id = 'tuto-fake-invader';
+  el.className = 'invader';
+  el.style.left = '370px';
+  el.style.top  = '290px';
+  el.style.pointerEvents = 'none';
+  el.style.zIndex = '50';
+  el.textContent = inv.emoji;
+  const bubble = document.createElement('div');
+  bubble.className = 'inv-bubble';
+  bubble.textContent = inv.quote;
+  el.appendChild(bubble);
+  // Label "← clique ici !"
+  const hint = document.createElement('div');
+  hint.style.cssText = 'position:absolute;bottom:-22px;left:50%;transform:translateX(-50%);white-space:nowrap;font-family:\'Press Start 2P\',monospace;font-size:7px;color:var(--yellow);background:rgba(10,5,30,0.9);padding:2px 5px;border-radius:3px;pointer-events:none;';
+  hint.textContent = '👆 clique pour queeriser !';
+  el.appendChild(hint);
+  vp.appendChild(el);
+}
+
+function tutoHideFakeInvader() {
+  const el = document.getElementById('tuto-fake-invader');
+  if (el) el.remove();
 }
 
 // ===== PAX DRAG & DROP =====
@@ -1294,10 +1333,18 @@ function productionTick() {
     });
   });
   // --- Fatigue des pax ---
+  // Si 2+ agents de la norme sont actifs, stress collectif → drain accéléré sur les pax hors welfare/isoloir
+  const normeStress = Math.max(0, state.invaders.length - 1);
+  let stressToastCooldown = state._stressToastAt || 0;
   PAX_DATA.forEach(p => {
     const ps = state.pax[p.id];
     if (ps.state === 'placed') {
-      ps.energy = Math.max(0, ps.energy - CFG.ENERGY_DRAIN);
+      let drain = CFG.ENERGY_DRAIN;
+      // Stress supplémentaire des agents de la norme
+      if (normeStress > 0 && ps.placedIn !== 'welfare' && ps.placedIn !== 'isoloir') {
+        drain += CFG.ENERGY_DRAIN * normeStress * 0.6;
+      }
+      ps.energy = Math.max(0, ps.energy - drain);
       // Welfare récupère l'énergie
       if (ps.placedIn === 'welfare') ps.energy = Math.min(ps.maxEnergy, ps.energy + CFG.ENERGY_RECOVER);
       if (ps.energy <= 0) {
@@ -1318,6 +1365,11 @@ function productionTick() {
       }
     }
   });
+  // Toast de stress collectif (max 1 toutes les 15 sec)
+  if (normeStress >= 2 && Date.now() - stressToastCooldown > 15000) {
+    toast(`😰 ${state.invaders.length} agents de la Norme actifs — les pax perdent de l\'énergie !`);
+    state._stressToastAt = Date.now();
+  }
   state.vibe = Math.min(CFG.VIBE_MAX, state.vibe + vibeGain);
   state.soin = Math.min(CFG.SOIN_MAX, state.soin + soinGain);
   state.vibeTotal += vibeGain;
