@@ -39,7 +39,16 @@ html,body{width:100%;height:100%;overflow:hidden;background:var(--dark);font-fam
 #map-wrapper{
   position:fixed;top:52px;left:0;right:0;bottom:44px;
   overflow:hidden;cursor:grab;
-  background:#1a2a0e;
+  background:#0d1a0a;
+}
+#map-atmosphere{
+  position:absolute;inset:-60px;z-index:0;pointer-events:none;
+  background:url(map.png) center/cover no-repeat;
+  filter:blur(28px) brightness(0.22) saturate(0.6);
+  transform:scale(1.06);
+}
+#map-viewport{
+  position:relative;z-index:1;
 }
 #map-wrapper:active{cursor:grabbing;}
 #map-viewport{
@@ -50,7 +59,7 @@ html,body{width:100%;height:100%;overflow:hidden;background:var(--dark);font-fam
 }
 #map-img{
   display:block;
-  width:1400px;height:1050px;
+  width:900px;height:675px;
   image-rendering:auto;
 }
 
@@ -315,18 +324,19 @@ html,body{width:100%;height:100%;overflow:hidden;background:var(--dark);font-fam
 
 <!-- MAP -->
 <div id="map-wrapper">
+  <div id="map-atmosphere"></div>
   <div id="map-viewport">
     <img id="map-img" src="map.png" alt="Carte du Désordre" draggable="false"/>
     <!-- Zones interactives (positionnées en % de 900x675) -->
-    <div class="zone" id="zone-playroom-ext" data-zone="playroom_ext" style="left:93px;top:358px;width:249px;height:202px;" onclick="openZone('playroom_ext')"></div>
-    <div class="zone" id="zone-tente-cer" data-zone="tente_cer" style="left:156px;top:669px;width:249px;height:233px;" onclick="openZone('tente_cer')"></div>
-    <div class="zone" id="zone-mixroom" data-zone="mixroom" style="left:436px;top:684px;width:264px;height:187px;" onclick="openZone('mixroom')"></div>
-    <div class="zone" id="zone-bat1" data-zone="bat1" style="left:498px;top:249px;width:233px;height:202px;" onclick="openZone('bat1')"></div>
-    <div class="zone" id="zone-bat2" data-zone="bat2" style="left:747px;top:218px;width:218px;height:202px;" onclick="openZone('bat2')"></div>
-    <div class="zone" id="zone-cantina" data-zone="cantina" style="left:980px;top:280px;width:202px;height:171px;" onclick="openZone('cantina')"></div>
-    <div class="zone" id="zone-welfare" data-zone="welfare" style="left:902px;top:638px;width:249px;height:187px;" onclick="openZone('welfare')"></div>
-    <div class="zone" id="zone-isoloir" data-zone="isoloir" style="left:653px;top:614px;width:109px;height:124px;" onclick="openZone('isoloir')"></div>
-    <div class="zone" id="zone-pmu" data-zone="pmu" style="left:684px;top:241px;width:109px;height:124px;" onclick="openZone('pmu')"></div>
+    <div class="zone" id="zone-playroom-ext" data-zone="playroom_ext" style="left:60px;top:230px;width:160px;height:130px;" onclick="openZone('playroom_ext')"></div>
+    <div class="zone" id="zone-tente-cer" data-zone="tente_cer" style="left:100px;top:430px;width:160px;height:150px;" onclick="openZone('tente_cer')"></div>
+    <div class="zone" id="zone-mixroom" data-zone="mixroom" style="left:280px;top:440px;width:170px;height:120px;" onclick="openZone('mixroom')"></div>
+    <div class="zone" id="zone-bat1" data-zone="bat1" style="left:320px;top:160px;width:150px;height:130px;" onclick="openZone('bat1')"></div>
+    <div class="zone" id="zone-bat2" data-zone="bat2" style="left:480px;top:140px;width:140px;height:130px;" onclick="openZone('bat2')"></div>
+    <div class="zone" id="zone-cantina" data-zone="cantina" style="left:630px;top:180px;width:130px;height:110px;" onclick="openZone('cantina')"></div>
+    <div class="zone" id="zone-welfare" data-zone="welfare" style="left:580px;top:410px;width:160px;height:120px;" onclick="openZone('welfare')"></div>
+    <div class="zone" id="zone-isoloir" data-zone="isoloir" style="left:420px;top:395px;width:70px;height:80px;" onclick="openZone('isoloir')"></div>
+    <div class="zone" id="zone-pmu" data-zone="pmu" style="left:440px;top:155px;width:70px;height:80px;" onclick="openZone('pmu')"></div>
   </div>
 </div>
 
@@ -416,8 +426,8 @@ const CFG = {
   INVADER_INTERVAL: 25000,
   BOOST_DURATION: 4000,
   BOOST_COOLDOWN: 12000,
-  MAP_W: 1400,
-  MAP_H: 1050,
+  MAP_W: 900,
+  MAP_H: 675,
   ENERGY_DRAIN: 0.10,
   ENERGY_RECOVER: 0.22,
   DAYS: ['LUN','MAR','MER','JEU','VEN','SAM','DIM'],
@@ -796,13 +806,13 @@ function spawnInvader() {
   // Position de départ (bords de la carte)
   const side = Math.floor(Math.random() * 4);
   let sx, sy;
-  if (side === 0) { sx = Math.random() * 1360 + 20; sy = -40; }
-  else if (side === 1) { sx = 1450; sy = Math.random() * 1010 + 20; }
-  else if (side === 2) { sx = Math.random() * 1360 + 20; sy = 1090; }
-  else { sx = -40; sy = Math.random() * 1010 + 20; }
+  if (side === 0) { sx = Math.random() * 860 + 20; sy = -40; }
+  else if (side === 1) { sx = 940; sy = Math.random() * 600 + 20; }
+  else if (side === 2) { sx = Math.random() * 860 + 20; sy = 720; }
+  else { sx = -40; sy = Math.random() * 600 + 20; }
   // Target = centre de la carte
-  const tx = 650 + (Math.random() - 0.5) * 350;
-  const ty = 490 + (Math.random() - 0.5) * 300;
+  const tx = 400 + (Math.random() - 0.5) * 200;
+  const ty = 300 + (Math.random() - 0.5) * 200;
   const invObj = { id: Date.now(), type:inv.type, data:inv, x:sx, y:sy, tx, ty, health:100, el:null, barEl:null };
   state.invaders.push(invObj);
   renderInvader(invObj);
@@ -1255,7 +1265,7 @@ function endGame() {
 function setupMapInteraction() {
   const wrapper = document.getElementById('map-wrapper');
   const vp = document.getElementById('map-viewport');
-  let scale = 0.55, tx = 0, ty = 0;
+  let scale = 0.7, tx = 0, ty = 0;
   let dragging = false, lastX = 0, lastY = 0;
   let pinchDist = null;
   // Centre initial
