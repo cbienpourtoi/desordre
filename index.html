@@ -640,6 +640,7 @@ html,body{width:100%;height:100%;overflow:hidden;background:var(--dark);font-fam
     <div id="pax-detail-arch" style="text-align:center;font-size:14px;margin-bottom:12px;"></div>
     <div id="pax-detail-bars"></div>
     <div id="pax-detail-status" style="font-size:13px;color:var(--yellow);text-align:center;margin:8px 0;"></div>
+    <div id="pax-detail-send-area" style="margin-bottom:8px;"></div>
     <button class="modal-btn" style="background:var(--purple);" onclick="closeModal('pax-detail-modal')">FERMER</button>
   </div>
 </div>
@@ -1229,6 +1230,35 @@ function showPaxDetail(paxId) {
   const loc = ps.placedIn ? '📍 ' + ZONES[ps.placedIn].name : '⌛ Disponible';
   const crisisText = ps.inCrisis ? ' 🆘 EN CRISE' : '';
   document.getElementById('pax-detail-status').textContent = loc + crisisText;
+
+  // Zone picker inside modal
+  const sendArea = document.getElementById('pax-detail-send-area');
+  sendArea.innerHTML = '';
+  const sendBtn = document.createElement('button');
+  sendBtn.textContent = ps.placedIn ? '📍 Changer de lieu' : '📍 Envoyer vers...';
+  sendBtn.style.cssText = 'width:100%;padding:5px;background:rgba(95,207,232,0.12);border:1.5px solid var(--teal);color:var(--teal);font-family:\'Press Start 2P\',monospace;font-size:7px;border-radius:3px;cursor:pointer;margin-bottom:4px;';
+  const picker = document.createElement('div');
+  picker.style.cssText = 'display:none;background:#141a10;border:1px solid rgba(95,207,232,0.3);border-radius:3px;overflow:hidden;max-height:220px;overflow-y:auto;';
+  const zoneIcon = zid => ({ playroom_ext:'⚡', tente_cer:'🎪', mixroom:'🌀', bat1:'🏠', bat2:'🛖', cantina:'🍽', welfare:'💜', bulle_nego:'🤝', pmu:'🍺' }[zid] || '📍');
+  Object.entries(ZONES).forEach(([zid, z]) => {
+    const row = document.createElement('div');
+    const isCurrent = ps.placedIn === zid;
+    row.style.cssText = `padding:6px 10px;font-size:12px;cursor:pointer;color:${isCurrent ? 'var(--yellow)' : 'var(--cream)'};border-bottom:1px solid rgba(255,255,255,0.05);display:flex;justify-content:space-between;`;
+    row.innerHTML = `<span>${zoneIcon(zid)} ${z.name}</span>${isCurrent ? '<span style="color:var(--yellow);font-size:10px;">✓ ici</span>' : ''}`;
+    row.onclick = () => { dropPaxOnZone(p.id, zid); closeModal('pax-detail-modal'); };
+    picker.appendChild(row);
+  });
+  if (ps.placedIn) {
+    const free = document.createElement('div');
+    free.style.cssText = 'padding:6px 10px;font-size:12px;cursor:pointer;color:var(--red);';
+    free.textContent = '✕ Libérer';
+    free.onclick = () => { removePaxFromZone(p.id); closeModal('pax-detail-modal'); };
+    picker.appendChild(free);
+  }
+  sendBtn.onclick = () => { picker.style.display = picker.style.display === 'none' ? 'block' : 'none'; };
+  sendArea.appendChild(sendBtn);
+  sendArea.appendChild(picker);
+
   document.getElementById('pax-detail-modal').classList.add('show');
 }
 
