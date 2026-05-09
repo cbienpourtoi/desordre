@@ -486,7 +486,7 @@ html,body{width:100%;height:100%;overflow:hidden;background:var(--dark);font-fam
     <div style="margin-bottom:12px;">
       <span style="color:var(--green);font-family:'Press Start 2P',monospace;font-size:7px;">🗺 LES ZONES &amp; ACTIVITÉS</span><br>
       • <strong>Playrooms / Mix-room / Tente</strong> — Fun ⚡, monte la vibe<br>
-      • <strong>Cantina</strong> — Cuisine 🍽, nourrit toustes les pax<br>
+      • <strong>Cuisine</strong> — Cuisine 🍽, nourrit toustes les pax<br>
       • <strong>Chambres</strong> — Repos 💤, récupère la fatigue<br>
       • <strong>Welfare</strong> — Repos + support émo. Soigne les crises 💜<br>
       • <strong>Bulle de Négo</strong> — 🤝 On y négocie à deux avant de jouer<br>
@@ -780,7 +780,7 @@ const PAX_DATA = [
   { id:'choufleur', name:'Prince Choufleur',emoji:'🥦',archetype:'sadist',    affinity:'playroom_ext', pref:'night', unlockDay:1 },
   { id:'nuageon',   name:'Nuageon',        emoji:'☁️', archetype:'soigneurice',affinity:'welfare',      pref:'any',   unlockDay:1 },
   { id:'onigiri',   name:'Onigiri',        emoji:'🍙', archetype:'dom',        affinity:'bat2',         pref:'night', unlockDay:1 },
-  { id:'pasteque',  name:'Pastèque',       emoji:'🍉', archetype:'servicetop', affinity:'Cuisine',      pref:'day',   unlockDay:1 },
+  { id:'pasteque',  name:'Pastèque',       emoji:'🍉', archetype:'servicetop', affinity:'cantina',      pref:'day',   unlockDay:1 },
   { id:'papille',   name:'Papille',        emoji:'👅', archetype:'slut',       affinity:'mixroom',      pref:'night', unlockDay:2 },
   { id:'vigne',     name:'Vigne',          emoji:'🍇', archetype:'painslut',   affinity:'bat2',         pref:'any',   unlockDay:2 },
   { id:'mcclick',   name:'Will McClick',   emoji:'🖱️', archetype:'chaotique',  affinity:'pmu',          pref:'day',   unlockDay:2 },
@@ -884,7 +884,7 @@ const SCENES = [
   { id:'scene_aftercare', archs:['soigneurice'], zones:['welfare'], minEach:1,
     msg:"💜 Cercle d\'aftercare. Toustes les pax récupèrent.",
     effect:{ healAll:true, soin:50 }, cooldown:35000 },
-  { id:'scene_cuisine', archs:['servicetop'], zones:['Cuisine'], minEach:1,
+  { id:'scene_cuisine', archs:['servicetop'], zones:['cantina'], minEach:1,
     msg:"🍳 Un festin préparé avec amour. Boost de Soin.",
     effect:{ soin:60 }, cooldown:55000 },
   { id:'scene_pet_walk', archs:['pet','dom'], zones:null, minEach:1,
@@ -913,7 +913,7 @@ const QUEST_POOL = [
     check:()=> state.zones['welfare'].occupants.length >= 1,
     reward:{ soin:50 } },
   { id:'q_cantina3', text:"Remplis la cuisine (3 pax) 🍽",
-    check:()=> state.zones['Cuisine'].occupants.length >= 3,
+    check:()=> state.zones['cantina'].occupants.length >= 3,
     reward:{ soin:80 } },
   { id:'q_queerise', text:"Queerise un envahisseur 🌈",
     check:()=> state.stats.queerised > (state.quests._prevQueer||0),
@@ -1245,7 +1245,7 @@ function getZoneAtmosphere(zid) {
       if (pool && pool.length) return pick(pool);
     }
     if (zid === 'welfare')     return "💜 Calme et doux. En attente de quelqu'un à accueillir.";
-    if (zid === 'Cuisine')     return "🍽 Les casseroles refroidissent. Quelqu'un devrait cuisiner.";
+    if (zid === 'cantina')     return "🍽 Les casseroles refroidissent. Quelqu'un devrait cuisiner.";
     if (zid === 'pmu')         return "🍺 Les tabourets sont vides. La buvette attend ses habitué·es.";
     if (zid === 'bulle_nego')  return "🤝 Personne n'est en train de négocier. La porte est ouverte.";
     return zone.desc + ' — Vide pour l\'instant.';
@@ -1281,7 +1281,7 @@ function getZoneAtmosphere(zid) {
     return '💜 ' + names + ' — Une douceur particulière règne ici. Quelqu\'un prend soin de toustes.';
   if (archs.includes('chaotique') && zid === 'pmu')
     return '🤡 ' + names + ' — Le micro a été confisqué deux fois. Ambiance électrique.';
-  if (archs.includes('servicetop') && zid === 'Cuisine')
+  if (archs.includes('servicetop') && zid === 'cantina')
     return '🍳 ' + names + ' — Ça sent incroyablement bon depuis là-dedans.';
   if (archs.includes('festif') && occ.length >= 2)
     return '🎉 ' + names + ' — L\'ambiance monte. La Vibe avec.';
@@ -2000,7 +2000,7 @@ function eventTick() {
   }
   // Meal boost (midi + soir)
   if ((state.hour === 13 || state.hour === 20) && !state.mealBoosted) {
-    if (state.zones['Cuisine'].occupants.length > 0) {
+    if (state.zones['cantina'].occupants.length > 0) {
       state.food_stock = Math.min(CFG.FOOD_STOCK_MAX, state.food_stock + 60);
       toast('🍽 Le repas est servi ! Les provisions remontent.');
       state.mealBoosted = true;
@@ -2274,13 +2274,7 @@ function confirmPaxPicker() {
   toast(`${names} rejoignent ${ZONES[zoneId].name}`);
   renderZones();
   openZone(zoneId);
-  // Close if zone full, otherwise refresh grid for more picks
-  const zstate = state.zones[zoneId];
-  if (zstate.occupants.length >= ZONES[zoneId].cap) {
-    closeModal('pax-picker');
-  } else {
-    refreshPaxPickerGrid();
-  }
+  closeModal('pax-picker');
 }
 
 function placePax(paxId, zoneId) {
