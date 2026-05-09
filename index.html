@@ -3023,7 +3023,7 @@ function setupMapInteraction() {
     const onInvader = !!invaderEl;
     const onInteractable = !!(e.target.closest('.zone') || onInvader);
     lastDownOnInteractable = onInteractable;
-    lastDownInvaderId = onInvader ? (invaderEl.dataset.invaderId || null) : null;
+    lastDownInvaderId = onInvader ? (invaderEl.dataset.invaderId ? Number(invaderEl.dataset.invaderId) : null) : null;
     lastDownX = e.clientX; lastDownY = e.clientY;
     wrapper.setPointerCapture(e.pointerId);
     pts.set(e.pointerId, { x: e.clientX, y: e.clientY, onInteractable });
