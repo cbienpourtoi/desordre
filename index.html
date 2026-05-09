@@ -458,40 +458,43 @@ html,body{width:100%;height:100%;overflow:hidden;background:var(--dark);font-fam
     <div style="margin-bottom:12px;">
       <span style="color:var(--green);font-family:'Press Start 2P',monospace;font-size:7px;">⚡ PLACER DES PAX</span><br>
       Glisse un pax sur une zone de la carte — ou clique sur une zone puis <strong>+ PAX</strong>.<br>
+      Clique sur l'emoji d'un pax dans une zone pour voir ses stats détaillées.<br>
       La <strong style="color:var(--pink);">Vibe globale ⚡</strong> reflète le bien-être collectif de toustes les pax.
     </div>
 
     <div style="margin-bottom:12px;">
       <span style="color:var(--green);font-family:'Press Start 2P',monospace;font-size:7px;">🗺 LES ZONES &amp; ACTIVITÉS</span><br>
       • <strong>Playrooms / Mix-room / Tente</strong> — Fun ⚡, monte la vibe<br>
-      • <strong>Cantina</strong> — Cuisine 🍽, produit les repas pour toustes<br>
+      • <strong>Cantina</strong> — Cuisine 🍽, nourrit toustes les pax<br>
       • <strong>Chambres</strong> — Repos 💤, récupère la fatigue<br>
-      • <strong>Welfare</strong> — Repos + support émo. Soigne les crises.<br>
-      • <strong>Bulle de Négo</strong> — 🤝 On y négocie une scène à deux avant de jouer.
+      • <strong>Welfare</strong> — Repos + support émo. Soigne les crises 💜<br>
+      • <strong>Bulle de Négo</strong> — 🤝 On y négocie à deux avant de jouer<br>
+      • <strong>PMU</strong> — 🍺 Buvette. Déclenche des événements aléatoires
     </div>
 
     <div style="margin-bottom:12px;">
-      <span style="color:var(--green);font-family:'Press Start 2P',monospace;font-size:7px;">😴 FATIGUE &amp; CRISES</span><br>
-      Les pax accumulent de la <strong>fatigue</strong>, de la <strong>faim</strong>, et de l'<strong>ennui</strong>.<br>
-      Si ça déborde, iels entrent en <strong style="color:var(--red);">crise</strong> 🆘 — glisse-les au Welfare et ajoute du support pour les aider !
+      <span style="color:var(--green);font-family:'Press Start 2P',monospace;font-size:7px;">😴 FATIGUE, FAIM &amp; CRISES</span><br>
+      Les pax accumulent de la <strong>fatigue</strong>, de la <strong>faim</strong> et de l'<strong>ennui</strong>.<br>
+      Si ça déborde, iels entrent en <strong style="color:var(--red);">crise</strong> 🆘 — glisse-les au Welfare et ajoute un·e autre pax pour les aider à récupérer. Seul·e au Welfare, ça récupère lentement. Avec du support, c'est rapide.
     </div>
 
     <div style="margin-bottom:12px;">
-      <span style="color:var(--green);font-family:'Press Start 2P',monospace;font-size:7px;">✨ SYNERGIES</span><br>
-      Chaque pax a un archétype. Dom + Sub, Top + Bottom, Soigneurice au Welfare...<br>
-      Certains combos déclenchent des <strong>scènes spéciales</strong> et des bonus.
+      <span style="color:var(--green);font-family:'Press Start 2P',monospace;font-size:7px;">✨ SYNERGIES &amp; BULLE DE NÉGO</span><br>
+      Chaque pax a un archétype. Dom + Sub, Top + Bottom, Créatif + Créatif...<br>
+      Certains combos déclenchent automatiquement des <strong>boosts de Vibe</strong> et des <strong>scènes spéciales</strong>.<br>
+      Envoie deux pax compatibles dans la <strong>Bulle de Négo</strong> : après une négociation, iels repartent dans leur prochain lieu avec <strong>+40% de Vibe</strong> !
     </div>
 
     <div style="margin-bottom:12px;">
       <span style="color:var(--green);font-family:'Press Start 2P',monospace;font-size:7px;">👔 LA NORME DÉBARQUE</span><br>
       Des agents de la Norme arrivent et font baisser la vibe de toustes.<br>
-      Clique dessus pour les <strong style="color:var(--pink);">queeriser</strong>. La vibe élevée les ramollit automatiquement.
+      <strong>Clique dessus</strong> pour les <strong style="color:var(--pink);">queeriser</strong>. Une vibe élevée les ramollit automatiquement. Le dernier clic avant la queerisation laisse un ❤️.
     </div>
 
     <div style="margin-bottom:4px;">
-      <span style="color:var(--yellow);font-family:'Press Start 2P',monospace;font-size:7px;">🏆 VICTOIRE</span><br>
-      Queerise <strong>8 personnes</strong> avant la fin du <strong>Jour 5</strong>.<br>
-      La Norme s'enfuit en pleurant. Tout le monde danse autour du compost. 🌿
+      <span style="color:var(--yellow);font-family:'Press Start 2P',monospace;font-size:7px;">🏆 OBJECTIF</span><br>
+      Queerise <strong>8 personnes</strong> pour déclencher la victoire !<br>
+      Sinon, tiens jusqu'au <strong>dimanche soir</strong>. La semaine dure 7 jours. 🌿
     </div>
 
   </div>
@@ -1301,7 +1304,7 @@ const TUTORIAL_STEPS = [
   {
     target: '#zone-playroom-ext',
     title: '📍 CLIQUER SUR UNE ZONE',
-    text: 'Clique sur une zone pour l\'ouvrir : voir qui est dedans, l\'ambiance actuelle, ajouter ou retirer des pax, déclencher un BOOST.',
+    text: 'Clique sur une zone pour l\'ouvrir : voir qui est dedans, l\'ambiance actuelle, ajouter ou retirer des pax.\nDes <strong>synergies</strong> se déclenchent automatiquement quand des pax compatibles se retrouvent au même endroit.',
     pos: 'right',
     padding: 12,
   },
@@ -1334,7 +1337,7 @@ const TUTORIAL_STEPS = [
   {
     target: null,
     title: '🌱 C\'EST PARTI !',
-    text: 'Voilà, tu sais tout ce qu\'il faut.\n\nObjectif : <strong style="color:var(--yellow)">queerise 8 personnes</strong> avant la fin du Jour 5.\n\nBonne chance, coordinateurice. 🎉',
+    text: 'Voilà, tu sais tout ce qu\'il faut.\n\nObjectif : <strong style="color:var(--yellow)">queerise 8 personnes</strong> pour déclencher la victoire — ou tiens jusqu\'au dimanche soir !\n\nBonne chance, coordinateurice. 🎉',
     pos: 'center',
     last: true,
   },
@@ -2772,7 +2775,7 @@ function renderQuestPanel() {
 
 // ===== END =====
 function checkEnd() {
-  if (state.stats.queerised >= 8 && state.day >= 5) {
+  if (state.stats.queerised >= 8) {
     setTimeout(endGame, 1000);
   }
 }
@@ -2782,7 +2785,7 @@ function endGame() {
   const titles = ['Architecte du Désordre', 'Maîtresse du Chaos Doux', 'Champion·ne du Soin', 'Reine du PMU', 'Légende de la Vibe'];
   const title = titles[Math.floor(Math.random() * titles.length)];
   document.getElementById('end-vibe').textContent = Math.round(state.vibeGlobale) + '%';
-  document.getElementById('end-crises').textContent = (state.crisisResolved || 0) + '/' + (state.crisisTotal || 0);
+  document.getElementById('end-crises').textContent = (state.stats.crisisResolved || 0) + '/' + (state.stats.crisisTotal || 0);
   document.getElementById('end-queer').textContent = state.stats.queerised;
   document.getElementById('end-pax').textContent = state.unlockedPax.length;
   document.getElementById('end-title-label').textContent = '🏆 ' + title;
