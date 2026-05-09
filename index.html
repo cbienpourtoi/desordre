@@ -2851,16 +2851,17 @@ function setupMapInteraction() {
   let prevMid = null, prevDist = null;
 
   wrapper.addEventListener('pointerdown', e => {
-    if (e.target.closest('.zone') || e.target.closest('.invader')) return;
     if (e.pointerType === 'mouse' && _dragPaxId) return;
+    const onInteractable = !!(e.target.closest('.zone') || e.target.closest('.invader'));
     wrapper.setPointerCapture(e.pointerId);
-    pts.set(e.pointerId, { x: e.clientX, y: e.clientY });
+    pts.set(e.pointerId, { x: e.clientX, y: e.clientY, onInteractable });
     cacheWrRect();
     // Reset gesture baseline
     if (pts.size === 1) {
-      prevMid = { x: e.clientX - wrLeft, y: e.clientY - wrTop };
+      prevMid = onInteractable ? null : { x: e.clientX - wrLeft, y: e.clientY - wrTop };
       prevDist = null;
     } else if (pts.size === 2) {
+      // Pinch: always engage regardless of which element each finger is on
       prevMid = pinchMid();
       prevDist = pinchDist();
     }
@@ -2868,16 +2869,16 @@ function setupMapInteraction() {
 
   wrapper.addEventListener('pointermove', e => {
     if (!pts.has(e.pointerId)) return;
-    pts.set(e.pointerId, { x: e.clientX, y: e.clientY });
+    pts.set(e.pointerId, { ...pts.get(e.pointerId), x: e.clientX, y: e.clientY });
 
     if (pts.size === 1) {
+      const pt = pts.get(e.pointerId);
+      if (pt.onInteractable || !prevMid) return; // zone tap — don't pan
       const curMid = { x: e.clientX - wrLeft, y: e.clientY - wrTop };
-      if (prevMid) {
-        tx += curMid.x - prevMid.x;
-        ty += curMid.y - prevMid.y;
-        scheduleTransform();
-      }
+      tx += curMid.x - prevMid.x;
+      ty += curMid.y - prevMid.y;
       prevMid = curMid;
+      scheduleTransform();
     } else if (pts.size === 2) {
       const curMid  = pinchMid();
       const curDist = pinchDist();
