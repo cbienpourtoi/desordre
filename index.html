@@ -2078,7 +2078,7 @@ function renderInvader(inv) {
   bubble.className = 'inv-bubble';
   bubble.textContent = inv.data.quote;
   el.appendChild(bubble);
-  el.addEventListener('click', () => clickInvader(inv.id));
+  el.dataset.invaderId = inv.id; // used by pointer handler in setupMapInteraction
   vp.appendChild(el);
   inv.el = el;
   inv.barEl = fill;
@@ -3015,11 +3015,16 @@ function setupMapInteraction() {
 
   let prevMid = null, prevDist = null;
   let lastDownOnInteractable = false;
+  let lastDownInvaderId = null, lastDownX = 0, lastDownY = 0;
 
   wrapper.addEventListener('pointerdown', e => {
     if (e.pointerType === 'mouse' && _dragPaxId) return;
-    const onInteractable = !!(e.target.closest('.zone') || e.target.closest('.invader'));
+    const invaderEl = e.target.closest('.invader');
+    const onInvader = !!invaderEl;
+    const onInteractable = !!(e.target.closest('.zone') || onInvader);
     lastDownOnInteractable = onInteractable;
+    lastDownInvaderId = onInvader ? (invaderEl.dataset.invaderId || null) : null;
+    lastDownX = e.clientX; lastDownY = e.clientY;
     wrapper.setPointerCapture(e.pointerId);
     pts.set(e.pointerId, { x: e.clientX, y: e.clientY, onInteractable });
     cacheWrRect();
@@ -3069,6 +3074,12 @@ function setupMapInteraction() {
 
   function onPointerUp(e) {
     pts.delete(e.pointerId);
+    // Invader tap: fired here because setPointerCapture breaks native click on invaders
+    if (lastDownInvaderId) {
+      const moved = Math.hypot(e.clientX - lastDownX, e.clientY - lastDownY);
+      if (moved < 15) clickInvader(lastDownInvaderId);
+      lastDownInvaderId = null;
+    }
     if (pts.size === 1) {
       const [pt] = pts.values();
       prevMid = { x: pt.x - wrLeft, y: pt.y - wrTop };
