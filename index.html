@@ -2806,17 +2806,24 @@ function setupMapInteraction() {
   const vp = document.getElementById('map-viewport');
   let scale = 0.7, tx = 0, ty = 0;
   let dragging = false, lastX = 0, lastY = 0;
-  let pinchDist = null;
-  // Centre initial
-  const wr = wrapper.getBoundingClientRect();
-  tx = (wr.width - CFG.MAP_W * scale) / 2;
-  ty = (wr.height - CFG.MAP_H * scale) / 2;
-  applyTransform();
+  let pinchDist = null, pinchMidX = 0, pinchMidY = 0;
+  let rafPending = false;
 
-  function applyTransform() {
+  // Re-read wrapper size fresh each call (avoids stale rect after resize / orientation change)
+  function wrSize() { return wrapper.getBoundingClientRect(); }
+
+  // Initial centering
+  (function init() {
+    const wr = wrSize();
+    tx = (wr.width  - CFG.MAP_W * scale) / 2;
+    ty = (wr.height - CFG.MAP_H * scale) / 2;
+    commitTransform();
+  })();
+
+  function clampAndApply() {
+    const wr = wrSize();
     const mapW = CFG.MAP_W * scale;
     const mapH = CFG.MAP_H * scale;
-    // Si la carte tient dans l'écran : centrage fixe. Sinon : panning avec marge.
     const maxTx = mapW <= wr.width  ? (wr.width  - mapW) / 2 : 60;
     const minTx = mapW <= wr.width  ? (wr.width  - mapW) / 2 : wr.width  - mapW - 60;
     const maxTy = mapH <= wr.height ? (wr.height - mapH) / 2 : 60;
@@ -2824,9 +2831,16 @@ function setupMapInteraction() {
     tx = Math.max(Math.min(tx, maxTx), minTx);
     ty = Math.max(Math.min(ty, maxTy), minTy);
     vp.style.transform = `translate(${tx}px, ${ty}px) scale(${scale})`;
+    rafPending = false;
   }
 
-  // Mouse
+  // Throttle layout writes to once per animation frame
+  function scheduleTransform() {
+    if (!rafPending) { rafPending = true; requestAnimationFrame(clampAndApply); }
+  }
+  function commitTransform() { clampAndApply(); }  // immediate for one-shot events
+
+  // ── Mouse ──
   wrapper.addEventListener('mousedown', e => {
     if (e.target.closest('.zone') || e.target.closest('.invader')) return;
     if (_dragPaxId) return;
@@ -2836,47 +2850,76 @@ function setupMapInteraction() {
     if (!dragging || _dragPaxId) return;
     tx += e.clientX - lastX; ty += e.clientY - lastY;
     lastX = e.clientX; lastY = e.clientY;
-    applyTransform();
+    scheduleTransform();
   });
-  window.addEventListener('mouseup', () => dragging = false);
+  window.addEventListener('mouseup', () => { dragging = false; });
   wrapper.addEventListener('wheel', e => {
     e.preventDefault();
     const delta = e.deltaY > 0 ? -0.08 : 0.08;
     scale = Math.max(0.5, Math.min(1.6, scale + delta));
-    applyTransform();
+    commitTransform();
   }, {passive:false});
 
-  // Touch
+  // ── Touch ──
   wrapper.addEventListener('touchstart', e => {
     if (e.target.closest('.zone') || e.target.closest('.invader')) return;
     if (e.touches.length === 1) {
-      dragging = true; lastX = e.touches[0].clientX; lastY = e.touches[0].clientY;
+      dragging = true;
+      pinchDist = null;
+      lastX = e.touches[0].clientX;
+      lastY = e.touches[0].clientY;
     } else if (e.touches.length === 2) {
       dragging = false;
-      pinchDist = Math.hypot(e.touches[0].clientX - e.touches[1].clientX, e.touches[0].clientY - e.touches[1].clientY);
+      const t0 = e.touches[0], t1 = e.touches[1];
+      pinchDist = Math.hypot(t0.clientX - t1.clientX, t0.clientY - t1.clientY);
+      pinchMidX = (t0.clientX + t1.clientX) / 2;
+      pinchMidY = (t0.clientY + t1.clientY) / 2;
     }
   }, {passive:true});
-  wrapper.addEventListener('touchmove', e => {
-    if (e.touches.length === 1 && dragging) {
-      tx += e.touches[0].clientX - lastX; ty += e.touches[0].clientY - lastY;
-      lastX = e.touches[0].clientX; lastY = e.touches[0].clientY;
-      applyTransform();
-    } else if (e.touches.length === 2 && pinchDist) {
-      const d = Math.hypot(e.touches[0].clientX - e.touches[1].clientX, e.touches[0].clientY - e.touches[1].clientY);
-      scale = Math.max(0.5, Math.min(1.6, scale * (d / pinchDist)));
-      pinchDist = d;
-      applyTransform();
-    }
-  }, {passive:true});
-  wrapper.addEventListener('touchend', () => { dragging = false; pinchDist = null; });
 
-  // Double tap to zoom in
+  wrapper.addEventListener('touchmove', e => {
+    e.preventDefault();  // stop browser scroll/bounce fighting our panning
+    if (e.touches.length === 1 && dragging) {
+      const cx = e.touches[0].clientX, cy = e.touches[0].clientY;
+      tx += cx - lastX; ty += cy - lastY;
+      lastX = cx; lastY = cy;
+      scheduleTransform();
+    } else if (e.touches.length === 2 && pinchDist != null) {
+      const t0 = e.touches[0], t1 = e.touches[1];
+      const d = Math.hypot(t0.clientX - t1.clientX, t0.clientY - t1.clientY);
+      const newScale = Math.max(0.5, Math.min(1.6, scale * (d / pinchDist)));
+      // Zoom toward the pinch midpoint
+      const midX = (t0.clientX + t1.clientX) / 2;
+      const midY = (t0.clientY + t1.clientY) / 2;
+      const ratio = newScale / scale;
+      tx = midX - (midX - tx) * ratio;
+      ty = midY - (midY - ty) * ratio;
+      scale = newScale;
+      pinchDist = d;
+      scheduleTransform();
+    }
+  }, {passive:false});
+
+  wrapper.addEventListener('touchend', e => {
+    if (e.touches.length === 0) {
+      dragging = false; pinchDist = null;
+    } else if (e.touches.length === 1) {
+      // One finger lifted during pinch → resume pan from current finger
+      pinchDist = null;
+      dragging = true;
+      lastX = e.touches[0].clientX;
+      lastY = e.touches[0].clientY;
+    }
+  });
+
+  // Double-tap to zoom in/out
   let lastTap = 0;
   wrapper.addEventListener('touchend', e => {
+    if (e.changedTouches.length !== 1) return;
     const now = Date.now();
     if (now - lastTap < 300) {
       scale = scale < 1.1 ? 1.3 : 0.7;
-      applyTransform();
+      commitTransform();
     }
     lastTap = now;
   });
