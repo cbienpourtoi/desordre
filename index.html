@@ -573,10 +573,12 @@ html,body{width:100%;height:100%;overflow:hidden;background:var(--dark);font-fam
     <img id="map-img" src="map.png" alt="Carte du Désordre" draggable="false"/>
     <img id="map-img-night" src="map_nocturne.png" alt="" draggable="false"/>
     <!-- Night atmosphere glows (positioned on 900x675 map) -->
+    <!-- Night glows disabled — new map_nocturne.png provides the atmosphere
     <div class="night-glow fire" id="glow-playroom-ext" style="left:140px;top:295px;"></div>
     <div class="night-glow fire" id="glow-tente-cer" style="left:180px;top:510px;"></div>
     <div class="night-glow lamp" id="glow-mixroom" style="left:410px;top:514px;"></div>
     <div class="night-glow teal" id="glow-pmu" style="left:475px;top:195px;"></div>
+    -->
     <!-- Zones interactives (positionnées en % de 900x675) -->
     <div class="zone" id="zone-playroom-ext" data-zone="playroom_ext" style="left:78px;top:196px;width:160px;height:130px;" onclick="openZone('playroom_ext')"></div>
     <div class="zone" id="zone-tente-cer" data-zone="tente_cer" style="left:127px;top:396px;width:160px;height:150px;" onclick="openZone('tente_cer')"></div>
@@ -1991,7 +1993,7 @@ function eventTick() {
     document.getElementById('map-img-night').classList.toggle('night', state.isNight);
     document.getElementById('map-atmosphere-night').classList.toggle('night', state.isNight);
     updateCriee(state.isNight ? '🌙 La nuit tombe sur le Désordre. Les playrooms s\'animent.' : '☀️ Le soleil se lève. Bonjour la communauté.');
-    toggleNightGlows(state.isNight);
+    toggleNightGlows(state.isNight); // no-op: glows disabled, map_nocturne.png handles atmosphere
   }
   // Meal boost (midi + soir)
   if ((state.hour === 13 || state.hour === 20) && !state.mealBoosted) {
