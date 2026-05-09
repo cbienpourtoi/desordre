@@ -365,6 +365,22 @@ html,body{width:100%;height:100%;overflow:hidden;background:var(--dark);font-fam
   animation:tutoPulse 1.5s ease-out infinite;
 }
 @keyframes tutoPulse{0%{opacity:0.8;transform:scale(0.9);}100%{opacity:0;transform:scale(1.6);}}
+
+/* ===== V3 ADDITIONS ===== */
+@keyframes crisisPulse{0%{box-shadow:0 0 0 0 rgba(192,57,43,0.9);}100%{box-shadow:0 0 0 10px rgba(192,57,43,0);}}
+@keyframes shimmer{from{filter:brightness(1) saturate(1);}to{filter:brightness(1.12) saturate(1.3);}}
+.zone-pax-dot.in-crisis{animation:crisisPulse 0.6s infinite alternate!important;outline-color:#e74c3c!important;}
+#map-viewport.boost-collectif{animation:shimmer 2s infinite alternate;}
+#map-viewport.boost-collectif .zone-pax-dot{filter:drop-shadow(0 0 5px var(--yellow)) drop-shadow(1px 1px 0 #000);}
+#pax-detail-modal .modal-card{max-width:320px;}
+.pax-detail-bar-row{display:flex;align-items:center;gap:6px;margin:4px 0;}
+.pax-detail-bar-label{font-size:12px;width:60px;text-align:right;color:var(--cream);opacity:0.8;}
+.pax-detail-bar-track{flex:1;height:8px;background:rgba(255,255,255,0.1);border-radius:4px;overflow:hidden;}
+.pax-detail-bar-fill{height:100%;border-radius:4px;transition:width 0.3s;}
+.pax-detail-val{font-family:'Press Start 2P',monospace;font-size:7px;min-width:28px;text-align:left;}
+.zone-act-badge{font-size:9px;text-align:center;opacity:0.6;margin-top:1px;pointer-events:none;}
+#food-indicator{font-size:13px;white-space:nowrap;padding:2px 6px;background:rgba(0,0,0,0.3);border-radius:3px;border:1px solid rgba(127,255,90,0.3);}
+#boost-collectif-indicator{font-size:9px;white-space:nowrap;padding:2px 5px;background:rgba(255,233,63,0.15);border:1px solid var(--yellow);border-radius:3px;color:var(--yellow);animation:shimmer 1s infinite alternate;}
 </style>
 </head>
 <body>
@@ -381,33 +397,34 @@ html,body{width:100%;height:100%;overflow:hidden;background:var(--dark);font-fam
     <div style="margin-bottom:12px;">
       <span style="color:var(--green);font-family:'Press Start 2P',monospace;font-size:7px;">⚡ PLACER DES PAX</span><br>
       Glisse un pax sur une zone de la carte — ou clique sur une zone puis <strong>+ PAX</strong>.<br>
-      Chaque pax placé génère de la <strong style="color:var(--pink);">Vibe ⚡</strong> et du <strong style="color:var(--teal);">Soin 💜</strong> en continu.
+      La <strong style="color:var(--pink);">Vibe globale ⚡</strong> reflète le bien-être collectif de toustes les pax.
     </div>
 
     <div style="margin-bottom:12px;">
-      <span style="color:var(--green);font-family:'Press Start 2P',monospace;font-size:7px;">🗺 LES ZONES</span><br>
-      • <strong>Playroom ext. &amp; Mix-room</strong> — bonus x2 la nuit 🌙<br>
-      • <strong>Tente cérémonie</strong> — booste les nouvelles arrivées<br>
-      • <strong>Cantina</strong> — repas 2×/jour = boost général 🍽<br>
-      • <strong>PMU</strong> — déclenche des événements aléatoires 🍺<br>
-      • <strong>Welfare &amp; Isoloir</strong> — soignent les pax épuisé·es 💜
+      <span style="color:var(--green);font-family:'Press Start 2P',monospace;font-size:7px;">🗺 LES ZONES &amp; ACTIVITÉS</span><br>
+      • <strong>Playrooms / Mix-room / Tente</strong> — Fun ⚡, monte la vibe<br>
+      • <strong>Cantina</strong> — Cuisine 🍽, produit les repas pour toustes<br>
+      • <strong>Chambres</strong> — Fun doux 💜, reposant<br>
+      • <strong>Welfare</strong> — Repos + support émo. Soigne les crises.<br>
+      • <strong>Isoloir</strong> — Repos intense. Récupération maximale.
+    </div>
+
+    <div style="margin-bottom:12px;">
+      <span style="color:var(--green);font-family:'Press Start 2P',monospace;font-size:7px;">😴 FATIGUE &amp; CRISES</span><br>
+      Les pax accumulent de la <strong>fatigue</strong>, de la <strong>faim</strong>, et de l'<strong>ennui</strong>.<br>
+      Si ça déborde, iels entrent en <strong style="color:var(--red);">crise</strong> 🆘 — envoie quelqu'un au Welfare pour les soutenir !
     </div>
 
     <div style="margin-bottom:12px;">
       <span style="color:var(--green);font-family:'Press Start 2P',monospace;font-size:7px;">✨ SYNERGIES</span><br>
-      Chaque pax a un archétype. Certaines combinaisons créent des <strong>scènes spéciales</strong> et des bonus de production.<br>
-      Dom + Sub, Top + Bottom, Soigneurice + n'importe qui... observe et expérimente.
-    </div>
-
-    <div style="margin-bottom:12px;">
-      <span style="color:var(--green);font-family:'Press Start 2P',monospace;font-size:7px;">😴 ÉNERGIE</span><br>
-      Les pax s'épuisent avec le temps. Envoie-les au <strong>Welfare</strong> ou à l'<strong>Isoloir</strong> pour récupérer — sinon ils tombent en repos forcé.
+      Chaque pax a un archétype. Dom + Sub, Top + Bottom, Soigneurice au Welfare...<br>
+      Certains combos déclenchent des <strong>scènes spéciales</strong> et des bonus.
     </div>
 
     <div style="margin-bottom:12px;">
       <span style="color:var(--green);font-family:'Press Start 2P',monospace;font-size:7px;">👔 LA NORME DÉBARQUE</span><br>
-      Des envahisseurs arrivent et pompent ta Vibe ou ton Soin.<br>
-      Clique dessus pour les <strong style="color:var(--pink);">queeriser</strong> avant qu'iels causent trop de dégâts.
+      Des agents de la Norme arrivent et font baisser la vibe de toustes.<br>
+      Clique dessus pour les <strong style="color:var(--pink);">queeriser</strong>. La vibe élevée les ramollit automatiquement.
     </div>
 
     <div style="margin-bottom:4px;">
@@ -429,16 +446,13 @@ html,body{width:100%;height:100%;overflow:hidden;background:var(--dark);font-fam
 <!-- HUD TOP -->
 <div id="hud">
   <div id="hud-title">LE DÉSORDRE<span>un été qui change tout</span></div>
-  <div class="res-bar vibe">
+  <div class="res-bar vibe" style="flex:2;">
     <span class="res-label">⚡</span>
     <div class="res-track"><div class="res-fill vibe" id="vibe-fill" style="width:0%"></div></div>
-    <span class="res-val" id="vibe-val">0</span>
+    <span class="res-val" id="vibe-val">0%</span>
   </div>
-  <div class="res-bar soin">
-    <span class="res-label">💜</span>
-    <div class="res-track"><div class="res-fill soin" id="soin-fill" style="width:0%"></div></div>
-    <span class="res-val" id="soin-val">0</span>
-  </div>
+  <div id="food-indicator" style="color:var(--green);">🍽 —</div>
+  <div id="boost-collectif-indicator" style="display:none;">✨ BOOST</div>
   <div id="hud-day">LUN<br><span id="hud-time" style="color:var(--teal);font-size:6px;">☀ 08h</span></div>
 </div>
 
@@ -520,6 +534,18 @@ html,body{width:100%;height:100%;overflow:hidden;background:var(--dark);font-fam
   </div>
 </div>
 
+<!-- PAX DETAIL MODAL -->
+<div class="modal-overlay" id="pax-detail-modal">
+  <div class="modal-card" style="background:var(--dark2);color:var(--cream);border-color:var(--purple);">
+    <span class="modal-emoji" id="pax-detail-emoji">🌷</span>
+    <div class="modal-title" id="pax-detail-name" style="color:var(--purple);">NOM</div>
+    <div id="pax-detail-arch" style="text-align:center;font-size:14px;margin-bottom:12px;"></div>
+    <div id="pax-detail-bars"></div>
+    <div id="pax-detail-status" style="font-size:13px;color:var(--yellow);text-align:center;margin:8px 0;"></div>
+    <button class="modal-btn" style="background:var(--purple);" onclick="closeModal('pax-detail-modal')">FERMER</button>
+  </div>
+</div>
+
 <!-- PAX PICKER MODAL -->
 <div class="modal-overlay" id="pax-picker">
   <div class="modal-card" style="background:var(--dark2);color:var(--cream);border-color:var(--green);">
@@ -535,8 +561,8 @@ html,body{width:100%;height:100%;overflow:hidden;background:var(--dark);font-fam
   <div class="end-title">🎉 LE DÉSORDRE<br>A TRIOMPHÉ 🎉</div>
   <div class="end-title-label">La Norme s'enfuit en pleurant.<br>Tout le monde danse autour du compost.</div>
   <div class="end-card">
-    <div>Vibe maximale : <span id="end-vibe">0</span></div>
-    <div>Soin produit : <span id="end-soin">0</span></div>
+    <div>Vibe finale : <span id="end-vibe">0</span></div>
+    <div>Crises résolues : <span id="end-crises">0</span></div>
     <div>Queerisé·es : <span id="end-queer">0</span></div>
     <div>Pax recruté·es : <span id="end-pax">0</span></div>
     <div id="end-title-label" style="margin-top:10px;font-size:16px;color:var(--pink);"></div>
@@ -570,32 +596,38 @@ html,body{width:100%;height:100%;overflow:hidden;background:var(--dark);font-fam
 
 // ===== CONFIG =====
 const CFG = {
-  PROD_TICK: 200,
-  EVENT_TICK: 1000,
-  DAY_SECS: 90,
-  VIBE_MAX: 500,
-  SOIN_MAX: 300,
+  PROD_TICK: 200,        // ms per simulation tick
+  EVENT_TICK: 1000,      // ms per event tick
+  DAY_SECS: 90,          // seconds per game day
+  TICKS_PER_DAY: 450,    // = DAY_SECS * 1000 / PROD_TICK
+  // v3 spec uses 180 ticks/day; scale = 180/450 = 0.4
+  FOOD_STOCK_INIT: 150,
+  FOOD_STOCK_MAX: 300,
   INVADER_INTERVAL: 25000,
   BOOST_DURATION: 4000,
   BOOST_COOLDOWN: 12000,
   MAP_W: 900,
   MAP_H: 675,
-  ENERGY_DRAIN: 0.10,
-  ENERGY_RECOVER: 0.22,
   DAYS: ['LUN','MAR','MER','JEU','VEN','SAM','DIM'],
+  DAY_FATIGUE_MULT: [1.0, 1.0, 1.0, 1.15, 1.35, 1.6, 1.8],
+  BASE_CRISIS_RISK: 0.0004,  // per tick baseline
+  CRISIS_MIN_DELAY: 50,      // ticks between crises per pax
+  ENNUI_BASE:     { cuisine: 60,  support_emo: 75  }, // ticks before ennui starts
+  ENNUI_AFFINITY: { cuisine: 100, support_emo: 125 },
 };
 
 // ===== ZONES =====
+// activityMode: fun_high | fun_low | cuisine | repos | isoloir
 const ZONES = {
-  playroom_ext: { name:'Playroom ext.', type:'high', cap:4, baseProd:{vibe:2.2,soin:0}, bonus:'night_x2', desc:'⚡ Haute énergie. Structures de play en extérieur. Prod x2 la nuit.' },
-  tente_cer:    { name:'Tente cérémonie', type:'high', cap:3, baseProd:{vibe:1.8,soin:0.3}, bonus:'day_x2', desc:'🎪 Haute énergie. Espace rituel et festif. Boost les arrivées.' },
-  mixroom:      { name:'Mix-room', type:'high', cap:3, baseProd:{vibe:1.4,soin:0.6}, bonus:'night_x2', desc:'🌀 Haute énergie. Coussins et atmosphère. Prod x2 la nuit.' },
-  bat1:         { name:'Chambres', type:'mixed', cap:4, baseProd:{vibe:0.9,soin:0.9}, bonus:'cycle', desc:'💜 Espace mixte. Vibe le jour, Soin la nuit. Versatile.' },
-  bat2:         { name:'Playroom int.', type:'high', cap:4, baseProd:{vibe:2.0,soin:0}, bonus:null, desc:'⚡ Haute énergie intérieure. Stable jour/nuit.' },
-  cantina:      { name:'Cantina', type:'low', cap:3, baseProd:{vibe:0,soin:1.7}, bonus:'meal_boost', desc:'🍽 Basse énergie. Les repas boostent tous les pax 2×/jour.' },
-  welfare:      { name:'Espace Welfare', type:'low', cap:2, baseProd:{vibe:0,soin:2.2}, bonus:'regen', desc:'💜 Soin maximal. Régénère les pax épuisé·es.' },
-  isoloir:      { name:'Isoloir', type:'low', cap:1, baseProd:{vibe:0,soin:1.5}, bonus:'solo_boost', desc:'🌿 1 pax max. Régénération profonde pour cellui qui en a besoin.' },
-  pmu:          { name:'PMU', type:'high', cap:2, baseProd:{vibe:1.1,soin:0.3}, bonus:'event_trigger', desc:'🍺 Buvette. Déclenche des événements aléatoires rigolos.' },
+  playroom_ext: { name:'Playroom ext.', type:'high', activityMode:'fun_high', cap:4, bonus:'night_x2', desc:'⚡ Fun haute énergie. Structures de play. Vibe x2 la nuit.' },
+  tente_cer:    { name:'Tente cérémonie', type:'high', activityMode:'fun_high', cap:3, bonus:'day_x2', desc:'🎪 Fun haute énergie. Espace rituel et festif. Vibe x2 le jour.' },
+  mixroom:      { name:'Mix-room', type:'high', activityMode:'fun_high', cap:3, bonus:'night_x2', desc:'🌀 Fun haute énergie. Coussins et atmosphère. Vibe x2 la nuit.' },
+  bat1:         { name:'Chambres', type:'mixed', activityMode:'fun_low', cap:4, bonus:'cycle', desc:'💜 Fun doux. Vibe le jour, reposant la nuit. Versatile.' },
+  bat2:         { name:'Playroom int.', type:'high', activityMode:'fun_high', cap:4, bonus:null, desc:'⚡ Fun haute énergie intérieure. Stable jour/nuit.' },
+  cantina:      { name:'Cantina', type:'low', activityMode:'cuisine', cap:3, bonus:'meal_boost', desc:'🍽 Cuisine collective. Les pax ici nourrissent tout le camp.' },
+  welfare:      { name:'Espace Welfare', type:'low', activityMode:'repos', cap:2, bonus:'regen', desc:'💜 Repos & support émo. Soigne la fatigue et les crises.' },
+  isoloir:      { name:'Isoloir', type:'low', activityMode:'isoloir', cap:1, bonus:'solo_boost', desc:'🌿 1 pax max. Repos profond. Récupération intensive.' },
+  pmu:          { name:'PMU', type:'high', activityMode:'fun_high', cap:2, bonus:'event_trigger', desc:'🍺 Buvette. Déclenche des événements aléatoires.' },
 };
 
 // ===== ARCHÉTYPES =====
@@ -835,14 +867,15 @@ applyMessages();
 // ===== STATE =====
 const state = {
   started: false,
-  vibe: 0, soin: 0,
-  vibeTotal: 0, soinTotal: 0,
+  vibeGlobale: 50,
+  food_stock: 150,
   day: 0, hour: 8, isNight: false,
   dayProgress: 0,
-  pax: {},            // id → {state:'available'|'placed'|'exhausted', energy:100, placedIn:zoneId}
-  zones: {},          // zoneId → {occupants:[], lastBoost:0, boostActive:false}
-  invaders: [],       // actifs
-  stats: { queerised:0, normeChased:0, maxVibe:0 },
+  totalTicks: 0,
+  pax: {},   // id → {state, vibe, faim, ennui, fatigue, placedIn, shiftTicks, solitudeTicks, inCrisis, lastCrisisAt, crisisAutoHandled}
+  zones: {},
+  invaders: [],
+  stats: { queerised:0, normeChased:0, crisisTotal:0, crisisResolved:0, maxVibe:0 },
   unlockedPax: [],
   selectedZone: null,
   boostCooldowns: {},
@@ -853,34 +886,196 @@ const state = {
   questsDone: 0,
   scenes: {},
   scenesTriggered: 0,
+  boostCollectif: false,
+  foodAlerted: { low:false, critical:false, empty:false },
+  _stressToastAt: 0,
 };
 
 
-// ===== PROD DISPLAY HELPER =====
-function calcZoneProdDisplay(zid) {
-  if (!state.started) return null;
-  const zone = ZONES[zid];
-  const zstate = state.zones[zid];
-  if (!zstate || zstate.occupants.length === 0) return null;
-  let v = 0, s = 0;
-  const ticksPerSec = 1000 / CFG.PROD_TICK;
-  zstate.occupants.forEach(paxId => {
-    const pData = PAX_DATA.find(p => p.id === paxId);
-    if (!pData) return;
-    const arch = ARCHETYPES[pData.archetype];
-    let vb = zone.baseProd.vibe * arch.vibeX;
-    let sb = zone.baseProd.soin * arch.soinX;
-    if (pData.pref === 'day' && !state.isNight) { vb *= 1.3; sb *= 1.3; }
-    if (pData.pref === 'night' && state.isNight) { vb *= 1.5; sb *= 1.5; }
-    if (zone.bonus === 'night_x2' && state.isNight) { vb *= 2; sb *= 2; }
-    if (zone.bonus === 'day_x2' && !state.isNight) { vb *= 2; sb *= 2; }
-    if (zone.bonus === 'cycle') { if (state.isNight) sb *= 2; else vb *= 2; }
-    if (zstate.boostActive) { vb *= 2.5; sb *= 2.5; }
-    if (zone.bonus === 'regen') sb *= 2;
-    v += (vb / 10) * ticksPerSec;
-    s += (sb / 10) * ticksPerSec;
+// ===== VIBE GLOBALE =====
+function getVibeGlobale() {
+  const activePax = PAX_DATA.filter(p => {
+    const ps = state.pax[p.id];
+    return ps && (ps.state === 'placed' || ps.state === 'available');
   });
-  return { v: Math.round(v * 10) / 10, s: Math.round(s * 10) / 10 };
+  if (!activePax.length) return 50;
+  const avg = activePax.reduce((sum, p) => sum + state.pax[p.id].vibe, 0) / activePax.length;
+  // Boost collectif (from day 3)
+  let boostMult = 1.0;
+  if (state.day >= 2) {
+    const nonCrisis = activePax.filter(p => !state.pax[p.id].inCrisis);
+    const allHigh = nonCrisis.length > 0 && nonCrisis.every(p => state.pax[p.id].vibe >= 65);
+    state.boostCollectif = allHigh;
+    if (allHigh) boostMult = 1.35;
+  } else {
+    state.boostCollectif = false;
+  }
+  // Pression norme: min(40%, agents × 8%)
+  const normePressure = Math.min(0.40, state.invaders.length * 0.08);
+  return Math.max(0, Math.min(100, avg * boostMult * (1 - normePressure)));
+}
+
+// ===== CRISIS SYSTEM =====
+function triggerCrisis(paxId) {
+  const ps = state.pax[paxId];
+  if (!ps || ps.inCrisis) return;
+  if (state.totalTicks - ps.lastCrisisAt < CFG.CRISIS_MIN_DELAY) return;
+  ps.inCrisis = true;
+  ps.vibe = 5;
+  ps.lastCrisisAt = state.totalTicks;
+  ps.crisisAutoHandled = false;
+  state.stats.crisisTotal++;
+  const pData = PAX_DATA.find(p => p.id === paxId);
+  if (pData) toast(`🆘 ${pData.emoji} ${pData.name} est en crise ! Envoie-lié au Welfare.`);
+  renderZones();
+  if (document.getElementById('sidebar').classList.contains('open')) renderSidebar();
+  setTimeout(() => autoSendToSafety(paxId), 600);
+}
+
+function autoSendToSafety(paxId) {
+  const ps = state.pax[paxId];
+  if (!ps || !ps.inCrisis || ps.crisisAutoHandled) return;
+  ps.crisisAutoHandled = true;
+  const welfare = state.zones['welfare'];
+  if (welfare.occupants.length < ZONES['welfare'].cap && !welfare.occupants.includes(paxId)) {
+    movePaxToZone(paxId, 'welfare'); return;
+  }
+  const isoloir = state.zones['isoloir'];
+  if (isoloir.occupants.length < ZONES['isoloir'].cap && !isoloir.occupants.includes(paxId)) {
+    movePaxToZone(paxId, 'isoloir');
+  }
+}
+
+function movePaxToZone(paxId, zoneId) {
+  const ps = state.pax[paxId];
+  if (ps.placedIn && ps.placedIn !== zoneId) {
+    state.zones[ps.placedIn].occupants = state.zones[ps.placedIn].occupants.filter(id => id !== paxId);
+    if (state.selectedZone === ps.placedIn) openZone(ps.placedIn);
+  }
+  if (!state.zones[zoneId].occupants.includes(paxId)) {
+    state.zones[zoneId].occupants.push(paxId);
+  }
+  ps.state = 'placed';
+  ps.placedIn = zoneId;
+  ps.shiftTicks = 0;
+  renderZones();
+}
+
+function handleCrisis(paxId, zid) {
+  const ps = state.pax[paxId];
+  const welfareOcc = state.zones['welfare'].occupants;
+  const supportAvail = welfareOcc.some(oid => oid !== paxId && state.pax[oid] && !state.pax[oid].inCrisis);
+  if (zid === 'welfare' && supportAvail) {
+    // Check caregiver burnout
+    const caregiverId = welfareOcc.find(oid => oid !== paxId && state.pax[oid] && !state.pax[oid].inCrisis);
+    if (caregiverId) {
+      const cps = state.pax[caregiverId];
+      if (cps.fatigue > 85 && Math.random() < 0.002) {
+        const cp = PAX_DATA.find(p => p.id === caregiverId);
+        if (cp) toast(`😰 ${cp.emoji} ${cp.name} s'effondre d'épuisement !`);
+        triggerCrisis(caregiverId);
+        return;
+      }
+    }
+    ps.vibe = Math.min(100, ps.vibe + 1.4);
+    if (ps.vibe >= 30) exitCrisis(paxId);
+  } else {
+    ps.vibe = Math.max(0, ps.vibe - 0.4);
+  }
+}
+
+function exitCrisis(paxId) {
+  const ps = state.pax[paxId];
+  if (!ps) return;
+  ps.inCrisis = false;
+  ps.vibe = 35;
+  state.stats.crisisResolved++;
+  const pData = PAX_DATA.find(p => p.id === paxId);
+  if (pData) toast(`💚 ${pData.emoji} ${pData.name} s'en sort ! ✨`);
+  renderZones();
+  if (state.selectedZone) openZone(state.selectedZone);
+  if (document.getElementById('sidebar').classList.contains('open')) renderSidebar();
+}
+
+function checkCrisisTrigger(paxId) {
+  const ps = state.pax[paxId];
+  if (!ps || ps.inCrisis) return;
+  if (state.totalTicks - ps.lastCrisisAt < CFG.CRISIS_MIN_DELAY) return;
+  let risk = CFG.BASE_CRISIS_RISK;
+  // Fatigue multipliers
+  if (ps.fatigue > 95)      risk *= 50;
+  else if (ps.fatigue > 85) risk *= 20;
+  else if (ps.fatigue > 75) risk *= 6;
+  else if (ps.fatigue > 60) risk *= 1.6;
+  // Ennui
+  if (ps.ennui > 80) risk *= 2;
+  // Low vibe
+  if (ps.vibe < 20) risk *= 3;
+  // Solitude (J1-3)
+  if (state.day < 3 && ps.placedIn) {
+    const actMode = ZONES[ps.placedIn]?.activityMode;
+    if (actMode !== 'repos' && actMode !== 'isoloir') {
+      const seuil = [150, 225, 300][state.day] || 300;
+      if (ps.solitudeTicks > seuil * 2) risk += 0.012;
+      else if (ps.solitudeTicks > seuil) risk += 0.006;
+    }
+  }
+  // Sunday
+  if (state.day === 6) {
+    if (state.dayProgress > 0.7) risk += 0.00016;
+    else if (state.dayProgress > 0.3) risk += 0.00008;
+    else risk += 0.000032;
+  }
+  // Support émo protection
+  const welfareOcc = state.zones['welfare']?.occupants || [];
+  if (welfareOcc.some(oid => state.pax[oid] && !state.pax[oid].inCrisis)) risk *= 0.3;
+  if (ps.fatigue < 30) risk *= 0.2;
+  if (Math.random() < risk) triggerCrisis(paxId);
+}
+
+// ===== FOOD ALERTS =====
+function checkFoodAlerts() {
+  if (state.food_stock <= 0 && !state.foodAlerted.empty) {
+    state.foodAlerted.empty = true;
+    toast('🚨 PLUS DE NOURRITURE ! Les pax ont très faim. Envoie quelqu\'un à la Cantina !');
+    updateCriee('🚨 La Criée : la Cantina est vide ! Quelqu\'un doit cuisiner MAINTENANT.');
+  } else if (state.food_stock < 20 && !state.foodAlerted.critical) {
+    state.foodAlerted.critical = true;
+    toast('⚠️ Provisions critiques ! La Cantina a besoin de renfort.');
+  } else if (state.food_stock < 50 && !state.foodAlerted.low) {
+    state.foodAlerted.low = true;
+    toast('🍽 Provisions basses. Pense à envoyer quelqu\'un à la Cantina.');
+  }
+  if (state.food_stock > 50) state.foodAlerted.low = false;
+  if (state.food_stock > 20) state.foodAlerted.critical = false;
+  if (state.food_stock > 0) state.foodAlerted.empty = false;
+}
+
+// ===== PAX DETAIL POPUP =====
+function showPaxDetail(paxId) {
+  const p = PAX_DATA.find(d => d.id === paxId);
+  const ps = state.pax[paxId];
+  if (!p || !ps) return;
+  document.getElementById('pax-detail-emoji').textContent = p.emoji;
+  document.getElementById('pax-detail-name').textContent = p.name;
+  document.getElementById('pax-detail-arch').textContent = ARCHETYPES[p.archetype].label + ' · Affinité: ' + ZONES[p.affinity]?.name;
+  const barsEl = document.getElementById('pax-detail-bars');
+  const bars = [
+    { label:'Vibe', val:ps.vibe, color: ps.vibe > 65 ? '#7fff5a' : ps.vibe > 30 ? '#ffe93f' : '#e74c3c' },
+    { label:'Faim', val:ps.faim, color: ps.faim > 70 ? '#e74c3c' : ps.faim > 40 ? '#ffe93f' : '#7fff5a' },
+    { label:'Ennui', val:ps.ennui, color: ps.ennui > 80 ? '#e74c3c' : ps.ennui > 50 ? '#ffe93f' : '#7fff5a' },
+    { label:'Fatigue', val:ps.fatigue, color: ps.fatigue > 85 ? '#e74c3c' : ps.fatigue > 60 ? '#ffe93f' : '#7fff5a' },
+  ];
+  barsEl.innerHTML = bars.map(b => `
+    <div class="pax-detail-bar-row">
+      <div class="pax-detail-bar-label">${b.label}</div>
+      <div class="pax-detail-bar-track"><div class="pax-detail-bar-fill" style="width:${Math.round(b.val)}%;background:${b.color};"></div></div>
+      <div class="pax-detail-val" style="color:${b.color};">${Math.round(b.val)}</div>
+    </div>`).join('');
+  const loc = ps.placedIn ? '📍 ' + ZONES[ps.placedIn].name : '⌛ Disponible';
+  const crisisText = ps.inCrisis ? ' 🆘 EN CRISE' : '';
+  document.getElementById('pax-detail-status').textContent = loc + crisisText;
+  document.getElementById('pax-detail-modal').classList.add('show');
 }
 
 // ===== ZONE ATMOSPHERE DESCRIPTION =====
@@ -938,8 +1133,8 @@ const TUTORIAL_STEPS = [
   },
   {
     target: '#hud',
-    title: '⚡ VIBE  &  💜 SOIN',
-    text: 'Tes deux ressources vitales. La <strong style="color:var(--pink)">Vibe ⚡</strong> monte avec l\'ambiance des zones d\'énergie. Le <strong style="color:var(--teal)">Soin 💜</strong> avec le care et les espaces doux.\nSi l\'une plonge trop bas, mauvaise vibe générale.',
+    title: '⚡ VIBE GLOBALE',
+    text: 'La jauge montre la <strong style="color:var(--pink)">Vibe globale</strong> — la moyenne du bien-être de toustes les pax.\nChaque pax a sa propre Vibe, sa Fatigue, sa Faim, son Ennui. Si quelqu\'un va très mal, ça tire tout le monde vers le bas.',
     pos: 'bottom',
   },
   {
@@ -971,20 +1166,20 @@ const TUTORIAL_STEPS = [
   {
     target: '#quest-fab',
     title: '📋 LES QUÊTES',
-    text: 'Chaque jour, de nouvelles quêtes apparaissent ici. Remplis-les pour des bonus de Vibe et Soin. Le badge indique combien sont en cours.',
+    text: 'Chaque jour, de nouvelles quêtes apparaissent ici. Remplis-les pour des bonus de Vibe. Le badge indique combien sont en cours.',
     pos: 'top-right',
     padding: 16,
   },
   {
     target: '#hud',
-    title: '😴 ÉNERGIE DES PAX',
-    text: 'Les pax s\'épuisent avec le temps. Surveille l\'outline <strong style="color:#e74c3c">rouge</strong> autour de leurs emojis sur la carte.\nEnvoie-les au <strong>Welfare</strong> ou à l\'<strong>Isoloir</strong> pour récupérer.',
+    title: '😴 FATIGUE & CRISES',
+    text: 'Les pax accumulent de la <strong style="color:#e74c3c">Fatigue</strong>, surtout en fin de semaine.\nUn pax épuisé risque une <strong>crise émotionnelle</strong> — outline rouge pulsant sur la carte.\nEnvoie-les au <strong>Welfare</strong> ou à l\'<strong>Isoloir</strong> pour récupérer.',
     pos: 'bottom',
   },
   {
     target: null,
     title: '👔 LES AGENTS DE LA NORME',
-    text: 'La Norme va débarquer régulièrement sur la carte.\nCes personnages pompent ta Vibe ou ton Soin — et si plusieurs arrivent en même temps, tes pax s\'épuisent encore plus vite !\n<strong style="color:var(--pink)">Clique dessus</strong> pour les queeriser. C\'est comme ça qu\'on gagne.',
+    text: 'La Norme va débarquer régulièrement sur la carte.\nCes personnages réduisent la Vibe de toustes — si 5 arrivent en même temps, −40% sur la Vibe globale !\n<strong style="color:var(--pink)">Clique dessus</strong> pour les queeriser. Plus ta Vibe est haute, plus c\'est facile.',
     pos: 'center',
   },
   {
@@ -1153,7 +1348,7 @@ let _touchGhost = null;
 
 function dropPaxOnZone(paxId, zoneId) {
   const ps = state.pax[paxId];
-  if (!ps || ps.state === 'locked' || ps.state === 'exhausted') return;
+  if (!ps || ps.state === 'locked') return;
   if (ps.placedIn === zoneId) return;
   const zone = ZONES[zoneId];
   const zstate = state.zones[zoneId];
@@ -1163,6 +1358,8 @@ function dropPaxOnZone(paxId, zoneId) {
   }
   ps.state = 'placed';
   ps.placedIn = zoneId;
+  ps.shiftTicks = 0;
+  ps.ennui = Math.max(0, ps.ennui - 5); // activity change eases ennui
   zstate.occupants.push(paxId);
   renderZones();
   if (state.selectedZone) openZone(state.selectedZone);
@@ -1256,12 +1453,20 @@ window.addEventListener('touchend', e => {
 // ===== INIT =====
 function initState() {
   PAX_DATA.forEach(p => {
-    state.pax[p.id] = { state:'locked', energy:100, maxEnergy:100, placedIn:null };
+    state.pax[p.id] = {
+      state: 'locked',
+      vibe: 70, faim: 0, ennui: 0, fatigue: 0,
+      placedIn: null,
+      shiftTicks: 0,
+      solitudeTicks: 0,
+      inCrisis: false,
+      lastCrisisAt: -999,
+      crisisAutoHandled: false,
+    };
   });
   Object.keys(ZONES).forEach(z => {
     state.zones[z] = { occupants:[], lastBoost:0, boostActive:false };
   });
-  // Unlock pax du jour 0
   PAX_DATA.filter(p => p.unlockDay === 0).forEach(p => {
     state.pax[p.id].state = 'available';
     state.unlockedPax.push(p.id);
@@ -1284,97 +1489,159 @@ function startGame() {
   setTimeout(tutoStart, 400);
 }
 
-// ===== PRODUCTION TICK =====
+// ===== PRODUCTION TICK (v3) =====
 function productionTick() {
   if (!state.started || state.gameEnded) return;
-  let vibeGain = 0, soinGain = 0;
+  state.totalTicks++;
+
+  // Food stock: collective consumption
+  const totalActive = PAX_DATA.filter(p => state.pax[p.id] && (state.pax[p.id].state === 'placed' || state.pax[p.id].state === 'available')).length;
+  state.food_stock = Math.max(0, state.food_stock - 0.16 * totalActive);
+
+  // Per-pax simulation per zone
   Object.keys(ZONES).forEach(zid => {
     const zone = ZONES[zid];
     const zstate = state.zones[zid];
-    const occ = zstate.occupants;
-    if (occ.length === 0) return;
+    const occ = zstate.occupants.slice(); // snapshot
+    if (!occ.length) return;
+
     occ.forEach(paxId => {
       const pData = PAX_DATA.find(p => p.id === paxId);
       if (!pData) return;
+      const ps = state.pax[paxId];
+      if (!ps) return;
       const arch = ARCHETYPES[pData.archetype];
-      let vBase = zone.baseProd.vibe * arch.vibeX;
-      let sBase = zone.baseProd.soin * arch.soinX;
-      // Pref jour/nuit
-      if (pData.pref === 'day' && !state.isNight) { vBase *= 1.3; sBase *= 1.3; }
-      if (pData.pref === 'night' && state.isNight) { vBase *= 1.5; sBase *= 1.5; }
-      // Bonus zone nuit/jour
-      if (zone.bonus === 'night_x2' && state.isNight) { vBase *= 2; sBase *= 2; }
-      if (zone.bonus === 'day_x2' && !state.isNight) { vBase *= 2; sBase *= 2; }
-      if (zone.bonus === 'cycle') { if (state.isNight) sBase *= 2; else vBase *= 2; }
-      // Switch
-      if (pData.archetype === 'switch') { if (state.isNight) sBase *= 1.5; else vBase *= 1.5; }
-      // Synergies
-      const coOcc = occ.filter(o => o !== paxId);
-      coOcc.forEach(otherId => {
-        const oth = PAX_DATA.find(p => p.id === otherId);
-        if (!oth) return;
-        if (arch.synergy && arch.synergy.includes(oth.archetype)) {
-          vBase *= 1 + (arch.synergyBonus || 0.3);
-          sBase *= 1 + (arch.synergyBonus || 0.3);
+      const hasAffinity = pData.affinity === zid;
+      const actMode = zone.activityMode;
+
+      ps.shiftTicks++;
+
+      // ── FATIGUE ──
+      let dFatigue = 0;
+      if      (actMode === 'fun_high')    dFatigue = 0.16;
+      else if (actMode === 'fun_low')     dFatigue = 0.04;
+      else if (actMode === 'cuisine')     dFatigue = hasAffinity ? 0.16 : 0.32;
+      else if (actMode === 'repos')       dFatigue = -0.8;
+      else if (actMode === 'isoloir')     dFatigue = -1.2;
+      // support émo = repos actif (fatigue still drains from emotional effort)
+      if (actMode === 'repos' && zid === 'welfare') {
+        const isSupportRole = occ.some(oid => oid !== paxId && state.pax[oid]?.inCrisis);
+        if (isSupportRole) dFatigue = hasAffinity ? 0.4 : 0.6; // tiring to support others
+      }
+      if (dFatigue > 0) dFatigue *= CFG.DAY_FATIGUE_MULT[Math.min(state.day, 6)];
+      ps.fatigue = Math.max(0, Math.min(100, ps.fatigue + dFatigue));
+
+      // ── FOOD PRODUCTION (cantina) ──
+      if (actMode === 'cuisine') {
+        state.food_stock = Math.min(CFG.FOOD_STOCK_MAX, state.food_stock + 1.6);
+      }
+
+      // ── ENNUI (S-curve) ──
+      if (actMode === 'cuisine' || (actMode === 'repos' && zid === 'welfare')) {
+        const actKey = actMode === 'cuisine' ? 'cuisine' : 'support_emo';
+        const seuil = hasAffinity ? CFG.ENNUI_AFFINITY[actKey] : CFG.ENNUI_BASE[actKey];
+        if      (ps.shiftTicks >= seuil * 2.8) ps.ennui += hasAffinity ? 0.16 : 0.48;
+        else if (ps.shiftTicks >= seuil * 1.8) ps.ennui += hasAffinity ? 0.06 : 0.20;
+        else if (ps.shiftTicks >= seuil)        ps.ennui += hasAffinity ? 0.02 : 0.06;
+      } else if (actMode === 'fun_high' || actMode === 'fun_low') {
+        ps.ennui = Math.max(0, ps.ennui - 0.20);
+      }
+      ps.ennui = Math.max(0, Math.min(100, ps.ennui));
+
+      // ── FAIM (from food_stock) ──
+      if      (state.food_stock > 100) ps.faim = Math.max(0, ps.faim - 0.08);
+      else if (state.food_stock >= 50) { /* neutral */ }
+      else if (state.food_stock >= 20) ps.faim = Math.min(100, ps.faim + 0.12);
+      else if (state.food_stock > 0)   ps.faim = Math.min(100, ps.faim + 0.32);
+      else                             ps.faim = Math.min(100, ps.faim + 0.80);
+
+      // ── VIBE INDIVIDUELLE ──
+      if (!ps.inCrisis) {
+        let dVibe = 0;
+
+        // Fun production
+        if (actMode === 'fun_high' || actMode === 'fun_low') {
+          let vBase = actMode === 'fun_high' ? 0.16 : 0.08;
+          vBase *= arch.vibeX;
+          if (hasAffinity) vBase *= 1.4;
+          if (pData.pref === 'day'   && !state.isNight) vBase *= 1.3;
+          if (pData.pref === 'night' &&  state.isNight) vBase *= 1.5;
+          if (zone.bonus === 'night_x2' && state.isNight) vBase *= 2;
+          if (zone.bonus === 'day_x2'   && !state.isNight) vBase *= 2;
+          if (zone.bonus === 'cycle') vBase *= state.isNight ? 0.6 : 1.4;
+          if (pData.archetype === 'switch') vBase *= state.isNight ? 1.2 : 1.3;
+          // Synergies
+          const coOcc = occ.filter(o => o !== paxId);
+          coOcc.forEach(otherId => {
+            const oth = PAX_DATA.find(p => p.id === otherId);
+            if (oth && arch.synergy && arch.synergy.includes(oth.archetype))
+              vBase *= (1 + (arch.synergyBonus || 0.3));
+          });
+          if (pData.archetype === 'slut')                vBase *= (1 + (occ.length - 1) * 0.25);
+          if (pData.archetype === 'toy' && occ.length === 1) vBase *= 0.3;
+          if (pData.archetype === 'festif') coOcc.forEach(() => { vBase *= 1.15; });
+          if (zstate.boostActive) vBase *= 2;
+          dVibe += vBase;
         }
-      });
-      // Slut crowd bonus
-      if (pData.archetype === 'slut') { const bonus = (occ.length - 1) * 0.25; vBase *= (1+bonus); }
-      // Toy solo malus
-      if (pData.archetype === 'toy' && occ.length === 1) { vBase *= 0.3; sBase *= 0.3; }
-      // Festif area bonus
-      if (pData.archetype === 'festif') { coOcc.forEach(() => { vBase *= 1.15; }); }
-      // Boost actif
-      if (zstate.boostActive) { vBase *= 2.5; sBase *= 2.5; }
-      // Welfare regen (soin boost)
-      if (zone.bonus === 'regen') { sBase *= 2; }
-      vibeGain += vBase / 10; // divisé par nb ticks/sec
-      soinGain += sBase / 10;
+
+        // Malus
+        if (ps.faim    > 70) dVibe -= 0.24;
+        if (ps.ennui   > 80) dVibe -= 0.20;
+        if (ps.fatigue > 85) dVibe -= 0.16;
+        if (state.invaders.length > 0) dVibe -= state.invaders.length * 0.032;
+
+        // Solitude (J1-3) — not in low-energy zones
+        if (state.day < 3 && actMode !== 'repos' && actMode !== 'isoloir') {
+          const alone = occ.length === 1;
+          if (alone) {
+            ps.solitudeTicks++;
+            const seuil = [150, 225, 300][state.day] || 300;
+            if      (ps.solitudeTicks > seuil * 2) dVibe -= 0.48;
+            else if (ps.solitudeTicks > seuil)     dVibe -= 0.12;
+            else                                   dVibe -= 0.04;
+          } else {
+            ps.solitudeTicks = Math.max(0, ps.solitudeTicks - 2);
+          }
+        }
+
+        // Sunday melancholy
+        if (state.day === 6) {
+          if      (state.dayProgress > 0.7) dVibe -= 0.10;
+          else if (state.dayProgress > 0.3) dVibe -= 0.048;
+          else                              dVibe -= 0.020;
+        }
+
+        // Natural slow recovery
+        if (ps.vibe < 40 && dVibe < 0) dVibe += 0.06;
+
+        ps.vibe = Math.max(0, Math.min(100, ps.vibe + dVibe));
+
+        if (ps.vibe <= 0) triggerCrisis(paxId);
+        else checkCrisisTrigger(paxId);
+
+      } else {
+        handleCrisis(paxId, zid);
+      }
     });
   });
-  // --- Fatigue des pax ---
-  // Si 2+ agents de la norme sont actifs, stress collectif → drain accéléré sur les pax hors welfare/isoloir
-  const normeStress = Math.max(0, state.invaders.length - 1);
-  let stressToastCooldown = state._stressToastAt || 0;
+
+  // Update faim for available (non-placed) pax too
   PAX_DATA.forEach(p => {
     const ps = state.pax[p.id];
-    if (ps.state === 'placed') {
-      let drain = CFG.ENERGY_DRAIN;
-      // Stress supplémentaire des agents de la norme
-      if (normeStress > 0 && ps.placedIn !== 'welfare' && ps.placedIn !== 'isoloir') {
-        drain += CFG.ENERGY_DRAIN * normeStress * 0.6;
-      }
-      ps.energy = Math.max(0, ps.energy - drain);
-      // Welfare récupère l'énergie
-      if (ps.placedIn === 'welfare') ps.energy = Math.min(ps.maxEnergy, ps.energy + CFG.ENERGY_RECOVER);
-      if (ps.energy <= 0) {
-        toast(`😴 ${p.emoji} ${p.name} est épuisé·e !`);
-        const oldZone = ps.placedIn;
-        if (oldZone) state.zones[oldZone].occupants = state.zones[oldZone].occupants.filter(id => id !== p.id);
-        ps.state = 'exhausted';
-        ps.placedIn = null;
-        renderZones();
-        if (state.selectedZone === oldZone) openZone(oldZone);
-      }
-    } else if (ps.state === 'exhausted') {
-      ps.energy = Math.min(ps.maxEnergy, ps.energy + CFG.ENERGY_RECOVER * 0.4);
-      if (ps.energy >= 35) {
-        ps.state = 'available';
-        toast(`✨ ${p.emoji} ${p.name} est disponible.`);
-        renderSidebar();
-      }
-    }
+    if (!ps || ps.placedIn || ps.state === 'locked') return;
+    if      (state.food_stock > 100) ps.faim = Math.max(0, ps.faim - 0.04);
+    else if (state.food_stock < 20)  ps.faim = Math.min(100, ps.faim + 0.16);
   });
-  // Toast de stress collectif (max 1 toutes les 15 sec)
-  if (normeStress >= 2 && Date.now() - stressToastCooldown > 15000) {
-    toast(`😰 ${state.invaders.length} agents de la Norme actifs — les pax perdent de l\'énergie !`);
-    state._stressToastAt = Date.now();
-  }
-  state.vibe = Math.min(CFG.VIBE_MAX, state.vibe + vibeGain);
-  state.soin = Math.min(CFG.SOIN_MAX, state.soin + soinGain);
-  state.vibeTotal += vibeGain;
-  state.soinTotal += soinGain;
-  if (state.vibe > state.stats.maxVibe) state.stats.maxVibe = Math.round(state.vibe);
+
+  state.food_stock = Math.max(0, Math.min(CFG.FOOD_STOCK_MAX, state.food_stock));
+  checkFoodAlerts();
+
+  state.vibeGlobale = getVibeGlobale();
+  if (state.vibeGlobale > state.stats.maxVibe) state.stats.maxVibe = Math.round(state.vibeGlobale);
+
+  // Boost collectif visual
+  document.getElementById('map-viewport')?.classList.toggle('boost-collectif', state.boostCollectif);
+
   checkScenes();
   renderHUD();
 }
@@ -1382,7 +1649,6 @@ function productionTick() {
 // ===== EVENT TICK =====
 function eventTick() {
   if (!state.started || state.gameEnded) return;
-  // Avance le temps
   state.dayProgress += (1 / CFG.DAY_SECS);
   if (state.dayProgress >= 1) {
     state.dayProgress = 0;
@@ -1390,7 +1656,6 @@ function eventTick() {
     if (state.day >= 7) { endGame(); return; }
     onNewDay();
   }
-  // Heure simulée (8h → 8h le lendemain)
   state.hour = 8 + Math.floor(state.dayProgress * 24);
   if (state.hour >= 32) state.hour -= 24;
   const wasNight = state.isNight;
@@ -1402,18 +1667,17 @@ function eventTick() {
   // Meal boost (midi + soir)
   if ((state.hour === 13 || state.hour === 20) && !state.mealBoosted) {
     if (state.zones['cantina'].occupants.length > 0) {
-      toast('🍽 Le repas est servi ! Boost de Soin pour tout le monde.');
-      state.soin = Math.min(CFG.SOIN_MAX, state.soin + 40);
+      state.food_stock = Math.min(CFG.FOOD_STOCK_MAX, state.food_stock + 60);
+      toast('🍽 Le repas est servi ! Les provisions remontent.');
       state.mealBoosted = true;
       setTimeout(() => state.mealBoosted = false, 3000);
     }
   }
-  // Unlock pax selon le jour
+  // Unlock pax
   PAX_DATA.filter(p => p.unlockDay === state.day && state.pax[p.id].state === 'locked').forEach(p => {
     state.pax[p.id].state = 'available';
     state.unlockedPax.push(p.id);
-    const uq = PAX_UNLOCK[p.id];
-    showPaxArrival(p, uq);
+    showPaxArrival(p, PAX_UNLOCK[p.id]);
   });
   renderHUD();
   updateInvaders();
@@ -1423,31 +1687,38 @@ function onNewDay() {
   const dayName = CFG.DAYS[state.day];
   toast(`🌅 Nouveau jour : ${dayName}`);
   updateCriee(`📢 La Criée de ${dayName} : bonne journée à toustes.`);
-  // Nouvelles quêtes du jour
+  // Reset shift tracking; ennui eases at new day
+  PAX_DATA.forEach(p => {
+    const ps = state.pax[p.id];
+    if (!ps) return;
+    ps.shiftTicks = 0;
+    ps.ennui = Math.max(0, ps.ennui - 5);
+    if (state.day >= 3) ps.solitudeTicks = 0; // solitude mechanic disabled from day 3
+  });
+  // Daily quests
   const shuffled = QUEST_POOL.slice().sort(() => Math.random() - 0.5);
   state.quests = shuffled.slice(0, 2);
-  state.quests._prevQueer = state.stats.queerised;
+  state.quests._prevQueer  = state.stats.queerised;
   state.quests._prevScenes = state.scenesTriggered;
   state.quests.forEach(q => { q.done = false; });
+  if (state.day === 4) {
+    clearInterval(state.invaderTimer);
+    state.invaderTimer = setInterval(spawnInvader, 12000);
+    toast('🎉 VENDREDI ! Grande soirée Teuf — les agents de la Norme arrivent plus vite !');
+  }
   setTimeout(() => {
     renderQuestPanel();
     const pending = (state.quests || []).filter(q => !q.done).length;
     const badge = document.getElementById('quest-fab-badge');
     if (badge) { badge.textContent = pending; badge.style.display = pending > 0 ? 'flex' : 'none'; }
-    updateCriee('📋 Nouvelles quêtes disponibles ! Ouvre le panneau 📋 pour les voir.');
+    updateCriee('📋 Nouvelles quêtes disponibles !');
   }, 800);
-  // Vendredi : accélération
-  if (state.day === 4) {
-    clearInterval(state.invaderTimer);
-    state.invaderTimer = setInterval(spawnInvader, 12000);
-    toast('🎉 VENDREDI ! Grosse soirée Teuf — les invaders arrivent plus vite !');
-  }
 }
 
 // ===== INVADERS =====
 function spawnInvader() {
   if (!state.started || state.gameEnded) return;
-  if (state.invaders.length >= 4) return;
+  if (state.invaders.length >= 5) return; // v3: max 5
   const inv = INVADERS_DATA[Math.floor(Math.random() * INVADERS_DATA.length)];
   // Position de départ (bords de la carte)
   const side = Math.floor(Math.random() * 4);
@@ -1472,7 +1743,7 @@ function renderInvader(inv) {
   el.textContent = inv.data.emoji;
   el.style.left = inv.x + 'px';
   el.style.top = inv.y + 'px';
-  // Barre de vie
+  // HP bar
   const bar = document.createElement('div');
   bar.className = 'invader-bar';
   const fill = document.createElement('div');
@@ -1480,25 +1751,28 @@ function renderInvader(inv) {
   fill.style.width = '100%';
   bar.appendChild(fill);
   el.appendChild(bar);
-  // Bulle
   const bubble = document.createElement('div');
   bubble.className = 'inv-bubble';
   bubble.textContent = inv.data.quote;
   el.appendChild(bubble);
-  // Click
   el.addEventListener('click', () => clickInvader(inv.id));
   vp.appendChild(el);
   inv.el = el;
   inv.barEl = fill;
-  // Apply damage
-  if (inv.data.damage.vibe) state.vibe = Math.max(0, state.vibe - inv.data.damage.vibe);
-  if (inv.data.damage.soin) state.soin = Math.max(0, state.soin - inv.data.damage.soin);
+  // Spawn effect: reduce vibe of placed pax slightly
+  const dmg = inv.data.damage?.vibe || 3;
+  const placedActive = PAX_DATA.filter(p => state.pax[p.id]?.state === 'placed' && !state.pax[p.id]?.inCrisis);
+  if (placedActive.length > 0) {
+    const perPax = (dmg * 0.3) / placedActive.length;
+    placedActive.forEach(p => { state.pax[p.id].vibe = Math.max(0, state.pax[p.id].vibe - perPax); });
+  }
+  toast(`😤 ${inv.data.emoji} ${inv.data.name} débarque !`);
 }
 
 function updateInvaders() {
   if (!state.invaders.length) return;
   state.invaders.forEach(inv => {
-    // Mouvement vers target
+    // Movement
     const dx = inv.tx - inv.x; const dy = inv.ty - inv.y;
     const dist = Math.sqrt(dx*dx + dy*dy);
     if (dist > 5) {
@@ -1506,26 +1780,27 @@ function updateInvaders() {
       inv.y += (dy / dist) * 3;
       if (inv.el) { inv.el.style.left = inv.x + 'px'; inv.el.style.top = inv.y + 'px'; }
     }
-    // Vibe locale = vibe globale / 10 (simplifié)
-    const localVibe = state.vibe / 10;
-    const vibeNeeded = inv.data.threshold;
-    // Réduire la santé si vibe assez haute
-    if (localVibe >= vibeNeeded / 10) {
-      inv.health -= 3;
-      if (inv.barEl) inv.barEl.style.width = Math.max(0, inv.health) + '%';
-      if (inv.health <= 0) queeriseInvader(inv.id);
-    }
+    // Queerisation speed based on vibe globale (v3)
+    const vg = state.vibeGlobale;
+    let hpLoss = 0;
+    if      (vg > 80) hpLoss = 10; // auto ~10s
+    else if (vg > 60) hpLoss = 4;  // auto ~25s
+    else if (vg > 40) hpLoss = 1;  // slow
+    // < 40: click only (hpLoss = 0)
+    inv.health -= hpLoss;
+    if (inv.barEl) inv.barEl.style.width = Math.max(0, inv.health) + '%';
+    if (inv.health <= 0) queeriseInvader(inv.id);
   });
 }
 
 function clickInvader(id) {
   const inv = state.invaders.find(i => i.id === id);
   if (!inv) return;
-  inv.health -= 20;
+  inv.health -= 25; // v3: -25 HP per click
   if (inv.barEl) inv.barEl.style.width = Math.max(0, inv.health) + '%';
   state.stats.normeChased++;
   if (inv.health <= 0) queeriseInvader(id);
-  else { spawnConfetti(inv.x, inv.y, '✊'); toast('✊ Résistance ! Continue !'); }
+  else { spawnConfetti(inv.x, inv.y, '✊'); toast('✊ Résistance !'); }
 }
 
 function queeriseInvader(id) {
@@ -1533,20 +1808,36 @@ function queeriseInvader(id) {
   if (idx === -1) return;
   const inv = state.invaders[idx];
   state.invaders.splice(idx, 1);
-  // Confettis
   for (let i = 0; i < 6; i++) {
     setTimeout(() => spawnConfetti(inv.x + (Math.random()-0.5)*60, inv.y + (Math.random()-0.5)*60,
       ['🌈','🎉','💜','⭐','🦋','✨'][Math.floor(Math.random()*6)]), i * 80);
   }
   if (inv.el) inv.el.remove();
   state.stats.queerised++;
-  // Cadeau aléatoire
+  // Gift: boost vibe or food
   const roll = Math.random();
   let gift = '';
-  if (roll < 0.4) { state.vibe = Math.min(CFG.VIBE_MAX, state.vibe + 50); gift = '+50 Vibe'; }
-  else if (roll < 0.7) { state.soin = Math.min(CFG.SOIN_MAX, state.soin + 30); gift = '+30 Soin'; }
-  else { gift = '🎁 Un souvenir de sa révélation'; }
-  // Modal
+  if (roll < 0.5) {
+    PAX_DATA.forEach(p => {
+      const ps = state.pax[p.id];
+      if (ps && ps.state === 'placed' && !ps.inCrisis) ps.vibe = Math.min(100, ps.vibe + 8);
+    });
+    gift = '+8 Vibe pour toustes 🌈';
+  } else if (roll < 0.8) {
+    PAX_DATA.forEach(p => {
+      const ps = state.pax[p.id];
+      if (ps && ps.state === 'placed') ps.faim = Math.max(0, ps.faim - 20);
+    });
+    state.food_stock = Math.min(CFG.FOOD_STOCK_MAX, state.food_stock + 40);
+    gift = '+Provisions & -Faim 🍽';
+  } else {
+    // Reduce fatigue
+    PAX_DATA.forEach(p => {
+      const ps = state.pax[p.id];
+      if (ps && ps.state === 'placed') ps.fatigue = Math.max(0, ps.fatigue - 10);
+    });
+    gift = '💤 La tension retombe. -Fatigue pour toustes.';
+  }
   showDiscovery(inv.data, gift);
   checkEnd();
 }
@@ -1594,7 +1885,7 @@ function refreshPaxPickerGrid() {
     div.dataset.paxId = p.id;
     div.className = 'pax-option' + (!isAvail ? ' placed' : '');
     if (isAvail && prevSelected.has(p.id)) div.classList.add('selected');
-    const location = ps.placedIn ? ' · ' + ZONES[ps.placedIn].name : ps.state === 'exhausted' ? ' · 😴' : '';
+    const location = ps.placedIn ? ' · ' + ZONES[ps.placedIn].name : ps.inCrisis ? ' · 🆘' : '';
     div.innerHTML = `<span class="pax-opt-emoji">${p.emoji}</span><span class="pax-opt-name">${p.name}</span><span class="pax-opt-arch">${ARCHETYPES[p.archetype].label}${location}</span>`;
     if (isAvail) {
       div.onclick = () => {
@@ -1633,6 +1924,8 @@ function confirmPaxPicker() {
     if (state.zones[zoneId].occupants.length >= ZONES[zoneId].cap) return;
     ps.state = 'placed';
     ps.placedIn = zoneId;
+    ps.shiftTicks = 0;
+    ps.ennui = Math.max(0, ps.ennui - 5);
     state.zones[zoneId].occupants.push(paxId);
   });
   const names = selected.map(id => { const p = PAX_DATA.find(d => d.id === id); return p ? p.emoji + ' ' + p.name : ''; }).join(', ');
@@ -1657,6 +1950,8 @@ function placePax(paxId, zoneId) {
   }
   ps.state = 'placed';
   ps.placedIn = zoneId;
+  ps.shiftTicks = 0;
+  ps.ennui = Math.max(0, ps.ennui - 5);
   state.zones[zoneId].occupants.push(paxId);
   closeModal('pax-picker');
   renderZones();
@@ -1671,6 +1966,8 @@ function removePaxFromZone(paxId) {
   state.zones[ps.placedIn].occupants = state.zones[ps.placedIn].occupants.filter(id => id !== paxId);
   ps.state = 'available';
   ps.placedIn = null;
+  ps.shiftTicks = 0;
+  ps.ennui = Math.max(0, ps.ennui - 5);
   renderZones();
   if (state.selectedZone) openZone(state.selectedZone);
   const p = PAX_DATA.find(d => d.id === paxId);
@@ -1744,12 +2041,26 @@ function boostZone() {
 
 // ===== RENDER =====
 function renderHUD() {
-  const vPct = Math.round((state.vibe / CFG.VIBE_MAX) * 100);
-  const sPct = Math.round((state.soin / CFG.SOIN_MAX) * 100);
+  const vPct = Math.round(state.vibeGlobale);
   document.getElementById('vibe-fill').style.width = vPct + '%';
-  document.getElementById('soin-fill').style.width = sPct + '%';
-  document.getElementById('vibe-val').textContent = Math.round(state.vibe);
-  document.getElementById('soin-val').textContent = Math.round(state.soin);
+  document.getElementById('vibe-val').textContent = vPct + '%';
+  // Color by value
+  const fill = document.getElementById('vibe-fill');
+  if (vPct < 30) fill.style.background = 'linear-gradient(90deg,#c0392b,#e74c3c)';
+  else if (vPct < 60) fill.style.background = 'linear-gradient(90deg,var(--orange),var(--yellow))';
+  else fill.style.background = 'linear-gradient(90deg,var(--pink),var(--yellow))';
+  // Food indicator
+  const foodEl = document.getElementById('food-indicator');
+  if (foodEl) {
+    const fp = Math.round(Math.max(0, state.food_stock) / CFG.FOOD_STOCK_MAX * 100);
+    foodEl.textContent = '🍽 ' + fp + '%';
+    foodEl.style.color = fp < 15 ? 'var(--red)' : fp < 35 ? 'var(--orange)' : 'var(--green)';
+    foodEl.style.borderColor = fp < 15 ? 'rgba(192,57,43,0.5)' : 'rgba(127,255,90,0.3)';
+  }
+  // Boost collectif
+  const boostEl = document.getElementById('boost-collectif-indicator');
+  if (boostEl) boostEl.style.display = state.boostCollectif ? 'block' : 'none';
+  // Day/time
   const day = CFG.DAYS[Math.min(state.day, 6)];
   const h = state.hour % 24;
   const icon = state.isNight ? '🌙' : '☀';
@@ -1760,49 +2071,45 @@ function renderZones() {
   Object.keys(ZONES).forEach(zid => {
     const zstate = state.zones[zid];
     const elId = 'zone-' + zid.replace(/_/g,'-');
-    let el = document.getElementById(elId);
+    const el = document.getElementById(elId);
     if (!el) return;
-    // Vider et re-rendre
-    // Garder les classes de base
-    const isActive = el.classList.contains('active');
-    const isBoosted = el.classList.contains('boosted');
     el.innerHTML = '';
     // Label
     const label = document.createElement('div');
     label.className = 'zone-label';
     label.textContent = ZONES[zid].name;
     el.appendChild(label);
-    // Pax
+    // Pax dots
     if (zstate.occupants.length > 0) {
       const row = document.createElement('div');
       row.className = 'zone-pax-row';
       zstate.occupants.forEach(pid => {
         const p = PAX_DATA.find(d => d.id === pid);
         if (!p) return;
+        const ps2 = state.pax[p.id];
         const span = document.createElement('span');
         span.className = 'zone-pax-dot';
-        const ps2 = state.pax[p.id];
-        const energyPct = Math.round((ps2.energy||0) / (ps2.maxEnergy||100) * 100);
-        span.style.outline = energyPct > 60 ? '2px solid transparent' : energyPct > 30 ? '2px solid #ffe93f' : '2px solid #e74c3c';
+        let outlineColor = '#7fff5a';
+        if (ps2.inCrisis) {
+          outlineColor = '#e74c3c';
+          span.classList.add('in-crisis');
+        } else if (ps2.vibe < 30) outlineColor = '#e74c3c';
+        else if (ps2.vibe < 60)   outlineColor = '#ffe93f';
+        span.style.outline = '2.5px solid ' + outlineColor;
         span.style.borderRadius = '50%';
-        span.title = p.name + ' — énergie ' + energyPct + '%';
+        span.title = p.name + ' — vibe ' + Math.round(ps2.vibe) + (ps2.inCrisis ? ' 🆘 CRISE' : '');
         span.textContent = p.emoji;
         span.style.animationDelay = Math.random() * 2 + 's';
         makePaxDraggable(span, p.id, p.emoji);
         row.appendChild(span);
       });
       el.appendChild(row);
-    }
-    // Production indicator
-    const prod = calcZoneProdDisplay(zid);
-    if (prod && (prod.v > 0 || prod.s > 0)) {
-      const prodEl = document.createElement('div');
-      prodEl.className = 'zone-prod';
-      let parts = [];
-      if (prod.v > 0) parts.push('<span class="v">+' + prod.v + '⚡</span>');
-      if (prod.s > 0) parts.push('<span class="s">+' + prod.s + '💜</span>');
-      prodEl.innerHTML = parts.join('');
-      el.appendChild(prodEl);
+      // Activity badge
+      const actIcons = { fun_high:'⚡', fun_low:'💜', cuisine:'🍽', repos:'💤', isoloir:'🌿' };
+      const badge = document.createElement('div');
+      badge.className = 'zone-act-badge';
+      badge.textContent = actIcons[ZONES[zid].activityMode] || '';
+      el.appendChild(badge);
     }
     // Cap indicator
     const cap = document.createElement('div');
@@ -1823,6 +2130,8 @@ function sendToWelfare(paxId) {
   }
   ps.state = 'placed';
   ps.placedIn = 'welfare';
+  ps.shiftTicks = 0;
+  ps.ennui = Math.max(0, ps.ennui - 5);
   welfare.occupants.push(paxId);
   renderZones();
   renderSidebar();
@@ -1835,9 +2144,9 @@ function renderSidebar() {
   content.innerHTML = '';
 
   const avail    = PAX_DATA.filter(p => state.pax[p.id].state === 'available');
-  const exhausted = PAX_DATA.filter(p => state.pax[p.id].state === 'exhausted');
   const inWelfare = PAX_DATA.filter(p => state.pax[p.id].placedIn === 'welfare');
   const placed   = PAX_DATA.filter(p => state.pax[p.id].state === 'placed' && state.pax[p.id].placedIn !== 'welfare');
+  const inCrisis = PAX_DATA.filter(p => state.pax[p.id].inCrisis);
   const locked   = PAX_DATA.filter(p => state.pax[p.id].state === 'locked');
 
   function sectionHeader(label, color) {
@@ -1865,16 +2174,30 @@ function renderSidebar() {
     const ps = state.pax[p.id];
     const arch = ARCHETYPES[p.archetype];
     const div = document.createElement('div');
-    const borderColor = opts.exhausted ? 'var(--red)' : opts.welfare ? 'var(--teal)' : 'var(--green)';
-    const bgColor = opts.exhausted ? 'rgba(192,57,43,0.08)' : opts.welfare ? 'rgba(95,207,232,0.08)' : 'rgba(127,255,90,0.08)';
-    div.style.cssText = `background:${bgColor};border:1.5px solid ${borderColor};padding:8px;margin-bottom:8px;border-radius:4px;`;
-    const energyPct = Math.round((ps.energy || 0) / (ps.maxEnergy || 100) * 100);
-    const eBar = `<div style='margin-top:4px;background:#222;border-radius:3px;height:4px;width:100%;'><div style='height:4px;border-radius:3px;width:${energyPct}%;background:${energyPct>60?'var(--green)':energyPct>30?'var(--yellow)':'var(--red)'};'></div></div>`;
-    const location = opts.exhausted ? '😴 Épuisé·e — repos forcé' : ps.placedIn ? '📍 ' + ZONES[ps.placedIn].name : '⌛ Disponible';
-    div.innerHTML = `<span style="font-size:24px" class="pax-drag-handle">${p.emoji}</span> <strong style="font-family:'Press Start 2P',monospace;font-size:8px;color:var(--cream);">${p.name}</strong><br><span style="font-size:14px;color:var(--purple);">${arch.label}</span><br><span style="font-size:12px;opacity:0.6;">${location}</span>${eBar}`;
+    // Background color based on pax vibe state
+    let borderColor, bgColor;
+    if (ps.inCrisis) {
+      borderColor = 'var(--red)'; bgColor = 'rgba(192,57,43,0.12)';
+    } else if (ps.vibe < 30) {
+      borderColor = 'var(--red)'; bgColor = 'rgba(192,57,43,0.08)';
+    } else if (ps.vibe < 60 || ps.fatigue > 70) {
+      borderColor = 'var(--yellow)'; bgColor = 'rgba(255,233,63,0.08)';
+    } else if (opts.welfare) {
+      borderColor = 'var(--teal)'; bgColor = 'rgba(95,207,232,0.08)';
+    } else {
+      borderColor = 'var(--green)'; bgColor = 'rgba(127,255,90,0.08)';
+    }
+    div.style.cssText = `background:${bgColor};border:1.5px solid ${borderColor};padding:8px;margin-bottom:8px;border-radius:4px;cursor:pointer;`;
+    div.title = 'Cliquer pour les détails';
+    div.onclick = () => showPaxDetail(p.id);
+    const vibePct = Math.round(ps.vibe);
+    const vibeColor = vibePct > 65 ? 'var(--green)' : vibePct > 30 ? 'var(--yellow)' : 'var(--red)';
+    const vibeBar = `<div style='margin-top:4px;background:#222;border-radius:3px;height:4px;width:100%;'><div style='height:4px;border-radius:3px;width:${vibePct}%;background:${vibeColor};transition:width 0.5s;'></div></div>`;
+    const crisisTag = ps.inCrisis ? ' <span style="color:var(--red);font-family:\'Press Start 2P\',monospace;font-size:7px;">🆘 CRISE</span>' : '';
+    const location = opts.welfare ? '💤 Au Welfare' : ps.placedIn ? '📍 ' + ZONES[ps.placedIn].name : '⌛ Disponible';
+    div.innerHTML = `<span style="font-size:24px" class="pax-drag-handle">${p.emoji}</span> <strong style="font-family:'Press Start 2P',monospace;font-size:8px;color:var(--cream);">${p.name}</strong>${crisisTag}<br><span style="font-size:14px;color:var(--purple);">${arch.label}</span><br><span style="font-size:12px;opacity:0.6;">${location}</span>${vibeBar}`;
     div.appendChild(welfareBtn(p.id, opts.welfare));
-    // Draggable si disponible ou déjà placé (pas exhausted, pas locked)
-    if (!opts.exhausted) {
+    if (!ps.inCrisis && ps.state !== 'locked') {
       const handle = div.querySelector('.pax-drag-handle');
       if (handle) makePaxDraggable(handle, p.id, p.emoji);
     }
@@ -1885,9 +2208,9 @@ function renderSidebar() {
     sectionHeader('DISPONIBLES', 'var(--yellow)');
     avail.forEach(p => content.appendChild(makePaxCard(p)));
   }
-  if (exhausted.length) {
-    sectionHeader('😴 ÉPUISÉ·ES', 'var(--red)');
-    exhausted.forEach(p => content.appendChild(makePaxCard(p, { exhausted: true })));
+  if (inCrisis.length) {
+    sectionHeader('🆘 EN CRISE', 'var(--red)');
+    inCrisis.forEach(p => content.appendChild(makePaxCard(p)));
   }
   if (inWelfare.length) {
     sectionHeader('💜 AU WELFARE', 'var(--teal)');
@@ -1971,11 +2294,27 @@ function checkScenes() {
       toast(scene.msg);
       updateCriee(scene.msg);
       const e = scene.effect;
-      if (e.vibe) state.vibe = Math.min(CFG.VIBE_MAX, state.vibe + e.vibe);
-      if (e.soin) state.soin = Math.min(CFG.SOIN_MAX, state.soin + e.soin);
+      if (e.vibe) {
+        // Boost individual vibe of pax in this zone
+        const boost = Math.min(15, e.vibe * 0.15);
+        zoneState.occupants.forEach(pid => {
+          const ps = state.pax[pid];
+          if (ps && !ps.inCrisis) ps.vibe = Math.min(100, ps.vibe + boost);
+        });
+      }
+      if (e.soin) {
+        // Reduce fatigue/ennui for zone pax
+        zoneState.occupants.forEach(pid => {
+          const ps = state.pax[pid];
+          if (ps) { ps.fatigue = Math.max(0, ps.fatigue - 8); ps.ennui = Math.max(0, ps.ennui - 5); }
+        });
+      }
       if (e.healAll) {
-        PAX_DATA.forEach(p => { if (state.pax[p.id]) state.pax[p.id].energy = Math.min(100, state.pax[p.id].energy + 30); });
-        toast('💜 Toustes les pax récupèrent de l\'énergie !');
+        PAX_DATA.forEach(p => {
+          const ps = state.pax[p.id];
+          if (ps && !ps.inCrisis) { ps.fatigue = Math.max(0, ps.fatigue - 12); ps.vibe = Math.min(100, ps.vibe + 8); }
+        });
+        toast('💜 Toustes les pax se ressourcent !');
       }
       if (e.vibex2) {
         if (state.zones[zid]) { state.zones[zid].boostActive = true; setTimeout(() => { if(state.zones[zid]) state.zones[zid].boostActive=false; }, 15000); }
@@ -1983,9 +2322,16 @@ function checkScenes() {
       }
       if (e.random) {
         const r = Math.random();
-        if (r < 0.4) { state.vibe = Math.min(CFG.VIBE_MAX, state.vibe+80); toast('🎲 Jackpot Vibe ! +80'); }
-        else if (r < 0.7) { state.soin = Math.min(CFG.SOIN_MAX, state.soin+60); toast('🎲 Soirée Soin ! +60'); }
-        else { toast('🎲 Quelque chose d\'étrange se passe.'); }
+        if (r < 0.4) {
+          PAX_DATA.forEach(p => { const ps = state.pax[p.id]; if (ps && ps.state === 'placed' && !ps.inCrisis) ps.vibe = Math.min(100, ps.vibe + 12); });
+          toast('🎲 Jackpot Vibe ! +12 Vibe pour toustes');
+        } else if (r < 0.7) {
+          state.food_stock = Math.min(CFG.FOOD_STOCK_MAX, state.food_stock + 60);
+          toast('🎲 Apport surprise à la Cantina !');
+        } else {
+          PAX_DATA.forEach(p => { const ps = state.pax[p.id]; if (ps && ps.state === 'placed') ps.fatigue = Math.max(0, ps.fatigue - 15); });
+          toast('🎲 Quelque chose d\'étrange se passe. La fatigue baisse.');
+        }
       }
       // Confettis
       const zEl = document.getElementById('zone-' + zid.replace(/_/g,'-'));
@@ -2009,8 +2355,18 @@ function checkQuests() {
         toast(`🏆 Quête accomplie : ${q.text}`);
         renderQuestPanel();
         if (q.reward) {
-          if (q.reward.vibe) state.vibe = Math.min(CFG.VIBE_MAX, state.vibe + q.reward.vibe);
-          if (q.reward.soin) state.soin = Math.min(CFG.SOIN_MAX, state.soin + q.reward.soin);
+          if (q.reward.vibe) {
+            PAX_DATA.forEach(p => {
+              const ps = state.pax[p.id];
+              if (ps && ps.state === 'placed' && !ps.inCrisis) ps.vibe = Math.min(100, ps.vibe + q.reward.vibe * 0.15);
+            });
+          }
+          if (q.reward.soin) {
+            PAX_DATA.forEach(p => {
+              const ps = state.pax[p.id];
+              if (ps && ps.state === 'placed') ps.fatigue = Math.max(0, ps.fatigue - q.reward.soin * 0.12);
+            });
+          }
         }
       }
     } catch(e) {}
@@ -2078,8 +2434,8 @@ function endGame() {
   state.gameEnded = true;
   const titles = ['Architecte du Désordre', 'Maîtresse du Chaos Doux', 'Champion·ne du Soin', 'Reine du PMU', 'Légende de la Vibe'];
   const title = titles[Math.floor(Math.random() * titles.length)];
-  document.getElementById('end-vibe').textContent = state.stats.maxVibe;
-  document.getElementById('end-soin').textContent = Math.round(state.soinTotal);
+  document.getElementById('end-vibe').textContent = Math.round(state.vibeGlobale) + '%';
+  document.getElementById('end-crises').textContent = (state.crisisResolved || 0) + '/' + (state.crisisTotal || 0);
   document.getElementById('end-queer').textContent = state.stats.queerised;
   document.getElementById('end-pax').textContent = state.unlockedPax.length;
   document.getElementById('end-title-label').textContent = '🏆 ' + title;
