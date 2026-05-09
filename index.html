@@ -1536,6 +1536,7 @@ function tutoHideFakeInvader() {
 // ===== PAX DRAG & DROP =====
 let _dragPaxId = null;
 let _touchDragPaxId = null;
+let _pickerOpen = false;   // blocks sidebar rebuild while "Envoyer vers" picker is visible
 let _touchGhost = null;
 let _carriedPaxId = null;   // click-to-carry mechanic
 let _carryGhost = null;
@@ -2613,6 +2614,7 @@ function sendToWelfare(paxId) {
 }
 
 function renderSidebar() {
+  if (_pickerOpen) return; // don't rebuild while "Envoyer vers" picker is open
   const content = document.getElementById('sidebar-content');
   content.innerHTML = '';
 
@@ -2654,7 +2656,7 @@ function renderSidebar() {
       if (isCurrent) row.innerHTML += ' <span style="color:var(--yellow);font-size:9px;">✓</span>';
       row.onmouseenter = () => row.style.background = 'rgba(95,207,232,0.1)';
       row.onmouseleave = () => row.style.background = '';
-      row.onclick = e => { e.stopPropagation(); dropPaxOnZone(paxId, zid); picker.style.display = 'none'; };
+      row.onclick = e => { e.stopPropagation(); _pickerOpen = false; dropPaxOnZone(paxId, zid); picker.style.display = 'none'; };
       picker.appendChild(row);
     });
 
@@ -2664,11 +2666,11 @@ function renderSidebar() {
       free.textContent = '✕ Libérer';
       free.onmouseenter = () => free.style.background = 'rgba(192,57,43,0.1)';
       free.onmouseleave = () => free.style.background = '';
-      free.onclick = e => { e.stopPropagation(); removePaxFromZone(paxId); picker.style.display = 'none'; };
+      free.onclick = e => { e.stopPropagation(); _pickerOpen = false; removePaxFromZone(paxId); picker.style.display = 'none'; };
       picker.appendChild(free);
     }
 
-    btn.onclick = e => { e.stopPropagation(); picker.style.display = picker.style.display === 'none' ? 'block' : 'none'; };
+    btn.onclick = e => { e.stopPropagation(); const showing = picker.style.display === 'none'; picker.style.display = showing ? 'block' : 'none'; _pickerOpen = showing; };
     wrap.appendChild(picker);
     return wrap;
   }
@@ -3017,15 +3019,18 @@ function setupMapInteraction() {
 
   let prevMid = null, prevDist = null;
   let lastDownOnInteractable = false;
-  let lastDownInvaderId = null, lastDownX = 0, lastDownY = 0;
+  let lastDownInvaderId = null, lastDownZoneId = null, lastDownX = 0, lastDownY = 0;
 
   wrapper.addEventListener('pointerdown', e => {
     if (e.pointerType === 'mouse' && _dragPaxId) return;
     const invaderEl = e.target.closest('.invader');
+    const zoneEl    = e.target.closest('.zone');
     const onInvader = !!invaderEl;
-    const onInteractable = !!(e.target.closest('.zone') || onInvader);
+    const onZone    = !!zoneEl && !onInvader;
+    const onInteractable = onInvader || onZone;
     lastDownOnInteractable = onInteractable;
     lastDownInvaderId = onInvader ? (invaderEl.dataset.invaderId ? Number(invaderEl.dataset.invaderId) : null) : null;
+    lastDownZoneId    = onZone    ? (zoneEl.dataset.zone || null) : null;
     lastDownX = e.clientX; lastDownY = e.clientY;
     wrapper.setPointerCapture(e.pointerId);
     pts.set(e.pointerId, { x: e.clientX, y: e.clientY, onInteractable });
@@ -3076,11 +3081,16 @@ function setupMapInteraction() {
 
   function onPointerUp(e) {
     pts.delete(e.pointerId);
-    // Invader tap: fired here because setPointerCapture breaks native click on invaders
+    const moved = Math.hypot(e.clientX - lastDownX, e.clientY - lastDownY);
+    // Invader tap — setPointerCapture breaks native click on invaders
     if (lastDownInvaderId) {
-      const moved = Math.hypot(e.clientX - lastDownX, e.clientY - lastDownY);
       if (moved < 15) clickInvader(lastDownInvaderId);
       lastDownInvaderId = null;
+    }
+    // Zone tap — setPointerCapture prevents onclick on zones reaching mobile
+    if (lastDownZoneId) {
+      if (moved < 15) openZone(lastDownZoneId);
+      lastDownZoneId = null;
     }
     if (pts.size === 1) {
       const [pt] = pts.values();
