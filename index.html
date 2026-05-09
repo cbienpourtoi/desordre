@@ -2720,7 +2720,7 @@ function renderSidebar() {
     div.title = 'Cliquer pour emporter · double-clic pour les détails';
     // Single click = pick up pax; double-click = show detail
     div.onclick = e => {
-      if (ps.inCrisis || ps.state === 'locked') { showPaxDetail(p.id); return; }
+      if (ps.state === 'locked') { showPaxDetail(p.id); return; }
       pickUpPax(p.id);
     };
     div.ondblclick = e => { e.stopPropagation(); cancelCarry(); showPaxDetail(p.id); };
@@ -2732,7 +2732,7 @@ function renderSidebar() {
     div.innerHTML = `<span style="font-size:24px">${p.emoji}</span> <strong style="font-family:'Press Start 2P',monospace;font-size:8px;color:var(--cream);">${p.name}</strong>${crisisTag}<br><span style="font-size:14px;color:var(--purple);">${arch.label}</span><br><span style="font-size:12px;opacity:0.6;">${location}</span>${vibeBar}`;
     const sendBtnEl = makeSendBtn(p.id);
     div.appendChild(sendBtnEl);
-    if (!ps.inCrisis && ps.state !== 'locked') {
+    if (ps.state !== 'locked') {
       makePaxDraggable(div, p.id, p.emoji, sendBtnEl);
     }
     return div;
