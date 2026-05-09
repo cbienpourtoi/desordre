@@ -330,6 +330,51 @@ html,body{width:100%;height:100%;overflow:hidden;background:var(--dark);font-fam
 }
 #night-overlay.night{background:rgba(10,5,30,0.45);}
 
+/* ===== NIGHT GLOW EFFECTS ===== */
+.night-glow{
+  position:absolute;pointer-events:none;z-index:3;
+  border-radius:50%;opacity:0;transition:opacity 6s ease;
+}
+.night-glow.visible{opacity:1;}
+@keyframes flicker{
+  0%,100%{transform:scale(1);opacity:0.55;}
+  20%{transform:scale(1.08);opacity:0.7;}
+  40%{transform:scale(0.95);opacity:0.5;}
+  60%{transform:scale(1.12);opacity:0.65;}
+  80%{transform:scale(0.98);opacity:0.6;}
+}
+@keyframes glowPulse{
+  0%,100%{opacity:0.18;}50%{opacity:0.28;}
+}
+.night-glow.fire{
+  width:90px;height:90px;
+  background:radial-gradient(circle, rgba(255,160,40,0.85) 0%, rgba(255,80,0,0.4) 40%, transparent 70%);
+  animation:flicker 2.5s ease-in-out infinite;
+  margin-left:-45px;margin-top:-45px;
+  filter:blur(3px);
+}
+.night-glow.lamp{
+  width:120px;height:120px;
+  background:radial-gradient(circle, rgba(180,120,255,0.6) 0%, rgba(120,60,220,0.25) 40%, transparent 70%);
+  animation:glowPulse 3s ease-in-out infinite;
+  margin-left:-60px;margin-top:-60px;
+  filter:blur(5px);
+}
+.night-glow.teal{
+  width:100px;height:100px;
+  background:radial-gradient(circle, rgba(40,220,200,0.5) 0%, rgba(0,160,140,0.2) 40%, transparent 70%);
+  animation:glowPulse 4s ease-in-out infinite;
+  margin-left:-50px;margin-top:-50px;
+  filter:blur(4px);
+}
+.night-campfire-emoji{
+  position:absolute;z-index:4;font-size:20px;pointer-events:none;
+  opacity:0;transition:opacity 6s ease;
+  animation:flicker 2s ease-in-out infinite;
+  transform-origin:bottom center;
+}
+.night-campfire-emoji.visible{opacity:1;}
+
 /* ===== NOTIFICATION TOAST ===== */
 .toast{
   position:fixed;top:60px;left:50%;transform:translateX(-50%);z-index:600;
@@ -419,7 +464,7 @@ html,body{width:100%;height:100%;overflow:hidden;background:var(--dark);font-fam
       <span style="color:var(--green);font-family:'Press Start 2P',monospace;font-size:7px;">🗺 LES ZONES &amp; ACTIVITÉS</span><br>
       • <strong>Playrooms / Mix-room / Tente</strong> — Fun ⚡, monte la vibe<br>
       • <strong>Cantina</strong> — Cuisine 🍽, produit les repas pour toustes<br>
-      • <strong>Chambres</strong> — Fun doux 💜, reposant<br>
+      • <strong>Chambres</strong> — Repos 💤, récupère la fatigue<br>
       • <strong>Welfare</strong> — Repos + support émo. Soigne les crises.<br>
       • <strong>Isoloir</strong> — Repos intense. Récupération maximale.
     </div>
@@ -495,6 +540,15 @@ html,body{width:100%;height:100%;overflow:hidden;background:var(--dark);font-fam
   <div id="map-atmosphere"></div>
   <div id="map-viewport">
     <img id="map-img" src="map.png" alt="Carte du Désordre" draggable="false"/>
+    <!-- Night atmosphere glows (positioned on 900x675 map) -->
+    <div class="night-glow fire" id="glow-playroom-ext" style="left:140px;top:295px;"></div>
+    <div class="night-campfire-emoji" id="ember-playroom-ext" style="left:130px;top:272px;">🔥</div>
+    <div class="night-glow fire" id="glow-tente-cer" style="left:180px;top:510px;"></div>
+    <div class="night-campfire-emoji" id="ember-tente-cer" style="left:170px;top:488px;">🕯️</div>
+    <div class="night-glow lamp" id="glow-mixroom" style="left:365px;top:500px;"></div>
+    <div class="night-campfire-emoji" id="ember-mixroom" style="left:360px;top:478px;">🪩</div>
+    <div class="night-glow teal" id="glow-pmu" style="left:475px;top:195px;"></div>
+    <div class="night-campfire-emoji" id="ember-pmu" style="left:470px;top:173px;">🍺</div>
     <!-- Zones interactives (positionnées en % de 900x675) -->
     <div class="zone" id="zone-playroom-ext" data-zone="playroom_ext" style="left:60px;top:230px;width:160px;height:130px;" onclick="openZone('playroom_ext')"></div>
     <div class="zone" id="zone-tente-cer" data-zone="tente_cer" style="left:100px;top:430px;width:160px;height:150px;" onclick="openZone('tente_cer')"></div>
@@ -637,7 +691,7 @@ const ZONES = {
   playroom_ext: { name:'Playroom ext.', type:'high', activityMode:'fun_high', cap:4, bonus:'night_x2', desc:'⚡ Fun haute énergie. Structures de play. Vibe x2 la nuit.' },
   tente_cer:    { name:'Tente cérémonie', type:'high', activityMode:'fun_high', cap:3, bonus:'day_x2', desc:'🎪 Fun haute énergie. Espace rituel et festif. Vibe x2 le jour.' },
   mixroom:      { name:'Mix-room', type:'high', activityMode:'fun_high', cap:3, bonus:'night_x2', desc:'🌀 Fun haute énergie. Coussins et atmosphère. Vibe x2 la nuit.' },
-  bat1:         { name:'Chambres', type:'mixed', activityMode:'fun_low', cap:4, bonus:'cycle', desc:'💜 Fun doux. Vibe le jour, reposant la nuit. Versatile.' },
+  bat1:         { name:'Chambres', type:'low', activityMode:'repos', cap:4, bonus:null, desc:'💤 Repos. Les pax récupèrent de la fatigue ici.' },
   bat2:         { name:'Playroom int.', type:'high', activityMode:'fun_high', cap:4, bonus:null, desc:'⚡ Fun haute énergie intérieure. Stable jour/nuit.' },
   cantina:      { name:'Cantina', type:'low', activityMode:'cuisine', cap:3, bonus:'meal_boost', desc:'🍽 Cuisine collective. Les pax ici nourrissent tout le camp.' },
   welfare:      { name:'Espace Welfare', type:'low', activityMode:'repos', cap:2, bonus:'regen', desc:'💜 Repos & support émo. Soigne la fatigue et les crises.' },
@@ -792,7 +846,7 @@ const SCENES = [
   { id:'scene_toybottom', archs:['toy','servicetop'], zones:['isoloir','bat2','bat1'], minEach:1,
     msg:"🎀 Scène privée. Production x2 pendant 15s.",
     effect:{ vibex2:true, soin:10 }, cooldown:80000 },
-  { id:'scene_switch', archs:['switch'], zones:['bat1'], minEach:1, minTotal:2,
+  { id:'scene_switch', archs:['switch'], zones:['mixroom'], minEach:1, minTotal:2,
     msg:"🔄 Les switch se retrouvent. La nuit sera polyvalente.",
     effect:{ vibe:35, soin:35 }, cooldown:45000 },
 ];
@@ -1684,6 +1738,16 @@ function productionTick() {
 }
 
 // ===== EVENT TICK =====
+function toggleNightGlows(isNight) {
+  const ids = ['playroom-ext','tente-cer','mixroom','pmu'];
+  ids.forEach(id => {
+    const glow = document.getElementById('glow-' + id);
+    const ember = document.getElementById('ember-' + id);
+    if (glow)  glow.classList.toggle('visible', isNight);
+    if (ember) ember.classList.toggle('visible', isNight);
+  });
+}
+
 function eventTick() {
   if (!state.started || state.gameEnded || state.paused) return;
   state.dayProgress += (1 / CFG.DAY_SECS);
@@ -1700,6 +1764,7 @@ function eventTick() {
   if (wasNight !== state.isNight) {
     document.getElementById('night-overlay').classList.toggle('night', state.isNight);
     updateCriee(state.isNight ? '🌙 La nuit tombe sur le Désordre. Les playrooms s\'animent.' : '☀️ Le soleil se lève. Bonjour la communauté.');
+    toggleNightGlows(state.isNight);
   }
   // Meal boost (midi + soir)
   if ((state.hour === 13 || state.hour === 20) && !state.mealBoosted) {
