@@ -2515,18 +2515,48 @@ function renderSidebar() {
     content.appendChild(h);
   }
 
-  function welfareBtn(paxId, inW) {
+  function makeSendBtn(paxId) {
+    const ps = state.pax[paxId];
+    const wrap = document.createElement('div');
+    wrap.style.cssText = 'margin-top:6px;';
+
     const btn = document.createElement('button');
-    if (inW) {
-      btn.textContent = '↩ Sortir';
-      btn.style.cssText = 'margin-top:6px;width:100%;padding:4px;background:rgba(95,207,232,0.15);border:1.5px solid var(--teal);color:var(--teal);font-family:\'Press Start 2P\',monospace;font-size:7px;border-radius:3px;cursor:pointer;';
-      btn.onclick = () => { removePaxFromZone(paxId); renderSidebar(); };
-    } else {
-      btn.textContent = '💜 Welfare';
-      btn.style.cssText = 'margin-top:6px;width:100%;padding:4px;background:rgba(157,78,221,0.15);border:1.5px solid var(--purple);color:var(--purple);font-family:\'Press Start 2P\',monospace;font-size:7px;border-radius:3px;cursor:pointer;';
-      btn.onclick = () => sendToWelfare(paxId);
+    btn.textContent = ps.placedIn ? '📍 Changer de lieu' : '📍 Envoyer vers...';
+    btn.style.cssText = 'width:100%;padding:4px;background:rgba(95,207,232,0.12);border:1.5px solid var(--teal);color:var(--teal);font-family:\'Press Start 2P\',monospace;font-size:7px;border-radius:3px;cursor:pointer;';
+    wrap.appendChild(btn);
+
+    const picker = document.createElement('div');
+    picker.style.cssText = 'display:none;margin-top:4px;background:#141a10;border:1px solid rgba(95,207,232,0.3);border-radius:3px;overflow:hidden;';
+
+    // Zone icon derived from desc first char
+    const zoneIcon = zid => ({ playroom_ext:'⚡', tente_cer:'🎪', mixroom:'🌀', bat1:'🏠', bat2:'🛖', cantina:'🍽', welfare:'💜', bulle_nego:'🤝', pmu:'🍺' }[zid] || '📍');
+
+    Object.entries(ZONES).forEach(([zid, z]) => {
+      const row = document.createElement('div');
+      const occ = state.zones[zid].occupants.length;
+      const isCurrent = ps.placedIn === zid;
+      row.style.cssText = `padding:5px 8px;font-size:11px;cursor:pointer;color:${isCurrent ? 'var(--yellow)' : 'var(--cream)'};border-bottom:1px solid rgba(255,255,255,0.05);display:flex;justify-content:space-between;align-items:center;`;
+      row.innerHTML = `<span>${zoneIcon(zid)} ${z.name}</span><span style="opacity:0.5;font-size:10px;">${occ > 0 ? occ + ' pax' : ''}</span>`;
+      if (isCurrent) row.innerHTML += ' <span style="color:var(--yellow);font-size:9px;">✓</span>';
+      row.onmouseenter = () => row.style.background = 'rgba(95,207,232,0.1)';
+      row.onmouseleave = () => row.style.background = '';
+      row.onclick = e => { e.stopPropagation(); dropPaxOnZone(paxId, zid); picker.style.display = 'none'; };
+      picker.appendChild(row);
+    });
+
+    if (ps.placedIn) {
+      const free = document.createElement('div');
+      free.style.cssText = 'padding:5px 8px;font-size:11px;cursor:pointer;color:var(--red);';
+      free.textContent = '✕ Libérer';
+      free.onmouseenter = () => free.style.background = 'rgba(192,57,43,0.1)';
+      free.onmouseleave = () => free.style.background = '';
+      free.onclick = e => { e.stopPropagation(); removePaxFromZone(paxId); picker.style.display = 'none'; };
+      picker.appendChild(free);
     }
-    return btn;
+
+    btn.onclick = e => { e.stopPropagation(); picker.style.display = picker.style.display === 'none' ? 'block' : 'none'; };
+    wrap.appendChild(picker);
+    return wrap;
   }
 
   function makePaxCard(p, opts = {}) {
@@ -2541,7 +2571,7 @@ function renderSidebar() {
       borderColor = 'var(--red)'; bgColor = 'rgba(192,57,43,0.08)';
     } else if (ps.vibe < 60 || ps.fatigue > 70) {
       borderColor = 'var(--yellow)'; bgColor = 'rgba(255,233,63,0.08)';
-    } else if (opts.welfare) {
+    } else if (ps.placedIn === 'welfare') {
       borderColor = 'var(--teal)'; bgColor = 'rgba(95,207,232,0.08)';
     } else {
       borderColor = 'var(--green)'; bgColor = 'rgba(127,255,90,0.08)';
@@ -2553,9 +2583,9 @@ function renderSidebar() {
     const vibeColor = vibePct > 65 ? 'var(--green)' : vibePct > 30 ? 'var(--yellow)' : 'var(--red)';
     const vibeBar = `<div style='margin-top:4px;background:#222;border-radius:3px;height:4px;width:100%;'><div style='height:4px;border-radius:3px;width:${vibePct}%;background:${vibeColor};transition:width 0.5s;'></div></div>`;
     const crisisTag = ps.inCrisis ? ' <span style="color:var(--red);font-family:\'Press Start 2P\',monospace;font-size:7px;">🆘 CRISE</span>' : '';
-    const location = opts.welfare ? '💤 Au Welfare' : ps.placedIn ? '📍 ' + ZONES[ps.placedIn].name : '⌛ Disponible';
+    const location = ps.placedIn ? '📍 ' + ZONES[ps.placedIn].name : '⌛ Disponible';
     div.innerHTML = `<span style="font-size:24px" class="pax-drag-handle">${p.emoji}</span> <strong style="font-family:'Press Start 2P',monospace;font-size:8px;color:var(--cream);">${p.name}</strong>${crisisTag}<br><span style="font-size:14px;color:var(--purple);">${arch.label}</span><br><span style="font-size:12px;opacity:0.6;">${location}</span>${vibeBar}`;
-    div.appendChild(welfareBtn(p.id, opts.welfare));
+    div.appendChild(makeSendBtn(p.id));
     if (!ps.inCrisis && ps.state !== 'locked') {
       const handle = div.querySelector('.pax-drag-handle');
       if (handle) makePaxDraggable(handle, p.id, p.emoji);
@@ -2573,7 +2603,7 @@ function renderSidebar() {
   }
   if (inWelfare.length) {
     sectionHeader('💜 AU WELFARE', 'var(--teal)');
-    inWelfare.forEach(p => content.appendChild(makePaxCard(p, { welfare: true })));
+    inWelfare.forEach(p => content.appendChild(makePaxCard(p)));
   }
   if (placed.length) {
     sectionHeader('EN POSTE', 'var(--teal)');
