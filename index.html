@@ -574,7 +574,6 @@ html,body{width:100%;height:100%;overflow:hidden;background:var(--dark);font-fam
   </div>
   <div id="zone-panel-actions">
     <button class="panel-btn add-pax" id="btn-add-pax" onclick="openPaxPicker()">+ PAX</button>
-    <button class="panel-btn boost" id="btn-boost" onclick="boostZone()">⚡ BOOST</button>
     <button class="panel-btn close-panel" onclick="closeZonePanel()">✕ FERMER</button>
   </div>
 </div>
@@ -673,8 +672,8 @@ const CFG = {
   FOOD_STOCK_INIT: 150,
   FOOD_STOCK_MAX: 300,
   INVADER_INTERVAL: 75000,
-  BOOST_DURATION: 4000,
-  BOOST_COOLDOWN: 12000,
+  BOOST_DURATION: 15000,  // 15s boost when synergy fires
+  BOOST_COOLDOWN: 120000, // 2min between auto-boosts per zone
   MAP_W: 900,
   MAP_H: 675,
   DAYS: ['LUN','MAR','MER','JEU','VEN','SAM','DIM'],
@@ -1596,6 +1595,9 @@ function productionTick() {
     const occ = zstate.occupants.slice(); // snapshot
     if (!occ.length) return;
 
+    // Auto-boost from synergy (checked once per zone per tick, rate-limited by cooldown)
+    tryAutoBoost(zid);
+
     occ.forEach(paxId => {
       const pData = PAX_DATA.find(p => p.id === paxId);
       if (!pData) return;
@@ -2137,16 +2139,26 @@ function openZone(zoneId) {
     }
   }
 
-  // Boutons
-  const btnBoost = document.getElementById('btn-boost');
-  const now = Date.now();
-  const lastBoost = state.boostCooldowns[zoneId] || 0;
-  const canBoost = (now - lastBoost) > CFG.BOOST_COOLDOWN;
-  btnBoost.disabled = !canBoost || zstate.occupants.length === 0;
-  btnBoost.textContent = canBoost ? '⚡ BOOST' : '⏳ COOLDOWN';
   const btnAdd = document.getElementById('btn-add-pax');
   btnAdd.disabled = zstate.occupants.length >= zone.cap;
   btnAdd.textContent = `+ PAX`;
+
+  // Synergy indicator
+  let synergyEl = document.getElementById('zone-synergy-badge');
+  if (!synergyEl) {
+    synergyEl = document.createElement('div');
+    synergyEl.id = 'zone-synergy-badge';
+    synergyEl.style.cssText = 'font-size:11px;color:var(--yellow);font-family:"Press Start 2P",monospace;letter-spacing:0.5px;margin-top:4px;';
+    document.getElementById('zone-panel-info').appendChild(synergyEl);
+  }
+  if (zstate.boostActive) {
+    synergyEl.textContent = '⚡ SYNERGIE ACTIVE — Vibe x2 !';
+  } else if (hasSynergyPair(zstate.occupants)) {
+    synergyEl.textContent = '💫 Synergie détectée';
+    synergyEl.style.color = 'var(--teal)';
+  } else {
+    synergyEl.textContent = '';
+  }
   document.getElementById('zone-panel').classList.add('open');
   // Highlight zone
   document.querySelectorAll('.zone').forEach(z => z.classList.remove('active'));
@@ -2180,22 +2192,49 @@ function closeZonePanel() {
   state.selectedZone = null;
 }
 
-function boostZone() {
-  if (!state.selectedZone) return;
+// Mutual synergy pairs that trigger a boost
+const SYNERGY_PAIRS = [
+  ['dom','sub'],['dom','pet'],['top','bottom'],['top','toy'],
+  ['servicetop','toy'],['servicetop','bottom'],['sub','top'],
+];
+
+function hasSynergyPair(occupants) {
+  const archs = occupants.map(pid => {
+    const p = PAX_DATA.find(d => d.id === pid);
+    return p ? p.archetype : null;
+  }).filter(Boolean);
+  return SYNERGY_PAIRS.some(([a, b]) => archs.includes(a) && archs.includes(b));
+}
+
+function tryAutoBoost(zid) {
+  const zone = ZONES[zid];
+  if (!zone || (zone.activityMode !== 'fun_high' && zone.activityMode !== 'fun_low')) return;
+  const zstate = state.zones[zid];
+  if (!zstate || zstate.boostActive) return;
+  if (zstate.occupants.length < 2) return;
   const now = Date.now();
-  const last = state.boostCooldowns[state.selectedZone] || 0;
-  if ((now - last) < CFG.BOOST_COOLDOWN) { toast('⏳ Cooldown !'); return; }
-  state.boostCooldowns[state.selectedZone] = now;
-  const zstate = state.zones[state.selectedZone];
+  const last = state.boostCooldowns[zid] || 0;
+  if ((now - last) < CFG.BOOST_COOLDOWN) return;
+  if (!hasSynergyPair(zstate.occupants)) return;
+  // Trigger!
+  state.boostCooldowns[zid] = now;
   zstate.boostActive = true;
-  const zEl = document.getElementById('zone-' + state.selectedZone.replace(/_/g,'-'));
+  const zEl = document.getElementById('zone-' + zid.replace(/_/g,'-'));
   if (zEl) zEl.classList.add('boosted');
-  toast(`⚡ Boost activé sur ${ZONES[state.selectedZone].name} !`);
+  // Find the pair to name them
+  const archs = zstate.occupants.map(pid => { const p = PAX_DATA.find(d=>d.id===pid); return p ? {name:p.name, emoji:p.emoji, arch:p.archetype} : null; }).filter(Boolean);
+  const pair = SYNERGY_PAIRS.find(([a,b]) => archs.some(x=>x.arch===a) && archs.some(x=>x.arch===b));
+  let msg = `⚡ Synergie dans ${zone.name} !`;
+  if (pair) {
+    const pa = archs.find(x=>x.arch===pair[0]);
+    const pb = archs.find(x=>x.arch===pair[1]);
+    if (pa && pb) msg = `⚡ ${pa.emoji}${pa.name} & ${pb.emoji}${pb.name} — synergie ! Vibe x2 dans ${zone.name}`;
+  }
+  toast(msg);
   setTimeout(() => {
     zstate.boostActive = false;
     if (zEl) zEl.classList.remove('boosted');
   }, CFG.BOOST_DURATION);
-  openZone(state.selectedZone);
 }
 
 // ===== RENDER =====
