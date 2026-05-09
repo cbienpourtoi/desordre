@@ -1190,17 +1190,17 @@ function checkFoodAlerts() {
     toast('🚨 PLUS DE NOURRITURE ! Les pax ont très faim. Envoie quelqu\'un à la cuisine !');
     logEvent('alert', '🚨 Plus de nourriture ! Envoie quelqu\'un en cuisine immédiatement.');
     updateCriee('🚨 La Criée : la cuisine est vide ! Quelqu\'un doit cuisiner MAINTENANT.');
-  } else if (state.food_stock < 20 && !state.foodAlerted.critical) {
+  } else if (state.food_stock < 40 && !state.foodAlerted.critical) {
     state.foodAlerted.critical = true;
     toast('⚠️ Provisions critiques ! la cuisine a besoin de renfort.');
     logEvent('alert', '⚠️ Provisions critiques ! La cuisine a besoin de renfort.');
-  } else if (state.food_stock < 50 && !state.foodAlerted.low) {
+  } else if (state.food_stock < 100 && !state.foodAlerted.low) {
     state.foodAlerted.low = true;
     toast('🍽 Provisions basses. Pense à envoyer quelqu\'un à la cuisine.');
     logEvent('alert', '🍽 Provisions basses. Pense à envoyer quelqu\'un à la cuisine.');
   }
-  if (state.food_stock > 50) state.foodAlerted.low = false;
-  if (state.food_stock > 20) state.foodAlerted.critical = false;
+  if (state.food_stock > 100) state.foodAlerted.low = false;
+  if (state.food_stock > 40) state.foodAlerted.critical = false;
   if (state.food_stock > 0) state.foodAlerted.empty = false;
 }
 
