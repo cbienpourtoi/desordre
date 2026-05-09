@@ -338,42 +338,21 @@ html,body{width:100%;height:100%;overflow:hidden;background:var(--dark);font-fam
   mix-blend-mode:screen;
 }
 .night-glow.visible{opacity:1;}
-@keyframes flicker{
-  0%,100%{transform:scale(1) rotate(0deg);}
-  15%{transform:scale(1.12) rotate(1deg);}
-  35%{transform:scale(0.93) rotate(-1deg);}
-  55%{transform:scale(1.18) rotate(2deg);}
-  75%{transform:scale(0.97) rotate(-1deg);}
-}
-@keyframes glowPulse{
-  0%,100%{transform:scale(1);}50%{transform:scale(1.1);}
-}
 .night-glow.fire{
   width:220px;height:220px;
-  background:radial-gradient(circle, rgba(255,180,60,1) 0%, rgba(255,100,0,0.7) 30%, rgba(255,40,0,0.3) 55%, transparent 75%);
-  animation:flicker 2.2s ease-in-out infinite;
+  background:radial-gradient(circle, rgba(255,180,60,0.55) 0%, rgba(255,100,0,0.35) 30%, rgba(255,40,0,0.15) 55%, transparent 75%);
   margin-left:-110px;margin-top:-110px;
 }
 .night-glow.lamp{
   width:260px;height:260px;
-  background:radial-gradient(circle, rgba(200,140,255,0.95) 0%, rgba(140,70,240,0.55) 35%, rgba(100,30,200,0.2) 60%, transparent 78%);
-  animation:glowPulse 3s ease-in-out infinite;
+  background:radial-gradient(circle, rgba(200,140,255,0.5) 0%, rgba(140,70,240,0.28) 35%, rgba(100,30,200,0.1) 60%, transparent 78%);
   margin-left:-130px;margin-top:-130px;
 }
 .night-glow.teal{
   width:230px;height:230px;
-  background:radial-gradient(circle, rgba(80,255,220,0.95) 0%, rgba(20,200,180,0.55) 35%, rgba(0,160,140,0.2) 60%, transparent 78%);
-  animation:glowPulse 4s ease-in-out infinite;
+  background:radial-gradient(circle, rgba(80,255,220,0.5) 0%, rgba(20,200,180,0.28) 35%, rgba(0,160,140,0.1) 60%, transparent 78%);
   margin-left:-115px;margin-top:-115px;
 }
-.night-campfire-emoji{
-  position:absolute;z-index:5;font-size:28px;pointer-events:none;
-  opacity:0;transition:opacity 5s ease;
-  animation:flicker 2s ease-in-out infinite;
-  transform-origin:bottom center;
-  filter:drop-shadow(0 0 8px rgba(255,150,0,0.9));
-}
-.night-campfire-emoji.visible{opacity:1;}
 
 /* ===== NOTIFICATION TOAST ===== */
 .toast{
@@ -569,13 +548,9 @@ html,body{width:100%;height:100%;overflow:hidden;background:var(--dark);font-fam
     <img id="map-img" src="map.png" alt="Carte du Désordre" draggable="false"/>
     <!-- Night atmosphere glows (positioned on 900x675 map) -->
     <div class="night-glow fire" id="glow-playroom-ext" style="left:140px;top:295px;"></div>
-    <div class="night-campfire-emoji" id="ember-playroom-ext" style="left:130px;top:272px;">🔥</div>
     <div class="night-glow fire" id="glow-tente-cer" style="left:180px;top:510px;"></div>
-    <div class="night-campfire-emoji" id="ember-tente-cer" style="left:170px;top:488px;">🕯️</div>
     <div class="night-glow lamp" id="glow-mixroom" style="left:365px;top:500px;"></div>
-    <div class="night-campfire-emoji" id="ember-mixroom" style="left:360px;top:478px;">🪩</div>
     <div class="night-glow teal" id="glow-pmu" style="left:475px;top:195px;"></div>
-    <div class="night-campfire-emoji" id="ember-pmu" style="left:470px;top:173px;">🍺</div>
     <!-- Zones interactives (positionnées en % de 900x675) -->
     <div class="zone" id="zone-playroom-ext" data-zone="playroom_ext" style="left:60px;top:230px;width:160px;height:130px;" onclick="openZone('playroom_ext')"></div>
     <div class="zone" id="zone-tente-cer" data-zone="tente_cer" style="left:100px;top:430px;width:160px;height:150px;" onclick="openZone('tente_cer')"></div>
@@ -735,15 +710,15 @@ const CFG = {
 // ===== ZONES =====
 // activityMode: fun_high | fun_low | cuisine | repos | nego
 const ZONES = {
-  playroom_ext: { name:'Playroom ext.', type:'high', activityMode:'fun_high', cap:4, bonus:'night_x2', desc:'⚡ Fun haute énergie. Structures de play. Vibe x2 la nuit.' },
-  tente_cer:    { name:'Tente cérémonie', type:'high', activityMode:'fun_high', cap:3, bonus:'day_x2', desc:'🎪 Fun haute énergie. Espace rituel et festif. Vibe x2 le jour.' },
-  mixroom:      { name:'Mix-room', type:'high', activityMode:'fun_high', cap:3, bonus:'night_x2', desc:'🌀 Fun haute énergie. Coussins et atmosphère. Vibe x2 la nuit.' },
-  bat1:         { name:'Chambres', type:'low', activityMode:'repos', cap:4, bonus:null, desc:'💤 Repos. Les pax récupèrent de la fatigue ici.' },
-  bat2:         { name:'Playroom int.', type:'high', activityMode:'fun_high', cap:4, bonus:null, desc:'⚡ Fun haute énergie intérieure. Stable jour/nuit.' },
-  cantina:      { name:'Cantina', type:'low', activityMode:'cuisine', cap:3, bonus:'meal_boost', desc:'🍽 Cuisine collective. Les pax ici nourrissent tout le camp.' },
-  welfare:      { name:'Espace Welfare', type:'low', activityMode:'repos', cap:2, bonus:'regen', desc:'💜 Repos & support émo. Soigne la fatigue et les crises.' },
+  playroom_ext: { name:'Playroom ext.', type:'high', activityMode:'fun_high', cap:12, bonus:'night_x2', desc:'⚡ Fun haute énergie. Structures de play. Vibe x2 la nuit.' },
+  tente_cer:    { name:'Tente cérémonie', type:'high', activityMode:'fun_high', cap:12, bonus:'day_x2', desc:'🎪 Fun haute énergie. Espace rituel et festif. Vibe x2 le jour.' },
+  mixroom:      { name:'Mix-room', type:'high', activityMode:'fun_high', cap:12, bonus:'night_x2', desc:'🌀 Fun haute énergie. Coussins et atmosphère. Vibe x2 la nuit.' },
+  bat1:         { name:'Chambres', type:'low', activityMode:'repos', cap:12, bonus:null, desc:'💤 Repos. Les pax récupèrent de la fatigue ici.' },
+  bat2:         { name:'Playroom int.', type:'high', activityMode:'fun_high', cap:12, bonus:null, desc:'⚡ Fun haute énergie intérieure. Stable jour/nuit.' },
+  cantina:      { name:'Cantina', type:'low', activityMode:'cuisine', cap:12, bonus:'meal_boost', desc:'🍽 Cuisine collective. Les pax ici nourrissent tout le camp.' },
+  welfare:      { name:'Espace Welfare', type:'low', activityMode:'repos', cap:12, bonus:'regen', desc:'💜 Repos & support émo. Soigne la fatigue et les crises.' },
   bulle_nego:   { name:'Bulle de Négo', type:'low', activityMode:'nego', cap:2, bonus:null, desc:'🤝 2 pax max. Ici on se parle avant de jouer. Négociez une scène pour un boost de Vibe.' },
-  pmu:          { name:'PMU', type:'high', activityMode:'fun_high', cap:2, bonus:'event_trigger', desc:'🍺 Buvette. Déclenche des événements aléatoires.' },
+  pmu:          { name:'PMU', type:'high', activityMode:'fun_high', cap:12, bonus:'event_trigger', desc:'🍺 Buvette. Déclenche des événements aléatoires.' },
 };
 
 // ===== ARCHÉTYPES =====
@@ -769,15 +744,15 @@ const PAX_DATA = [
   { id:'aioli',     name:'Aïoli',          emoji:'🧄', archetype:'dom',        affinity:'playroom_ext', pref:'any',   unlockDay:0 },
   { id:'ananas',    name:'Ananas',         emoji:'🍍', archetype:'festif',     affinity:'mixroom',      pref:'night', unlockDay:0 },
   { id:'avril',     name:'Avril',          emoji:'🌷', archetype:'sub',        affinity:'tente_cer',    pref:'day',   unlockDay:0 },
-  { id:'chaton',    name:'Chaton',         emoji:'🐈', archetype:'switch',     affinity:'bat1',         pref:'any',   unlockDay:1 },
-  { id:'dodo',      name:'Dodo',           emoji:'🦤', archetype:'creatif',    affinity:'tente_cer',    pref:'day',   unlockDay:1 },
+  { id:'chaton',    name:'Chaton',         emoji:'🐈', archetype:'switch',     affinity:'bat1',         pref:'any',   unlockDay:0 },
+  { id:'dodo',      name:'Dodo',           emoji:'🦤', archetype:'creatif',    affinity:'tente_cer',    pref:'day',   unlockDay:0 },
   { id:'choufleur', name:'Prince Choufleur',emoji:'🥦',archetype:'top',        affinity:'playroom_ext', pref:'night', unlockDay:1 },
-  { id:'nuageon',   name:'Nuageon',        emoji:'☁️', archetype:'soigneurice',affinity:'welfare',      pref:'any',   unlockDay:2 },
-  { id:'onigiri',   name:'Onigiri',        emoji:'🍙', archetype:'dom',        affinity:'bat2',         pref:'night', unlockDay:2 },
-  { id:'pasteque',  name:'Pastèque',       emoji:'🍉', archetype:'servicetop', affinity:'cantina',      pref:'day',   unlockDay:3 },
-  { id:'papille',   name:'Papille',        emoji:'👅', archetype:'slut',       affinity:'mixroom',      pref:'night', unlockDay:3 },
-  { id:'vigne',     name:'Vigne',          emoji:'🍇', archetype:'bottom',     affinity:'bat2',         pref:'any',   unlockDay:4 },
-  { id:'mcclick',   name:'Will McClick',   emoji:'🖱️', archetype:'chaotique',  affinity:'pmu',          pref:'day',   unlockDay:5 },
+  { id:'nuageon',   name:'Nuageon',        emoji:'☁️', archetype:'soigneurice',affinity:'welfare',      pref:'any',   unlockDay:1 },
+  { id:'onigiri',   name:'Onigiri',        emoji:'🍙', archetype:'dom',        affinity:'bat2',         pref:'night', unlockDay:1 },
+  { id:'pasteque',  name:'Pastèque',       emoji:'🍉', archetype:'servicetop', affinity:'cantina',      pref:'day',   unlockDay:2 },
+  { id:'papille',   name:'Papille',        emoji:'👅', archetype:'slut',       affinity:'mixroom',      pref:'night', unlockDay:2 },
+  { id:'vigne',     name:'Vigne',          emoji:'🍇', archetype:'bottom',     affinity:'bat2',         pref:'any',   unlockDay:3 },
+  { id:'mcclick',   name:'Will McClick',   emoji:'🖱️', archetype:'chaotique',  affinity:'pmu',          pref:'day',   unlockDay:4 },
 ];
 
 // ===== INVADERS =====
@@ -1881,9 +1856,7 @@ function toggleNightGlows(isNight) {
   const ids = ['playroom-ext','tente-cer','mixroom','pmu'];
   ids.forEach(id => {
     const glow = document.getElementById('glow-' + id);
-    const ember = document.getElementById('ember-' + id);
-    if (glow)  glow.classList.toggle('visible', isNight);
-    if (ember) ember.classList.toggle('visible', isNight);
+    if (glow) glow.classList.toggle('visible', isNight);
   });
 }
 
@@ -2024,9 +1997,9 @@ function updateInvaders() {
     // Queerisation speed based on vibe globale (v3)
     const vg = state.vibeGlobale;
     let hpLoss = 0;
-    if      (vg > 80) hpLoss = 10; // auto ~10s
-    else if (vg > 60) hpLoss = 4;  // auto ~25s
-    else if (vg > 40) hpLoss = 1;  // slow
+    if      (vg > 80) hpLoss = 5;   // auto ~20s
+    else if (vg > 60) hpLoss = 2;   // auto ~50s
+    else if (vg > 40) hpLoss = 0.5; // very slow
     // < 40: click only (hpLoss = 0)
     inv.health -= hpLoss;
     if (inv.barEl) inv.barEl.style.width = Math.max(0, inv.health) + '%';
@@ -2040,8 +2013,14 @@ function clickInvader(id) {
   inv.health -= 25; // v3: -25 HP per click
   if (inv.barEl) inv.barEl.style.width = Math.max(0, inv.health) + '%';
   state.stats.normeChased++;
-  if (inv.health <= 0) queeriseInvader(id);
-  else { spawnConfetti(inv.x, inv.y, '✊'); toast('✊ Résistance !'); }
+  if (inv.health <= 0) {
+    spawnConfetti(inv.x, inv.y, '❤️');
+    queeriseInvader(id);
+  } else if (inv.health <= 25) {
+    spawnConfetti(inv.x, inv.y, '❤️'); toast('💕 Iel vacille...');
+  } else {
+    spawnConfetti(inv.x, inv.y, '✊'); toast('✊ Résistance !');
+  }
 }
 
 function queeriseInvader(id) {
@@ -2229,7 +2208,8 @@ function openZone(zoneId) {
   state.selectedZone = zoneId;
   const zone = ZONES[zoneId];
   const zstate = state.zones[zoneId];
-  document.getElementById('zone-panel-name').textContent = zone.name + '  (' + zstate.occupants.length + '/' + zone.cap + ')';
+  const capDisplay = zone.cap >= 12 ? zstate.occupants.length : `${zstate.occupants.length}/${zone.cap}`;
+  document.getElementById('zone-panel-name').textContent = zone.name + '  (' + capDisplay + ')';
   document.getElementById('zone-panel-desc').textContent = getZoneAtmosphere(zoneId);
 
   const paxRow = document.getElementById('zone-panel-pax');
@@ -2479,7 +2459,8 @@ function renderZones() {
     // Cap indicator
     const cap = document.createElement('div');
     cap.className = 'zone-cap';
-    cap.textContent = zstate.occupants.length + '/' + ZONES[zid].cap;
+    const zoneCap = ZONES[zid].cap;
+    cap.textContent = zoneCap >= 12 ? (zstate.occupants.length || '') : zstate.occupants.length + '/' + zoneCap;
     el.appendChild(cap);
   });
 }
@@ -2488,7 +2469,6 @@ function sendToWelfare(paxId) {
   const ps = state.pax[paxId];
   const welfare = state.zones['welfare'];
   if (welfare.occupants.includes(paxId)) return;
-  if (welfare.occupants.length >= ZONES['welfare'].cap) { toast('💜 Le Welfare est plein !'); return; }
   if (ps.placedIn) {
     state.zones[ps.placedIn].occupants = state.zones[ps.placedIn].occupants.filter(id => id !== paxId);
     if (state.selectedZone === ps.placedIn) openZone(ps.placedIn);
