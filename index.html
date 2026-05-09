@@ -3014,10 +3014,12 @@ function setupMapInteraction() {
   }
 
   let prevMid = null, prevDist = null;
+  let lastDownOnInteractable = false;
 
   wrapper.addEventListener('pointerdown', e => {
     if (e.pointerType === 'mouse' && _dragPaxId) return;
     const onInteractable = !!(e.target.closest('.zone') || e.target.closest('.invader'));
+    lastDownOnInteractable = onInteractable;
     wrapper.setPointerCapture(e.pointerId);
     pts.set(e.pointerId, { x: e.clientX, y: e.clientY, onInteractable });
     cacheWrRect();
@@ -3085,11 +3087,11 @@ function setupMapInteraction() {
     clampAndApply();
   }, {passive:false});
 
-  // Double-tap to zoom — ignore if click was on an invader or zone (prevents zoom on repeated invader clicks)
+  // Double-tap to zoom — ignore if pointerdown was on an invader or zone
   let lastTap = 0;
   wrapper.addEventListener('pointerup', e => {
     if (pts.size > 0) return;
-    if (e.target.closest('.invader') || e.target.closest('.zone')) { lastTap = 0; return; }
+    if (lastDownOnInteractable) { lastTap = 0; return; }
     const now = Date.now();
     if (now - lastTap < 300) { scale = scale < 1.1 ? 1.3 : 0.7; clampAndApply(); }
     lastTap = now;
