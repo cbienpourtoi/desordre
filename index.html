@@ -2322,7 +2322,7 @@ function makeZoneChip(pid, extraClass) {
   const ps = state.pax[pid];
   const chip = document.createElement('div');
   chip.className = 'pax-chip' + (extraClass ? ' ' + extraClass : '');
-  chip.title = 'Cliquer pour retirer du lieu';
+  chip.title = 'Cliquer pour les détails · ✕ pour retirer du lieu';
   // Vibe mini-bar
   const vibeColor = ps && ps.vibe > 60 ? 'var(--green)' : ps && ps.vibe > 30 ? 'var(--yellow)' : 'var(--red)';
   const vibePct = ps ? Math.round(ps.vibe) : 0;
@@ -2332,7 +2332,13 @@ function makeZoneChip(pid, extraClass) {
     <span style="font-size:9px;background:rgba(0,0,0,0.4);padding:1px 4px;border-radius:2px;color:${vibeColor};">♥${vibePct}</span>
     <span class="pax-chip-remove">✕</span>
   `;
-  chip.onclick = () => removePaxFromZone(pid);
+  // Click body → show pax detail
+  chip.onclick = () => showPaxDetail(pid);
+  // ✕ → remove from zone (don't bubble up)
+  chip.querySelector('.pax-chip-remove').addEventListener('click', e => {
+    e.stopPropagation();
+    removePaxFromZone(pid);
+  });
   return chip;
 }
 
@@ -2414,6 +2420,8 @@ function renderHUD() {
   const h = state.hour % 24;
   const icon = state.isNight ? '🌙' : '☀';
   document.getElementById('hud-day').innerHTML = day + '<br><span style="color:var(--teal);font-size:6px;">' + icon + ' ' + String(h).padStart(2,'0') + 'h</span>';
+  // Refresh sidebar if open (keeps pax card colors in sync with vibe/fatigue)
+  if (document.getElementById('sidebar').classList.contains('open')) renderSidebar();
 }
 
 function renderZones() {
