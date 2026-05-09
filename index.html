@@ -48,6 +48,14 @@ html,body{width:100%;height:100%;overflow:hidden;background:var(--dark);font-fam
   background:url(map.png) center/cover no-repeat;
   filter:blur(22px) brightness(0.32) saturate(0.7);
 }
+#map-atmosphere-night{
+  position:absolute;inset:-40px;z-index:0;pointer-events:none;
+  background:url(map_nocturne.png) center/cover no-repeat;
+  filter:blur(22px) brightness(0.32) saturate(0.7);
+  opacity:0;
+  transition:opacity 8s ease;
+}
+#map-atmosphere-night.night{opacity:1;}
 #map-wrapper:active{cursor:grabbing;}
 #map-viewport{
   position:absolute;top:0;left:0;
@@ -61,6 +69,16 @@ html,body{width:100%;height:100%;overflow:hidden;background:var(--dark);font-fam
   width:900px;height:675px;
   image-rendering:auto;
 }
+#map-img-night{
+  position:absolute;top:0;left:0;
+  display:block;
+  width:900px;height:675px;
+  image-rendering:auto;
+  opacity:0;
+  transition:opacity 8s ease;
+  pointer-events:none;
+}
+#map-img-night.night{opacity:1;}
 
 /* ===== ZONES CLIQUABLES sur la carte ===== */
 .zone{
@@ -550,8 +568,10 @@ html,body{width:100%;height:100%;overflow:hidden;background:var(--dark);font-fam
 <!-- MAP -->
 <div id="map-wrapper">
   <div id="map-atmosphere"></div>
+  <div id="map-atmosphere-night"></div>
   <div id="map-viewport">
     <img id="map-img" src="map.png" alt="Carte du Désordre" draggable="false"/>
+    <img id="map-img-night" src="map_nocturne.png" alt="" draggable="false"/>
     <!-- Night atmosphere glows (positioned on 900x675 map) -->
     <div class="night-glow fire" id="glow-playroom-ext" style="left:140px;top:295px;"></div>
     <div class="night-glow fire" id="glow-tente-cer" style="left:180px;top:510px;"></div>
@@ -1968,6 +1988,8 @@ function eventTick() {
   state.isNight = state.hour >= 22 || state.hour < 6;
   if (wasNight !== state.isNight) {
     document.getElementById('night-overlay').classList.toggle('night', state.isNight);
+    document.getElementById('map-img-night').classList.toggle('night', state.isNight);
+    document.getElementById('map-atmosphere-night').classList.toggle('night', state.isNight);
     updateCriee(state.isNight ? '🌙 La nuit tombe sur le Désordre. Les playrooms s\'animent.' : '☀️ Le soleil se lève. Bonjour la communauté.');
     toggleNightGlows(state.isNight);
   }
