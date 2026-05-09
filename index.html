@@ -1748,8 +1748,8 @@ function productionTick() {
       ps.ennui = Math.max(0, Math.min(100, ps.ennui));
 
       // ── FAIM (from food_stock) ──
-      if      (state.food_stock > 100) ps.faim = Math.max(0, ps.faim - 0.08);
-      else if (state.food_stock >= 50) { /* neutral */ }
+      if      (state.food_stock > 100) ps.faim = Math.max(0, ps.faim - 0.5);
+      else if (state.food_stock >= 50) ps.faim = Math.max(0, ps.faim - 0.15);
       else if (state.food_stock >= 20) ps.faim = Math.min(100, ps.faim + 0.12);
       else if (state.food_stock > 0)   ps.faim = Math.min(100, ps.faim + 0.32);
       else                             ps.faim = Math.min(100, ps.faim + 0.80);
@@ -1834,7 +1834,8 @@ function productionTick() {
   PAX_DATA.forEach(p => {
     const ps = state.pax[p.id];
     if (!ps || ps.placedIn || ps.state === 'locked') return;
-    if      (state.food_stock > 100) ps.faim = Math.max(0, ps.faim - 0.04);
+    if      (state.food_stock > 100) ps.faim = Math.max(0, ps.faim - 0.25);
+    else if (state.food_stock >= 50) ps.faim = Math.max(0, ps.faim - 0.08);
     else if (state.food_stock < 20)  ps.faim = Math.min(100, ps.faim + 0.16);
   });
 
@@ -2446,6 +2447,7 @@ function renderZones() {
         span.textContent = p.emoji;
         span.style.animationDelay = Math.random() * 2 + 's';
         makePaxDraggable(span, p.id, p.emoji);
+        span.addEventListener('click', (e) => { e.stopPropagation(); showPaxDetail(p.id); });
         row.appendChild(span);
       });
       el.appendChild(row);
