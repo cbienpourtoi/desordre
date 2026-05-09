@@ -95,7 +95,9 @@ html,body{width:100%;height:100%;overflow:hidden;background:var(--dark);font-fam
 .zone-prod span{margin:0 2px;}
 .zone-prod .v{color:var(--pink);}
 .zone-prod .s{color:var(--teal);}
-#touch-drag-ghost{position:fixed;pointer-events:none;z-index:9999;font-size:36px;transform:translate(-50%,-60%);filter:drop-shadow(0 0 10px var(--pink));}
+.zone.carry-target{border-color:rgba(255,233,63,0.4);background:rgba(255,233,63,0.06);}
+.zone.carry-hover{border-color:var(--yellow)!important;background:rgba(255,233,63,0.3)!important;box-shadow:0 0 20px 6px var(--yellow);transform:scale(1.03);}
+#carry-ghost{filter:drop-shadow(0 0 10px var(--yellow)) drop-shadow(0 0 20px rgba(255,233,63,0.5));}
 .pax-drag-handle{cursor:grab;user-select:none;}
 .pax-drag-handle:active{cursor:grabbing;}
 
@@ -561,7 +563,7 @@ html,body{width:100%;height:100%;overflow:hidden;background:var(--dark);font-fam
     <div class="zone" id="zone-mixroom" data-zone="mixroom" style="left:280px;top:440px;width:170px;height:120px;" onclick="openZone('mixroom')"></div>
     <div class="zone" id="zone-bat1" data-zone="bat1" style="left:320px;top:160px;width:150px;height:130px;" onclick="openZone('bat1')"></div>
     <div class="zone" id="zone-bat2" data-zone="bat2" style="left:480px;top:140px;width:140px;height:130px;" onclick="openZone('bat2')"></div>
-    <div class="zone" id="zone-cantina" data-zone="Cuisine" style="left:630px;top:180px;width:130px;height:110px;" onclick="openZone('Cuisine')"></div>
+    <div class="zone" id="zone-cantina" data-zone="cantina" style="left:630px;top:180px;width:130px;height:110px;" onclick="openZone('cantina')"></div>
     <div class="zone" id="zone-welfare" data-zone="welfare" style="left:580px;top:410px;width:160px;height:120px;" onclick="openZone('welfare')"></div>
     <div class="zone" id="zone-bulle-nego" data-zone="bulle_nego" style="left:420px;top:395px;width:70px;height:80px;" onclick="openZone('bulle_nego')"></div>
     <div class="zone" id="zone-pmu" data-zone="pmu" style="left:440px;top:155px;width:70px;height:80px;" onclick="openZone('pmu')"></div>
@@ -1511,6 +1513,36 @@ function tutoHideFakeInvader() {
 let _dragPaxId = null;
 let _touchDragPaxId = null;
 let _touchGhost = null;
+let _carriedPaxId = null;   // click-to-carry mechanic
+let _carryGhost = null;
+
+function pickUpPax(paxId) {
+  const p = PAX_DATA.find(d => d.id === paxId);
+  if (!p) return;
+  const ps = state.pax[paxId];
+  if (!ps || ps.state === 'locked') return;
+  // If already carrying this pax, cancel
+  if (_carriedPaxId === paxId) { cancelCarry(); return; }
+  cancelCarry();
+  _carriedPaxId = paxId;
+  // Ghost
+  _carryGhost = document.createElement('div');
+  _carryGhost.id = 'carry-ghost';
+  _carryGhost.textContent = p.emoji;
+  _carryGhost.style.cssText = 'position:fixed;font-size:36px;pointer-events:none;z-index:9999;transform:translate(-50%,-50%);transition:none;filter:drop-shadow(0 0 8px var(--yellow));';
+  document.body.appendChild(_carryGhost);
+  document.body.style.cursor = 'grabbing';
+  // Highlight carry-able zones
+  document.querySelectorAll('.zone').forEach(z => z.classList.add('carry-target'));
+}
+
+function cancelCarry() {
+  _carriedPaxId = null;
+  if (_carryGhost) { _carryGhost.remove(); _carryGhost = null; }
+  document.body.style.cursor = '';
+  document.querySelectorAll('.zone.carry-target').forEach(z => z.classList.remove('carry-target'));
+  document.querySelectorAll('.zone.carry-hover').forEach(z => z.classList.remove('carry-hover'));
+}
 
 function applyNegoBoostOnArrival(paxId, zoneId) {
   const ps = state.pax[paxId];
@@ -1545,6 +1577,35 @@ function dropPaxOnZone(paxId, zoneId) {
   const p = PAX_DATA.find(d => d.id === paxId);
   toast(`${p.emoji} ${p.name} → ${zone.name}`);
 }
+
+function setupCarryInteraction() {
+  // Ghost follows mouse during carry
+  document.addEventListener('mousemove', e => {
+    if (!_carryGhost) return;
+    _carryGhost.style.left = e.clientX + 'px';
+    _carryGhost.style.top  = e.clientY + 'px';
+    // Highlight zone under cursor
+    document.querySelectorAll('.zone.carry-hover').forEach(z => z.classList.remove('carry-hover'));
+    const under = document.elementFromPoint(e.clientX, e.clientY);
+    const zoneEl = under && under.closest('.zone');
+    if (zoneEl) zoneEl.classList.add('carry-hover');
+  });
+  // Ghost follows pointer during carry (touch)
+  document.addEventListener('pointermove', e => {
+    if (!_carryGhost || e.pointerType === 'mouse') return;
+    _carryGhost.style.left = e.clientX + 'px';
+    _carryGhost.style.top  = e.clientY + 'px';
+  });
+  // Escape cancels carry
+  document.addEventListener('keydown', e => { if (e.key === 'Escape') cancelCarry(); });
+  // Click on map background cancels carry (not on zones / pax cards)
+  document.getElementById('map-wrapper').addEventListener('click', e => {
+    if (!_carriedPaxId) return;
+    if (e.target.closest('.zone') || e.target.closest('.invader')) return;
+    cancelCarry();
+  });
+}
+
 
 function setupZoneDropTargets() {
   document.querySelectorAll('.zone').forEach(zoneEl => {
@@ -1678,6 +1739,7 @@ function startGame() {
   state.invaderTimer = setInterval(spawnInvader, CFG.INVADER_INTERVAL);
   setupMapInteraction();
   setupZoneDropTargets();
+  setupCarryInteraction();
   renderHUD();
   renderZones();
   // Lancer le tuto si première fois (délai pour que l'UI soit rendue)
@@ -2230,6 +2292,12 @@ function removePaxFromZone(paxId) {
 
 // ===== ZONE INTERACTION =====
 function openZone(zoneId) {
+  // If carrying a pax, drop it here instead of opening zone panel
+  if (_carriedPaxId) {
+    dropPaxOnZone(_carriedPaxId, zoneId);
+    cancelCarry();
+    return;
+  }
   state.selectedZone = zoneId;
   const zone = ZONES[zoneId];
   const zstate = state.zones[zoneId];
@@ -2596,9 +2664,14 @@ function renderSidebar() {
     } else {
       borderColor = 'var(--green)'; bgColor = 'rgba(127,255,90,0.08)';
     }
-    div.style.cssText = `background:${bgColor};border:1.5px solid ${borderColor};padding:8px;margin-bottom:8px;border-radius:4px;cursor:pointer;`;
-    div.title = 'Cliquer pour les détails';
-    div.onclick = () => showPaxDetail(p.id);
+    div.style.cssText = `background:${bgColor};border:1.5px solid ${borderColor};padding:8px;margin-bottom:8px;border-radius:4px;cursor:grab;`;
+    div.title = 'Cliquer pour emporter · double-clic pour les détails';
+    // Single click = pick up pax; double-click = show detail
+    div.onclick = e => {
+      if (ps.inCrisis || ps.state === 'locked') { showPaxDetail(p.id); return; }
+      pickUpPax(p.id);
+    };
+    div.ondblclick = e => { e.stopPropagation(); cancelCarry(); showPaxDetail(p.id); };
     const vibePct = Math.round(ps.vibe);
     const vibeColor = vibePct > 65 ? 'var(--green)' : vibePct > 30 ? 'var(--yellow)' : 'var(--red)';
     const vibeBar = `<div style='margin-top:4px;background:#222;border-radius:3px;height:4px;width:100%;'><div style='height:4px;border-radius:3px;width:${vibePct}%;background:${vibeColor};transition:width 0.5s;'></div></div>`;
