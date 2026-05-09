@@ -76,9 +76,12 @@ html,body{width:100%;height:100%;overflow:hidden;background:var(--dark);font-fam
 @keyframes zonePulse{0%,100%{box-shadow:0 0 0 0 var(--pink);}50%{box-shadow:0 0 12px 4px var(--pink);}}
 .zone.drag-over{border-color:var(--yellow)!important;background:rgba(255,233,63,0.25)!important;box-shadow:0 0 18px 4px var(--yellow);}
 .zone-label{
-  font-family:'Press Start 2P',monospace;font-size:6px;color:var(--cream);
-  background:rgba(26,14,46,0.85);padding:2px 4px;border-radius:2px;
-  white-space:nowrap;pointer-events:none;text-align:center;line-height:1.3;
+  font-family:'Press Start 2P',monospace;font-size:7px;color:#fff;
+  background:rgba(10,4,26,0.92);padding:3px 6px;border-radius:3px;
+  white-space:nowrap;pointer-events:none;text-align:center;line-height:1.4;
+  border:1px solid rgba(255,255,255,0.2);
+  text-shadow:0 1px 3px #000;
+  letter-spacing:0.3px;
 }
 .zone-pax-row{display:flex;gap:1px;flex-wrap:wrap;justify-content:center;}
 .zone-pax-dot{font-size:14px;filter:drop-shadow(1px 1px 0 #000);animation:paxBob 2s ease-in-out infinite;cursor:grab;}
@@ -213,14 +216,26 @@ html,body{width:100%;height:100%;overflow:hidden;background:var(--dark);font-fam
   display:flex;align-items:flex-start;gap:12px;
 }
 #zone-panel.open{transform:translateY(0);}
-#zone-panel-info{flex:1;}
+#zone-panel-info{flex:1;min-width:0;}
 #zone-panel-name{font-family:'Press Start 2P',monospace;font-size:10px;color:var(--yellow);margin-bottom:4px;}
-#zone-panel-desc{font-size:15px;color:var(--cream);margin-bottom:6px;line-height:1.3;}
-#zone-panel-pax{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:6px;}
-.pax-chip{background:rgba(127,255,90,0.15);border:1.5px solid var(--green);padding:3px 7px;border-radius:3px;font-size:14px;cursor:pointer;transition:all 0.2s;}
-.pax-chip:hover{background:rgba(255,45,149,0.3);border-color:var(--pink);}
-.pax-chip.remove{border-color:var(--red);}
-#zone-panel-actions{display:flex;flex-direction:column;gap:6px;}
+#zone-panel-desc{font-size:13px;color:var(--cream);margin-bottom:8px;line-height:1.3;font-style:italic;opacity:0.85;}
+#zone-panel-pax{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:4px;}
+.zone-section-label{font-size:9px;font-family:'Press Start 2P',monospace;letter-spacing:0.5px;margin-bottom:4px;margin-top:2px;}
+.zone-section-label.inside{color:var(--green);}
+.zone-section-label.welfare-role{color:var(--teal);font-size:8px;}
+.pax-chip{
+  display:inline-flex;align-items:center;gap:4px;
+  background:rgba(127,255,90,0.12);border:2px solid var(--green);
+  padding:4px 8px;border-radius:4px;font-size:13px;cursor:pointer;transition:all 0.2s;
+  color:var(--cream);
+}
+.pax-chip .pax-chip-name{font-size:10px;font-family:'Press Start 2P',monospace;opacity:0.8;}
+.pax-chip:hover{background:rgba(255,45,149,0.25);border-color:var(--pink);}
+.pax-chip .pax-chip-remove{font-size:10px;color:var(--red);margin-left:2px;opacity:0.7;}
+.pax-chip.crisis-chip{border-color:var(--red);background:rgba(231,76,60,0.2);}
+.pax-chip.welfare-giver{border-color:var(--teal);background:rgba(26,188,156,0.15);}
+.pax-chip.welfare-receiver{border-color:var(--pink);background:rgba(255,45,149,0.15);}
+#zone-panel-actions{display:flex;flex-direction:column;gap:6px;min-width:90px;}
 .panel-btn{border:none;font-family:'Press Start 2P',monospace;font-size:8px;padding:8px 10px;cursor:pointer;border-radius:3px;letter-spacing:0.5px;}
 .panel-btn.boost{background:var(--yellow);color:var(--dark);}
 .panel-btn.add-pax{background:var(--green);color:var(--dark);}
@@ -882,6 +897,7 @@ const state = {
   invaderTimer: null,
   mealBoosted: false,
   gameEnded: false,
+  paused: false,
   quests: [],
   questsDone: 0,
   scenes: {},
@@ -1096,6 +1112,25 @@ function getZoneAtmosphere(zid) {
     if (zid === 'isoloir')  return "🌿 Silence. La porte est fermée. Personne n'a besoin de solitude.";
     return zone.desc + ' — Vide pour l\'instant.';
   }
+
+  // Welfare: special description showing support émo dynamic
+  if (zid === 'welfare') {
+    const inCrisisPax = occ.filter(pid => state.pax[pid] && state.pax[pid].inCrisis);
+    const giverPax = occ.filter(pid => state.pax[pid] && !state.pax[pid].inCrisis);
+    if (inCrisisPax.length > 0 && giverPax.length > 0) {
+      const gNames = giverPax.map(pid => { const p = PAX_DATA.find(d=>d.id===pid); return p?p.emoji+' '+p.name:''; }).join(', ');
+      const rNames = inCrisisPax.map(pid => { const p = PAX_DATA.find(d=>d.id===pid); return p?p.emoji+' '+p.name:''; }).join(', ');
+      return `💜 ${gNames} assure le support émo. ${rNames} est en soin et récupère +3.5 Vibe/tick.`;
+    }
+    if (inCrisisPax.length > 0 && giverPax.length === 0) {
+      const rNames = inCrisisPax.map(pid => { const p = PAX_DATA.find(d=>d.id===pid); return p?p.emoji+' '+p.name:''; }).join(', ');
+      return `🆘 ${rNames} est en crise mais personne ne peut assurer le support émo. Envoie quelqu'un ici !`;
+    }
+    if (giverPax.length > 0 && inCrisisPax.length === 0) {
+      const gNames = giverPax.map(pid => { const p = PAX_DATA.find(d=>d.id===pid); return p?p.emoji+' '+p.name:''; }).join(', ');
+      return `💜 ${gNames} assure le support émo — disponible si quelqu'un entre en crise.`;
+    }
+  }
   const archs = occ.map(pid => { const p = PAX_DATA.find(d => d.id === pid); return p ? p.archetype : null; }).filter(Boolean);
   const names = occ.map(pid => { const p = PAX_DATA.find(d => d.id === pid); return p ? p.emoji + '\u00a0' + p.name : null; }).filter(Boolean).join(', ');
   if (archs.includes('dom') && archs.includes('sub'))
@@ -1195,6 +1230,7 @@ let _tutoStep = -1;
 
 function tutoStart() {
   if (localStorage.getItem('tuto_done') === '1') return;
+  state.paused = true;
   _tutoStep = -1;
   tutoNext();
 }
@@ -1308,6 +1344,7 @@ function tutoEnd() {
   document.getElementById('tuto-pulse').style.display     = 'none';
   localStorage.setItem('tuto_done', '1');
   _tutoStep = -1;
+  state.paused = false; // Resume game
 }
 
 function tutoShowFakeInvader() {
@@ -1455,7 +1492,7 @@ function initState() {
   PAX_DATA.forEach(p => {
     state.pax[p.id] = {
       state: 'locked',
-      vibe: 70, faim: 0, ennui: 0, fatigue: 0,
+      vibe: 50, faim: 0, ennui: 0, fatigue: 0,
       placedIn: null,
       shiftTicks: 0,
       solitudeTicks: 0,
@@ -1491,7 +1528,7 @@ function startGame() {
 
 // ===== PRODUCTION TICK (v3) =====
 function productionTick() {
-  if (!state.started || state.gameEnded) return;
+  if (!state.started || state.gameEnded || state.paused) return;
   state.totalTicks++;
 
   // Food stock: collective consumption
@@ -1648,7 +1685,7 @@ function productionTick() {
 
 // ===== EVENT TICK =====
 function eventTick() {
-  if (!state.started || state.gameEnded) return;
+  if (!state.started || state.gameEnded || state.paused) return;
   state.dayProgress += (1 / CFG.DAY_SECS);
   if (state.dayProgress >= 1) {
     state.dayProgress = 0;
@@ -1979,24 +2016,62 @@ function openZone(zoneId) {
   state.selectedZone = zoneId;
   const zone = ZONES[zoneId];
   const zstate = state.zones[zoneId];
-  document.getElementById('zone-panel-name').textContent = zone.name;
+  document.getElementById('zone-panel-name').textContent = zone.name + '  (' + zstate.occupants.length + '/' + zone.cap + ')';
   document.getElementById('zone-panel-desc').textContent = getZoneAtmosphere(zoneId);
-  // Pax dans la zone
+
   const paxRow = document.getElementById('zone-panel-pax');
   paxRow.innerHTML = '';
-  zstate.occupants.forEach(pid => {
-    const p = PAX_DATA.find(d => d.id === pid);
-    if (!p) return;
-    const chip = document.createElement('div');
-    chip.className = 'pax-chip remove';
-    chip.textContent = p.emoji + ' ' + p.name;
-    chip.title = 'Retirer';
-    chip.onclick = () => removePaxFromZone(pid);
-    paxRow.appendChild(chip);
-  });
-  if (zstate.occupants.length === 0) {
-    paxRow.innerHTML = '<span style="font-size:14px;opacity:0.5;">Aucun·e pax ici</span>';
+
+  // Determine welfare support roles if this is welfare
+  const isWelfare = zoneId === 'welfare';
+  let givers = [], receivers = [];
+  if (isWelfare) {
+    zstate.occupants.forEach(pid => {
+      const ps = state.pax[pid];
+      if (ps && ps.inCrisis) receivers.push(pid);
+      else givers.push(pid);
+    });
   }
+
+  if (zstate.occupants.length === 0) {
+    paxRow.innerHTML = '<span style="font-size:12px;opacity:0.5;font-style:italic;">Aucun·e pax ici</span>';
+  } else {
+    // Section label
+    const lbl = document.createElement('div');
+    lbl.className = 'zone-section-label inside';
+    lbl.style.width = '100%';
+
+    if (isWelfare && (givers.length || receivers.length)) {
+      // Welfare: show givers and receivers separately
+      if (givers.length) {
+        const gl = document.createElement('div');
+        gl.className = 'zone-section-label welfare-role';
+        gl.textContent = '💜 SUPPORT ÉMO :';
+        gl.style.width = '100%';
+        paxRow.appendChild(gl);
+        givers.forEach(pid => paxRow.appendChild(makeZoneChip(pid, 'welfare-giver')));
+      }
+      if (receivers.length) {
+        const rl = document.createElement('div');
+        rl.className = 'zone-section-label welfare-role';
+        rl.style.color = 'var(--pink)';
+        rl.style.width = '100%';
+        rl.textContent = '🆘 EN SOIN :';
+        rl.style.marginTop = givers.length ? '6px' : '0';
+        paxRow.appendChild(rl);
+        receivers.forEach(pid => paxRow.appendChild(makeZoneChip(pid, 'welfare-receiver crisis-chip')));
+      }
+    } else {
+      lbl.textContent = '▶ DANS CE LIEU :';
+      paxRow.appendChild(lbl);
+      zstate.occupants.forEach(pid => {
+        const ps = state.pax[pid];
+        const cls = ps && ps.inCrisis ? 'crisis-chip' : '';
+        paxRow.appendChild(makeZoneChip(pid, cls));
+      });
+    }
+  }
+
   // Boutons
   const btnBoost = document.getElementById('btn-boost');
   const now = Date.now();
@@ -2004,15 +2079,34 @@ function openZone(zoneId) {
   const canBoost = (now - lastBoost) > CFG.BOOST_COOLDOWN;
   btnBoost.disabled = !canBoost || zstate.occupants.length === 0;
   btnBoost.textContent = canBoost ? '⚡ BOOST' : '⏳ COOLDOWN';
-  // Cap
   const btnAdd = document.getElementById('btn-add-pax');
   btnAdd.disabled = zstate.occupants.length >= zone.cap;
-  btnAdd.textContent = `+ PAX (${zstate.occupants.length}/${zone.cap})`;
+  btnAdd.textContent = `+ PAX`;
   document.getElementById('zone-panel').classList.add('open');
   // Highlight zone
   document.querySelectorAll('.zone').forEach(z => z.classList.remove('active'));
   const el = document.getElementById('zone-' + zoneId.replace(/_/g,'-'));
   if (el) el.classList.add('active');
+}
+
+function makeZoneChip(pid, extraClass) {
+  const p = PAX_DATA.find(d => d.id === pid);
+  if (!p) return document.createTextNode('');
+  const ps = state.pax[pid];
+  const chip = document.createElement('div');
+  chip.className = 'pax-chip' + (extraClass ? ' ' + extraClass : '');
+  chip.title = 'Cliquer pour retirer du lieu';
+  // Vibe mini-bar
+  const vibeColor = ps && ps.vibe > 60 ? 'var(--green)' : ps && ps.vibe > 30 ? 'var(--yellow)' : 'var(--red)';
+  const vibePct = ps ? Math.round(ps.vibe) : 0;
+  chip.innerHTML = `
+    <span>${p.emoji}</span>
+    <span class="pax-chip-name">${p.name}</span>
+    <span style="font-size:9px;background:rgba(0,0,0,0.4);padding:1px 4px;border-radius:2px;color:${vibeColor};">♥${vibePct}</span>
+    <span class="pax-chip-remove">✕</span>
+  `;
+  chip.onclick = () => removePaxFromZone(pid);
+  return chip;
 }
 
 function closeZonePanel() {
