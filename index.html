@@ -1862,9 +1862,9 @@ function productionTick() {
 
       // ── FATIGUE ──
       let dFatigue = 0;
-      if      (actMode === 'fun_high')    dFatigue = 0.16;
-      else if (actMode === 'fun_low')     dFatigue = 0.04;
-      else if (actMode === 'cuisine')     dFatigue = hasAffinity ? 0.16 : 0.32;
+      if      (actMode === 'fun_high')    dFatigue = 0.32;
+      else if (actMode === 'fun_low')     dFatigue = 0.12;
+      else if (actMode === 'cuisine')     dFatigue = hasAffinity ? 0.28 : 0.55;
       else if (actMode === 'repos')       dFatigue = -0.8;
       else if (actMode === 'nego')        dFatigue = -0.4; // légère récupération pendant la négo
       // support émo = repos actif (fatigue still drains from emotional effort)
