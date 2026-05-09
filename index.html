@@ -745,7 +745,7 @@ const ZONES = {
   bat2:         { name:'Playroom int.', type:'high', activityMode:'fun_high', cap:12, bonus:null, desc:'⚡ Fun haute énergie intérieure. Stable jour/nuit.' },
   cantina:      { name:'Cuisine', type:'low', activityMode:'cuisine', cap:12, bonus:'meal_boost', desc:'🍽 Cuisine collective. Les pax ici nourrissent tout le camp.' },
   welfare:      { name:'Espace Welfare', type:'low', activityMode:'repos', cap:12, bonus:'regen', desc:'💜 Repos & support émo. Soigne la fatigue et les crises.' },
-  bulle_nego:   { name:'Bulle de Négo', type:'low', activityMode:'nego', cap:2, bonus:null, desc:'🤝 2 pax max. Ici on se parle avant de jouer. Négociez une scène pour un boost de Vibe.' },
+  bulle_nego:   { name:'Bulle de Négo', type:'low', activityMode:'nego', cap:6, bonus:null, desc:'🤝 Ici on se parle avant de jouer. Négociez une scène pour un boost de Vibe.' },
   pmu:          { name:'PMU', type:'high', activityMode:'fun_high', cap:12, bonus:'event_trigger', desc:'🍺 Buvette. Déclenche des événements aléatoires.' },
 };
 
@@ -1292,10 +1292,10 @@ function getZoneAtmosphere(zid) {
   if (zid === 'bulle_nego') {
     const nego = state.zones['bulle_nego'];
     const pct = Math.round((nego.negoProgress || 0) / 30 * 100);
-    if (occ.length === 2) {
-      if (pct >= 100) return `🤝 ${names} — La scène est négociée ! Ils/elles repartent boostée·s.`;
+    if (occ.length >= 2) {
+      if (pct >= 100) return `🤝 ${names} — La scène est négociée ! Iels repartent boostée·s.`;
       if (pct >= 60)  return `🤝 ${names} — La discussion avance. Encore un peu... (${pct}%)`;
-      return `🤝 ${names} — La négociation commence. Iel·s prennent le temps de se parler. (${pct}%)`;
+      return `🤝 ${names} — La négociation commence. Iels prennent le temps de se parler. (${pct}%)`;
     }
     if (occ.length === 1) return `🤝 ${names} est là. Iel attend quelqu'un pour négocier une scène.`;
   }
@@ -1791,7 +1791,7 @@ function productionTick() {
     tryAutoBoost(zid);
 
     if (zone.activityMode === 'nego') {
-      if (occ.length === 2) {
+    if (occ.length >= 2) {
         zstate.negoProgress = (zstate.negoProgress || 0) + 1;
         if (zstate.negoProgress === 30) {
           occ.forEach(pid => { state.pax[pid].negoBoost = true; });
@@ -2392,7 +2392,7 @@ function openZone(zoneId) {
     if (synergyAnchor) info.insertBefore(negoBar, synergyAnchor);
     else info.appendChild(negoBar);
   }
-  if (zoneId === 'bulle_nego' && zstate.occupants.length === 2) {
+  if (zoneId === 'bulle_nego' && zstate.occupants.length >= 2) {
     const pct = Math.min(100, Math.round((zstate.negoProgress || 0) / 30 * 100));
     negoBar.innerHTML = `<div style="font-size:11px;color:var(--teal);font-family:'Press Start 2P',monospace;margin-bottom:4px;">NÉGOCIATION ${pct}%</div>
       <div style="height:6px;background:rgba(255,255,255,0.1);border-radius:3px;overflow:hidden;">
