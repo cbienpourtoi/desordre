@@ -333,45 +333,44 @@ html,body{width:100%;height:100%;overflow:hidden;background:var(--dark);font-fam
 /* ===== NIGHT GLOW EFFECTS ===== */
 .night-glow{
   position:absolute;pointer-events:none;z-index:3;
-  border-radius:50%;opacity:0;transition:opacity 6s ease;
+  border-radius:50%;opacity:0;transition:opacity 5s ease;
+  mix-blend-mode:screen;
 }
 .night-glow.visible{opacity:1;}
 @keyframes flicker{
-  0%,100%{transform:scale(1);opacity:0.55;}
-  20%{transform:scale(1.08);opacity:0.7;}
-  40%{transform:scale(0.95);opacity:0.5;}
-  60%{transform:scale(1.12);opacity:0.65;}
-  80%{transform:scale(0.98);opacity:0.6;}
+  0%,100%{transform:scale(1) rotate(0deg);}
+  15%{transform:scale(1.12) rotate(1deg);}
+  35%{transform:scale(0.93) rotate(-1deg);}
+  55%{transform:scale(1.18) rotate(2deg);}
+  75%{transform:scale(0.97) rotate(-1deg);}
 }
 @keyframes glowPulse{
-  0%,100%{opacity:0.18;}50%{opacity:0.28;}
+  0%,100%{transform:scale(1);}50%{transform:scale(1.1);}
 }
 .night-glow.fire{
-  width:90px;height:90px;
-  background:radial-gradient(circle, rgba(255,160,40,0.85) 0%, rgba(255,80,0,0.4) 40%, transparent 70%);
-  animation:flicker 2.5s ease-in-out infinite;
-  margin-left:-45px;margin-top:-45px;
-  filter:blur(3px);
+  width:220px;height:220px;
+  background:radial-gradient(circle, rgba(255,180,60,1) 0%, rgba(255,100,0,0.7) 30%, rgba(255,40,0,0.3) 55%, transparent 75%);
+  animation:flicker 2.2s ease-in-out infinite;
+  margin-left:-110px;margin-top:-110px;
 }
 .night-glow.lamp{
-  width:120px;height:120px;
-  background:radial-gradient(circle, rgba(180,120,255,0.6) 0%, rgba(120,60,220,0.25) 40%, transparent 70%);
+  width:260px;height:260px;
+  background:radial-gradient(circle, rgba(200,140,255,0.95) 0%, rgba(140,70,240,0.55) 35%, rgba(100,30,200,0.2) 60%, transparent 78%);
   animation:glowPulse 3s ease-in-out infinite;
-  margin-left:-60px;margin-top:-60px;
-  filter:blur(5px);
+  margin-left:-130px;margin-top:-130px;
 }
 .night-glow.teal{
-  width:100px;height:100px;
-  background:radial-gradient(circle, rgba(40,220,200,0.5) 0%, rgba(0,160,140,0.2) 40%, transparent 70%);
+  width:230px;height:230px;
+  background:radial-gradient(circle, rgba(80,255,220,0.95) 0%, rgba(20,200,180,0.55) 35%, rgba(0,160,140,0.2) 60%, transparent 78%);
   animation:glowPulse 4s ease-in-out infinite;
-  margin-left:-50px;margin-top:-50px;
-  filter:blur(4px);
+  margin-left:-115px;margin-top:-115px;
 }
 .night-campfire-emoji{
-  position:absolute;z-index:4;font-size:20px;pointer-events:none;
-  opacity:0;transition:opacity 6s ease;
+  position:absolute;z-index:5;font-size:28px;pointer-events:none;
+  opacity:0;transition:opacity 5s ease;
   animation:flicker 2s ease-in-out infinite;
   transform-origin:bottom center;
+  filter:drop-shadow(0 0 8px rgba(255,150,0,0.9));
 }
 .night-campfire-emoji.visible{opacity:1;}
 
@@ -384,6 +383,28 @@ html,body{width:100%;height:100%;overflow:hidden;background:var(--dark);font-fam
   animation:toastAnim 3s ease forwards;pointer-events:none;
 }
 @keyframes toastAnim{0%{opacity:0;transform:translateX(-50%) translateY(-10px);}10%,80%{opacity:1;transform:translateX(-50%) translateY(0);}100%{opacity:0;transform:translateX(-50%) translateY(-10px);}}
+
+/* ===== PAX ARRIVAL BANNER ===== */
+#pax-arrival-banner{
+  position:fixed;top:0;left:0;right:0;z-index:800;
+  background:linear-gradient(135deg,rgba(10,4,26,0.97),rgba(40,10,70,0.97));
+  border-bottom:3px solid var(--pink);
+  padding:14px 20px;
+  display:flex;align-items:center;gap:14px;
+  transform:translateY(-110%);transition:transform 0.5s cubic-bezier(0.175,0.885,0.32,1.275);
+  pointer-events:none;
+}
+#pax-arrival-banner.show{transform:translateY(0);}
+#pab-emoji{font-size:42px;filter:drop-shadow(0 0 12px var(--pink));}
+#pab-name{
+  font-family:'Press Start 2P',monospace;font-size:12px;color:var(--yellow);
+  text-shadow:0 0 10px var(--yellow);
+}
+#pab-name span{display:block;font-size:8px;color:var(--pink);margin-top:4px;}
+#pab-quote{
+  font-family:'DM Mono',monospace;font-size:13px;color:var(--cream);
+  font-style:italic;opacity:0.85;flex:1;
+}
 
 /* MOBILE SPECIFIC */
 @media(max-width:600px){
@@ -518,6 +539,11 @@ html,body{width:100%;height:100%;overflow:hidden;background:var(--dark);font-fam
 
 <!-- NIGHT OVERLAY -->
 <div id="night-overlay"></div>
+<div id="pax-arrival-banner">
+  <div id="pab-emoji"></div>
+  <div id="pab-name"></div>
+  <div id="pab-quote"></div>
+</div>
 
 <!-- TUTORIAL -->
 <div id="tuto-spotlight" style="display:none;"></div>
@@ -1206,9 +1232,13 @@ function getZoneAtmosphere(zid) {
     return '💋 ' + names + ' — Beaucoup de monde, beaucoup d\'énergie. La zone déborde.';
   if (occ.length === 1) {
     const p = PAX_DATA.find(d => d.id === occ[0]);
+    const isRepos = zone.activityMode === 'repos' || zone.activityMode === 'isoloir';
+    if (isRepos) return `${p.emoji} ${p.name} se repose. La fatigue diminue doucement.`;
     return p.emoji + ' ' + p.name + ' est seul·e ici. ' + (zone.type === 'low' ? 'Iel se ressource tranquillement.' : 'Iel produit, mais une synergie manque.');
   }
-  return names + ' — ' + (zone.type === 'high' ? 'La Vibe monte doucement. L\'énergie est là.' : 'Calme et productif. Tout roule.');
+  return names + ' — ' + (zone.activityMode === 'repos' || zone.activityMode === 'isoloir'
+    ? 'Toustes se reposent. La fatigue descend.'
+    : zone.type === 'high' ? 'La Vibe monte doucement. L\'énergie est là.' : 'Calme et productif. Tout roule.');
 }
 
 // ===== TUTORIAL =====
@@ -1683,6 +1713,11 @@ function productionTick() {
         if (ps.fatigue > 85) dVibe -= 0.16;
         if (state.invaders.length > 0) dVibe -= state.invaders.length * 0.032;
 
+        // Repos zones give a gentle vibe recovery (rest is good)
+        if (actMode === 'repos' || actMode === 'isoloir') {
+          dVibe += 0.05; // slow passive recovery
+        }
+
         // Solitude (J1-3) — not in low-energy zones
         if (state.day < 3 && actMode !== 'repos' && actMode !== 'isoloir') {
           const alone = occ.length === 1;
@@ -1959,8 +1994,15 @@ function showDiscovery(invData, gift) {
 }
 
 function showPaxArrival(pData, uq) {
-  toast(`${pData.emoji} ${pData.name} rejoint le Désordre ! ${uq ? uq.gift : ''}`);
-  updateCriee(`📢 ${pData.name} est arrivé·e. « ${uq ? uq.quote : ''} »`);
+  const banner = document.getElementById('pax-arrival-banner');
+  document.getElementById('pab-emoji').textContent = pData.emoji;
+  document.getElementById('pab-name').innerHTML =
+    `✨ NOUVEAU PAX ARRIVÉ·E !<span>${pData.name} — ${ARCHETYPES[pData.archetype]?.label || ''}</span>`;
+  document.getElementById('pab-quote').textContent = uq ? `« ${uq.quote} »` : '';
+  banner.classList.add('show');
+  setTimeout(() => banner.classList.remove('show'), 5000);
+  updateCriee(`📢 ${pData.name} est arrivé·e. ${uq ? '« ' + uq.quote + ' »' : ''}`);
+  renderSidebar();
 }
 
 // ===== PAX PLACEMENT =====
@@ -2196,6 +2238,7 @@ function closeZonePanel() {
 const SYNERGY_PAIRS = [
   ['dom','sub'],['dom','pet'],['top','bottom'],['top','toy'],
   ['servicetop','toy'],['servicetop','bottom'],['sub','top'],
+  ['creatif','creatif'],
 ];
 
 function hasSynergyPair(occupants) {
