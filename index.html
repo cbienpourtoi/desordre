@@ -293,6 +293,7 @@ html,body{width:100%;height:100%;overflow:hidden;background:var(--dark);font-fam
 .pax-option:hover{background:rgba(127,255,90,0.3);transform:scale(1.03);}
 .pax-option.exhausted{opacity:0.4;cursor:not-allowed;border-color:var(--red);}
 .pax-option.selected{background:rgba(255,233,63,0.25);border-color:var(--yellow);box-shadow:0 0 0 2px var(--yellow);}
+.pax-option.placed{border-color:var(--teal);border-style:dashed;}
 .pax-opt-emoji{font-size:28px;display:block;margin-bottom:3px;}
 .pax-opt-name{font-family:'Press Start 2P',monospace;font-size:7px;color:var(--cream);background:var(--dark);padding:2px 4px;border-radius:2px;display:block;margin-bottom:2px;}
 .pax-opt-arch{font-size:13px;color:var(--purple);}
@@ -2241,32 +2242,31 @@ function refreshPaxPickerGrid() {
   const zone = ZONES[state.selectedZone];
   const zstate = state.zones[state.selectedZone];
   const grid = document.getElementById('pax-list-grid');
-  // Preserve currently selected ids across refresh
   const prevSelected = new Set([...grid.querySelectorAll('.pax-option.selected')].map(el => el.dataset.paxId));
   grid.innerHTML = '';
   const slots = zone.cap - zstate.occupants.length;
+  const alreadyHere = new Set(zstate.occupants);
   PAX_DATA.forEach(p => {
     const ps = state.pax[p.id];
     if (ps.state === 'locked') return;
-    const isAvail = ps.state === 'available';
+    if (alreadyHere.has(p.id)) return; // déjà dans cette zone
+    const isPlaced = ps.state === 'placed';
     const div = document.createElement('div');
     div.dataset.paxId = p.id;
-    div.className = 'pax-option' + (!isAvail ? ' placed' : '');
-    if (isAvail && prevSelected.has(p.id)) div.classList.add('selected');
-    const location = ps.placedIn ? ' · ' + ZONES[ps.placedIn].name : ps.inCrisis ? ' · 🆘' : '';
+    div.className = 'pax-option' + (isPlaced ? ' placed' : '');
+    if (prevSelected.has(p.id)) div.classList.add('selected');
+    const location = ps.placedIn ? ' ↪ ' + ZONES[ps.placedIn].name : ps.inCrisis ? ' · 🆘' : '';
     div.innerHTML = `<span class="pax-opt-emoji">${p.emoji}</span><span class="pax-opt-name">${p.name}</span><span class="pax-opt-arch">${ARCHETYPES[p.archetype].label}${location}</span>`;
-    if (isAvail) {
-      div.onclick = () => {
-        const selectedCount = grid.querySelectorAll('.pax-option.selected').length;
-        if (div.classList.contains('selected')) {
-          div.classList.remove('selected');
-        } else {
-          if (selectedCount < slots) div.classList.add('selected');
-          else toast(`⚠️ Seulement ${slots} place${slots>1?'s':''} disponible${slots>1?'s':''} !`);
-        }
-        updateConfirmBtn();
-      };
-    }
+    div.onclick = () => {
+      const selectedCount = grid.querySelectorAll('.pax-option.selected').length;
+      if (div.classList.contains('selected')) {
+        div.classList.remove('selected');
+      } else {
+        if (selectedCount < slots) div.classList.add('selected');
+        else toast(`⚠️ Seulement ${slots} place${slots>1?'s':''} disponible${slots>1?'s':''} !`);
+      }
+      updateConfirmBtn();
+    };
     grid.appendChild(div);
   });
   updateConfirmBtn();
@@ -2288,8 +2288,11 @@ function confirmPaxPicker() {
   const zoneId = state.selectedZone;
   selected.forEach(paxId => {
     const ps = state.pax[paxId];
-    if (ps.state !== 'available') return;
     if (state.zones[zoneId].occupants.length >= ZONES[zoneId].cap) return;
+    // Retirer de l'ancienne zone si déjà placé ailleurs
+    if (ps.placedIn && ps.placedIn !== zoneId) {
+      state.zones[ps.placedIn].occupants = state.zones[ps.placedIn].occupants.filter(id => id !== paxId);
+    }
     ps.state = 'placed';
     ps.placedIn = zoneId;
     ps.shiftTicks = 0;
