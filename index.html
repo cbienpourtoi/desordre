@@ -80,6 +80,18 @@ html,body{width:100%;height:100%;overflow:hidden;background:var(--dark);font-fam
 }
 #map-img-night.night{opacity:1;}
 
+/* ===== RÉVÉLATION PROGRESSIVE DES BÂTIMENTS ===== */
+.map-reveal, .map-reveal-night {
+  position:absolute;top:0;left:0;
+  display:block;
+  width:900px;height:675px;
+  image-rendering:auto;
+  pointer-events:none;
+  transition:opacity 1.2s ease;
+}
+.map-reveal { opacity:0; }
+.map-reveal-night { opacity:0; }
+
 /* ===== ZONES CLIQUABLES sur la carte ===== */
 .zone{
   position:absolute;border-radius:6px;cursor:pointer;
@@ -639,8 +651,30 @@ html,body{width:100%;height:100%;overflow:hidden;background:var(--dark);font-fam
   <div id="map-atmosphere"></div>
   <div id="map-atmosphere-night"></div>
   <div id="map-viewport">
-    <img id="map-img" src="map.png" alt="Carte du Désordre" draggable="false"/>
-    <img id="map-img-night" src="map_nocturne.png" alt="" draggable="false"/>
+    <img id="map-img" src="map_vide.png" alt="Carte du Désordre" draggable="false"/>
+    <img id="map-img-night" src="map_vide_nocturne.png" alt="" draggable="false"/>
+    <!-- Révélations progressives des bâtiments (clip-path sur map.png / map_nocturne.png) -->
+    <!-- welfare et bulle_nego : toujours visibles dès le départ -->
+    <img class="map-reveal" id="reveal-welfare"     src="map.png" style="clip-path:inset(468px 105px 67px 615px)" draggable="false"/>
+    <img class="map-reveal" id="reveal-bulle_nego"  src="map.png" style="clip-path:inset(365px 373px 210px 437px)" draggable="false"/>
+    <!-- zones verrouillées au départ -->
+    <img class="map-reveal" id="reveal-playroom_ext" src="map.png" style="clip-path:inset(186px 652px 339px 68px)" draggable="false"/>
+    <img class="map-reveal" id="reveal-tente_cer"    src="map.png" style="clip-path:inset(386px 603px 119px 117px)" draggable="false"/>
+    <img class="map-reveal" id="reveal-mixroom"      src="map.png" style="clip-path:inset(444px 395px 91px 315px)" draggable="false"/>
+    <img class="map-reveal" id="reveal-bat1"         src="map.png" style="clip-path:inset(130px 330px 395px 400px)" draggable="false"/>
+    <img class="map-reveal" id="reveal-bat2"         src="map.png" style="clip-path:inset(178px 162px 347px 578px)" draggable="false"/>
+    <img class="map-reveal" id="reveal-cantina"      src="map.png" style="clip-path:inset(238px 40px 307px 710px)" draggable="false"/>
+    <img class="map-reveal" id="reveal-pmu"          src="map.png" style="clip-path:inset(118px 443px 457px 367px)" draggable="false"/>
+    <!-- versions nocturnes -->
+    <img class="map-reveal-night" id="reveal-night-welfare"     src="map_nocturne.png" style="clip-path:inset(468px 105px 67px 615px)" draggable="false"/>
+    <img class="map-reveal-night" id="reveal-night-bulle_nego"  src="map_nocturne.png" style="clip-path:inset(365px 373px 210px 437px)" draggable="false"/>
+    <img class="map-reveal-night" id="reveal-night-playroom_ext" src="map_nocturne.png" style="clip-path:inset(186px 652px 339px 68px)" draggable="false"/>
+    <img class="map-reveal-night" id="reveal-night-tente_cer"    src="map_nocturne.png" style="clip-path:inset(386px 603px 119px 117px)" draggable="false"/>
+    <img class="map-reveal-night" id="reveal-night-mixroom"      src="map_nocturne.png" style="clip-path:inset(444px 395px 91px 315px)" draggable="false"/>
+    <img class="map-reveal-night" id="reveal-night-bat1"         src="map_nocturne.png" style="clip-path:inset(130px 330px 395px 400px)" draggable="false"/>
+    <img class="map-reveal-night" id="reveal-night-bat2"         src="map_nocturne.png" style="clip-path:inset(178px 162px 347px 578px)" draggable="false"/>
+    <img class="map-reveal-night" id="reveal-night-cantina"      src="map_nocturne.png" style="clip-path:inset(238px 40px 307px 710px)" draggable="false"/>
+    <img class="map-reveal-night" id="reveal-night-pmu"          src="map_nocturne.png" style="clip-path:inset(118px 443px 457px 367px)" draggable="false"/>
     <!-- Night atmosphere glows (positioned on 900x675 map) -->
     <!-- Night glows disabled — new map_nocturne.png provides the atmosphere
     <div class="night-glow fire" id="glow-playroom-ext" style="left:140px;top:295px;"></div>
@@ -1915,6 +1949,16 @@ function initState() {
   });
 }
 
+function revealZoneOnMap(zid) {
+  const day = document.getElementById('reveal-' + zid);
+  if (day) day.style.opacity = '1';
+  const night = document.getElementById('reveal-night-' + zid);
+  if (night) {
+    night.dataset.unlocked = '1';
+    if (state.isNight) night.style.opacity = '1';
+  }
+}
+
 function startGame() {
   document.getElementById('start-screen').classList.add('hidden');
   initState();
@@ -1928,6 +1972,9 @@ function startGame() {
   setupCarryInteraction();
   renderHUD();
   renderZones();
+  // Révéler les zones toujours actives dès le départ
+  revealZoneOnMap('welfare');
+  revealZoneOnMap('bulle_nego');
   // Lancer le tuto si première fois (délai pour que l'UI soit rendue)
   setTimeout(tutoStart, 400);
 }
@@ -2170,6 +2217,10 @@ function eventTick() {
     document.getElementById('night-overlay').classList.toggle('night', state.isNight);
     document.getElementById('map-img-night').classList.toggle('night', state.isNight);
     document.getElementById('map-atmosphere-night').classList.toggle('night', state.isNight);
+    // Révélations nocturnes : visibles seulement si la zone est débloquée ET c'est la nuit
+    document.querySelectorAll('.map-reveal-night').forEach(el => {
+      el.style.opacity = (state.isNight && el.dataset.unlocked === '1') ? '1' : '0';
+    });
     updateCriee(state.isNight ? '🌙 La nuit tombe sur le Désordre. Les playrooms s\'animent.' : '☀️ Le soleil se lève. Bonjour la communauté.');
     toggleNightGlows(state.isNight); // no-op: glows disabled, map_nocturne.png handles atmosphere
   }
@@ -2617,6 +2668,7 @@ function confirmZoneBuild() {
   const zid = sel.dataset.zid;
   state.zones[zid].locked = false;
   state.stats.builtZones = (state.stats.builtZones || 0) + 1;
+  revealZoneOnMap(zid);
   const z = ZONES[zid];
   closeModal('zone-build-modal');
   state.paused = false;
