@@ -2508,7 +2508,7 @@ function answerQuestion(score, type) {
 function resolveAtelier() {
   const { invId, pickedKey, score, idealKey, passables } = _atelierFlow;
   const inv = state.invaders.find(i => i.id === invId);
-  if (!inv) { closeAtelierModal(); return; }
+  if (!inv) { state.paused = false; closeAtelierModal(); return; }
   
   // Atelier match multiplier
   let atelierMult = 0.5; // wildcard
@@ -2556,6 +2556,7 @@ function resolveAtelier() {
     document.getElementById('atelier-result-btn').onclick = () => {
       closeAtelierModal();
       queeriseInvader(invId, false);
+      state.paused = false;
     };
   }
 }
@@ -2563,7 +2564,6 @@ function resolveAtelier() {
 function closeAtelierModal() {
   const flow = _atelierFlow;
   document.getElementById('atelier-modal').classList.remove('show');
-  state.paused = false;
   _atelierFlow = null;
   // Restore invader atelierOpen flag if still present
   if (flow) {
@@ -2589,6 +2589,8 @@ function onCloseDiscovery() {
   if (state._pendingZoneBuild) {
     state._pendingZoneBuild = false;
     setTimeout(showZoneBuildPicker, 200);
+  } else {
+    state.paused = false;
   }
 }
 
@@ -2602,6 +2604,7 @@ function showZoneBuildPicker() {
       if (ps && ps.state === 'placed' && !ps.inCrisis) ps.vibe = Math.min(100, ps.vibe + 12);
     });
     toast('🌈 Toustes les espaces sont construits ! +12 Vibe pour toustes.');
+    state.paused = false;
     return;
   }
   // Pick min(3, available) random zones
@@ -2637,6 +2640,7 @@ function confirmZoneBuild() {
   state.stats.builtZones = (state.stats.builtZones || 0) + 1;
   const z = ZONES[zid];
   closeModal('zone-build-modal');
+  state.paused = false;
   toast(`🏗️ ${z.name} vient d'être construit·e ! 🌈`);
   logEvent('queer', `🏗️ ${z.name} construit·e. La Norme recule.`);
   renderZones();
