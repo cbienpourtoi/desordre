@@ -909,13 +909,13 @@ const INVADERS_DATA = [
     queerEmoji:'🌱', queerName:'Le Pater en Reconstruction',
     queerMsg:"Il cuisinait en silence depuis le début. Il ne savait pas que c'était déjà de l'amour.",
     savaisTu:"L'acceptation familiale est le facteur #1 de santé mentale des jeunes LGBTQ+.",
-    toxicType:'cabinet_rh' },
+    toxicType:'agence_immo' },
   { type:'gardienne',    emoji:'🏛️', name:'La Gardienne des Bonnes Mœurs',
     quote:"Les enfants ont besoin de repères, pas de confusion !",
     queerEmoji:'🌸', queerName:'La Libertine Tardive',
     queerMsg:"Elle a découvert que ses propres désirs étaient les plus tabous. Elle sourit pour la première fois.",
     savaisTu:"La honte sexuelle a des effets physiologiques mesurables : immunité, tension, sommeil.",
-    toxicType:'salle_ted' },
+    toxicType:'ecole_commerce' },
   { type:'tradwife',     emoji:'💍', name:'La Tradwife Millionnaire',
     quote:"La féminité, c'est une force. Arrêtez de vous la faire voler.",
     queerEmoji:'🌀', queerName:'La Créatrice de Contenu Chaos',
@@ -927,47 +927,49 @@ const INVADERS_DATA = [
     queerEmoji:'🚪', queerName:"Le Voisin qui Frappe Avant d'Entrer",
     queerMsg:"Il a toqué avant d'entrer. C'est un début. Même Aïoli a été surpris.",
     savaisTu:"Être locataire LGBTQ+ augmente significativement le risque de discrimination au logement.",
-    toxicType:'open_space' },
+    toxicType:'airbnb' },
   { type:'profbio',      emoji:'🧬', name:'La Prof de Bio Binaire',
     quote:"XX ou XY. C'est la biologie, pas une opinion.",
     queerEmoji:'✏️', queerName:'La Prof qui Réécrit Ses Cours',
     queerMsg:"Elle a ajouté les manchots, les poissons-clowns et les grenouilles à son cours.",
     savaisTu:"Plus de 1500 espèces animales pratiquent des comportements homosexuels documentés.",
-    toxicType:'salle_ted' },
+    toxicType:'ecole_commerce' },
   { type:'masculiniste', emoji:'💪', name:'Le Masculiniste',
     quote:"Les hommes aussi souffrent. Mais on n'a pas le droit de le dire.",
     queerEmoji:'🤔', queerName:"L'Homme Qui Se Pose Des Questions",
     queerMsg:"Il se pose des questions. C'est déjà beaucoup. Il reviendra.",
     savaisTu:"Les hommes cisgenres ont les taux de suicide les plus élevés — conséquence de la norme de virilité.",
-    toxicType:'salle_seminaire' },
+    toxicType:'concessionnaire' },
   { type:'papa',         emoji:'😔', name:'Le Papa Déçu',
     quote:"J'aurais voulu des petits-enfants... normaux.",
     queerEmoji:'💌', queerName:'Le Papa Qui Comprend',
     queerMsg:"Il a envoyé un message. Trois mots : « Je suis là. » Son enfant a répondu en dix secondes.",
     savaisTu:"Un simple message d'acceptation réduit de 40% le risque de dépression chez les jeunes LGBTQ+.",
-    toxicType:'cabinet_rh' },
+    toxicType:'wework' },
   { type:'chroniqueur',  emoji:'📺', name:'Le Chroniqueur CNews',
     quote:"La woke folie doit s'arrêter là.",
     queerEmoji:'📻', queerName:'La Chroniqueuse Radio Féministe',
     queerMsg:"Elle interviewe maintenant des personnes trans. L'audience monte.",
     savaisTu:"La représentation médiatique positive réduit les actes de violence homophobes.",
-    toxicType:'salle_seminaire' },
+    toxicType:'club_entrepreneurs' },
   { type:'allie',        emoji:'🙋', name:"L'Allié qui Mansplaine le Féminisme",
     quote:"En tant qu'homme cisgendre, je pense qu'il est important que je dise...",
     queerEmoji:'👂', queerName:"L'Allié qui Écoute",
     queerMsg:"Il s'est tu. Longtemps. Puis il a posé une question. Une vraie.",
     savaisTu:"L'écoute active reste l'acte le plus rare chez les « alliés ».",
-    toxicType:'coworking' },
+    toxicType:'wework' },
 ];
 
 // ===== BÂTIMENTS TOXIQUES =====
+// Chaque bâtiment corrompt une zone existante. Tous ont l'effet vibeBleed.
 const TOXIC_BUILDINGS = {
-  open_space:      { name:'Open Space',              emoji:'💻', effect:'vibeBleed',     desc:'Tout le monde s\'entend, personne ne se parle. La vibe saigne.' },
-  salle_ted:       { name:'Conférence TED',           emoji:'🎤', effect:'ennuiBoost',    desc:'Une personne parle. Les autres écoutent, vidé·es. Ennui garanti.' },
-  salle_seminaire: { name:'Séminaire de cohésion',    emoji:'🏢', effect:'fatigueBoost',  desc:'Les pax y entrent motivé·es. Iels ressortent épuisé·es.' },
-  starbucks:       { name:'Starbucks',                emoji:'🧋', effect:'vibeBleed',     desc:'Tout le monde a un prénom, personne ne se connaît.' },
-  coworking:       { name:'WeWork',                   emoji:'☕', effect:'vibeBleed',     desc:'Plantes plastiques, isolation réelle.' },
-  cabinet_rh:      { name:'Cabinet RH',               emoji:'👔', effect:'crisisAmplify', desc:'Les crises durent deux fois plus longtemps. Quelqu\'un prend des notes.' },
+  airbnb:           { name:'Chambres Airbnb',         emoji:'🛏️', effect:'vibeBleed', desc:'Les chambres sont désormais sur Airbnb. 120€/nuit, minimum 3 nuits.' },
+  starbucks:        { name:'Starbucks',                emoji:'🧋', effect:'vibeBleed', desc:'La cuisine collective est devenue un Starbucks. Tout le monde a un prénom, personne ne se connaît.' },
+  wework:           { name:'WeWork',                   emoji:'☕', effect:'vibeBleed', desc:'La mix-room est désormais un espace de coworking. Plantes plastiques. Isolation garantie.' },
+  club_entrepreneurs:{ name:'Club d\'Entrepreneurs',  emoji:'🤝', effect:'vibeBleed', desc:'Le PMU est devenu un club de networking. On parle de "scale" et de "disruption" à 7h du mat.' },
+  concessionnaire:  { name:'Concessionnaire Auto',     emoji:'🚗', effect:'vibeBleed', desc:'La playroom ext. est maintenant un parking exposition. Berlines diesel. Toi + une voiture = une identité.' },
+  ecole_commerce:   { name:'École de Commerce',        emoji:'🎓', effect:'vibeBleed', desc:'La tente cérémonie accueille désormais une prépa. Slides PowerPoint. Valeur ajoutée. Leadership.' },
+  agence_immo:      { name:'Agence Immobilière',       emoji:'🏡', effect:'vibeBleed', desc:'La playroom intérieure est transformée en agence. Le proprio est partout.' },
 };
 
 // ===== CRIÉE MESSAGES =====
@@ -1934,35 +1936,12 @@ function applyToxicEffects() {
   const toxicZones = Object.entries(state.zones).filter(([z, zs]) => zs.toxicBuilding);
   if (!toxicZones.length) return;
   const activePax = PAX_DATA.filter(p => state.pax[p.id] && (state.pax[p.id].state === 'placed' || state.pax[p.id].state === 'available'));
-  toxicZones.forEach(([zid, zs]) => {
-    const tb = zs.toxicBuilding;
-    if (!tb) return;
-    switch (tb.effect) {
-      case 'vibeBleed':
-        // Drain vibe of all active pax slightly
-        activePax.forEach(p => {
-          const ps = state.pax[p.id];
-          if (ps && !ps.inCrisis) ps.vibe = Math.max(0, ps.vibe - 0.15);
-        });
-        break;
-      case 'ennuiBoost':
-        activePax.forEach(p => {
-          const ps = state.pax[p.id];
-          if (ps) ps.ennui = Math.min(100, ps.ennui + 0.1);
-        });
-        break;
-      case 'fatigueBoost':
-        // Extra fatigue for pax in this zone (handled via zone multiplier)
-        // Here we apply mild global fatigue
-        activePax.forEach(p => {
-          const ps = state.pax[p.id];
-          if (ps) ps.fatigue = Math.min(100, ps.fatigue + 0.08);
-        });
-        break;
-      case 'crisisAmplify':
-        // Handled in handleCrisis — nothing to do per tick
-        break;
-    }
+  // Each toxic building drains vibe slightly (vibeBleed)
+  toxicZones.forEach(() => {
+    activePax.forEach(p => {
+      const ps = state.pax[p.id];
+      if (ps && !ps.inCrisis) ps.vibe = Math.max(0, ps.vibe - 0.15);
+    });
   });
 }
 
