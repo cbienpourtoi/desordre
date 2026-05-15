@@ -464,6 +464,77 @@ html,body{width:100%;height:100%;overflow:hidden;background:var(--dark);font-fam
 .zone-act-badge{font-size:9px;text-align:center;opacity:0.6;margin-top:1px;pointer-events:none;}
 #food-indicator{font-size:13px;white-space:nowrap;padding:2px 6px;background:rgba(0,0,0,0.3);border-radius:3px;border:1px solid rgba(127,255,90,0.3);}
 #boost-collectif-indicator{font-size:9px;white-space:nowrap;padding:2px 5px;background:rgba(255,233,63,0.15);border:1px solid var(--yellow);border-radius:3px;color:var(--yellow);animation:shimmer 1s infinite alternate;}
+
+/* ===== V2 ZONE STATES ===== */
+.zone.locked {
+  background: rgba(0,0,0,0.45) !important;
+  border-color: rgba(255,255,255,0.08) !important;
+  cursor: not-allowed;
+  filter: grayscale(0.7) brightness(0.5);
+}
+.zone.locked .zone-label { opacity: 0.5; }
+.zone.toxic {
+  background: rgba(192,57,43,0.15) !important;
+  border-color: rgba(192,57,43,0.7) !important;
+  animation: toxicPulse 2.5s ease-in-out infinite;
+}
+@keyframes toxicPulse {
+  0%,100% { box-shadow: 0 0 0 0 rgba(192,57,43,0.5); }
+  50%      { box-shadow: 0 0 10px 3px rgba(192,57,43,0.35); }
+}
+.zone-toxic-label {
+  font-size: 9px; color: var(--red);
+  font-family: 'Press Start 2P', monospace;
+  text-align: center; pointer-events: none;
+}
+
+/* ===== V2 ATELIER MODAL ===== */
+.atelier-pick-grid { display: flex; flex-direction: column; gap: 8px; margin-bottom: 12px; }
+.atelier-option {
+  background: rgba(127,255,90,0.08); border: 2px solid rgba(127,255,90,0.3);
+  padding: 10px 12px; border-radius: 4px; cursor: pointer; transition: all 0.18s;
+  display: flex; align-items: center; gap: 10px;
+}
+.atelier-option:hover { background: rgba(127,255,90,0.25); border-color: var(--green); transform: scale(1.01); }
+.atelier-option-emoji { font-size: 24px; flex-shrink: 0; }
+.atelier-option-info { flex: 1; }
+.atelier-option-name { font-family: 'Press Start 2P', monospace; font-size: 8px; color: var(--green); margin-bottom: 3px; }
+.atelier-option-desc { font-size: 12px; color: var(--dark); opacity: 0.75; line-height: 1.3; }
+
+.atelier-progress { display: flex; gap: 4px; margin-bottom: 12px; }
+.atelier-progress-dot { flex: 1; height: 4px; border-radius: 2px; background: rgba(0,0,0,0.12); transition: background 0.3s; }
+.atelier-progress-dot.done    { background: var(--pink); }
+.atelier-progress-dot.current { background: var(--purple); animation: dotPulse 0.8s ease-in-out infinite; }
+@keyframes dotPulse { 0%,100%{opacity:1;} 50%{opacity:0.4;} }
+
+.atelier-q-text {
+  font-family: 'DM Mono', monospace; font-size: 14px; color: var(--dark);
+  line-height: 1.5; margin-bottom: 14px;
+}
+.atelier-choices { display: flex; flex-direction: column; gap: 6px; }
+.atelier-choice {
+  background: rgba(0,0,0,0.04); border: 1.5px solid rgba(0,0,0,0.15);
+  padding: 9px 12px; border-radius: 4px; cursor: pointer; transition: all 0.15s;
+  font-family: 'DM Mono', monospace; font-size: 13px; text-align: left;
+  color: var(--dark); line-height: 1.4;
+}
+.atelier-choice:hover { background: rgba(255,45,149,0.1); border-color: var(--pink); }
+
+.atelier-result-bar {
+  height: 10px; background: rgba(0,0,0,0.1); border-radius: 5px;
+  overflow: hidden; margin: 8px 0 4px;
+}
+.atelier-result-fill { height: 100%; border-radius: 5px; width: 0%; transition: width 0.9s ease; }
+.atelier-score-text { font-size: 12px; font-family: 'DM Mono', monospace; color: rgba(0,0,0,0.55); margin-bottom: 10px; }
+
+/* Zone build picker */
+.zone-build-option {
+  background: rgba(127,255,90,0.08); border: 2px solid rgba(127,255,90,0.3);
+  padding: 10px 14px; border-radius: 4px; cursor: pointer; transition: all 0.18s;
+  display: flex; align-items: center; gap: 10px;
+}
+.zone-build-option:hover { background: rgba(127,255,90,0.22); border-color: var(--green); }
+.zone-build-option.selected { background: rgba(255,233,63,0.18); border-color: var(--yellow); }
 </style>
 </head>
 <body>
@@ -626,7 +697,53 @@ html,body{width:100%;height:100%;overflow:hidden;background:var(--dark);font-fam
       <strong>LE SAVAIS-TU ?</strong>
       <span id="disc-savais-text"></span>
     </div>
-    <button class="modal-btn" onclick="closeModal('discovery-modal')">SUPER, CONTINUE !</button>
+    <button class="modal-btn" onclick="onCloseDiscovery()">SUPER, CONTINUE !</button>
+  </div>
+</div>
+
+<!-- ATELIER MODAL -->
+<div class="modal-overlay" id="atelier-modal">
+  <div class="modal-card" style="max-width:400px;background:var(--cream);">
+    <div id="atelier-agent-header" style="display:flex;align-items:center;gap:10px;margin-bottom:14px;padding-bottom:10px;border-bottom:1.5px solid rgba(0,0,0,0.1);">
+      <span id="atelier-agent-emoji" style="font-size:30px;"></span>
+      <div>
+        <div id="atelier-agent-name" style="font-family:'Press Start 2P',monospace;font-size:8px;color:var(--pink);margin-bottom:3px;"></div>
+        <div id="atelier-agent-quote" style="font-family:'DM Mono',monospace;font-size:12px;font-style:italic;color:rgba(0,0,0,0.6);"></div>
+      </div>
+    </div>
+    <!-- Step 1: pick atelier -->
+    <div id="atelier-step-pick">
+      <div class="modal-title" style="font-size:9px;margin-bottom:6px;">CHOISIR UN ATELIER</div>
+      <div style="font-family:'DM Mono',monospace;font-size:13px;color:rgba(0,0,0,0.65);margin-bottom:10px;">Quel cadre peut aider cette personne à explorer ?</div>
+      <div id="atelier-pick-grid" class="atelier-pick-grid"></div>
+    </div>
+    <!-- Step 2-4: questions -->
+    <div id="atelier-step-question" style="display:none;">
+      <div class="atelier-progress" id="atelier-progress"></div>
+      <div id="atelier-q-header" style="font-family:'Press Start 2P',monospace;font-size:8px;color:var(--purple);margin-bottom:8px;"></div>
+      <div class="atelier-q-text" id="atelier-q-text"></div>
+      <div class="atelier-choices" id="atelier-choices"></div>
+    </div>
+    <!-- Step 5: result -->
+    <div id="atelier-step-result" style="display:none;text-align:center;">
+      <div class="modal-title" id="atelier-result-title">RÉSULTAT</div>
+      <div style="font-size:42px;margin:8px 0;" id="atelier-result-emoji"></div>
+      <div class="atelier-result-bar"><div class="atelier-result-fill" id="atelier-result-fill"></div></div>
+      <div class="atelier-score-text" id="atelier-score-text"></div>
+      <div class="modal-desc" id="atelier-result-msg" style="margin-bottom:12px;text-align:left;"></div>
+      <button class="modal-btn" id="atelier-result-btn">CONTINUER</button>
+    </div>
+  </div>
+</div>
+
+<!-- ZONE BUILD PICKER -->
+<div class="modal-overlay" id="zone-build-modal">
+  <div class="modal-card" style="border-color:var(--green);max-width:380px;">
+    <span class="modal-emoji">🏗️</span>
+    <div class="modal-title" style="color:var(--green);">CONSTRUIRE UN ESPACE</div>
+    <div style="font-family:'DM Mono',monospace;font-size:14px;margin-bottom:14px;text-align:center;color:var(--dark);">La transformation libère de l'énergie.<br>Quel espace prend vie ?</div>
+    <div id="zone-build-grid" style="display:flex;flex-direction:column;gap:8px;margin-bottom:12px;"></div>
+    <button class="modal-btn" id="zone-build-confirm" onclick="confirmZoneBuild()" style="background:var(--green);color:var(--dark);">🌈 CONSTRUIRE !</button>
   </div>
 </div>
 
@@ -787,67 +904,71 @@ const PAX_DATA = [
 
 // ===== INVADERS =====
 const INVADERS_DATA = [
-  { type:'patriarche', emoji:'🤵', name:'Le Patriarche',
-    quote:'Mais c\'est pas naturel !', damage:{vibe:5},
-    queerEmoji:'🩰', queerName:'Le Pater en jupe',
-    queerMsg:'Iel a essayé un cours de danse. Plus jamais iel ne jugera personne.',
-    savaisTu:'Le BDSM queer célèbre toutes les expressions de genre — y compris celles que personne n\'attendait.', threshold:80 },
-  { type:'flic_genre', emoji:'👮', name:'Le Flic du Genre',
-    quote:'Il y a deux genres, c\'est tout.',  damage:{soin:6},
-    queerEmoji:'🌈', queerName:'L\'ex-flic non-binaire',
-    queerMsg:'Iel a rendu son insigne et s\'est inscrit·e à un atelier drag. Un nouveau monde s\'ouvre.',
-    savaisTu:'La non-binarité est reconnue dans de nombreux pays. La France avance doucement, mais elle avance.', threshold:90 },
-  { type:'cishet', emoji:'💼', name:'Le Cishet Productiviste',
-    quote:'Vous êtes pas un peu... perdus ?', damage:{soin:4,vibe:3},
-    queerEmoji:'🛋️', queerName:'Le mec en burn-out libéré',
-    queerMsg:'Il a posé son ordinateur. Il découvre l\'oisiveté radicale. Il pleure un peu (de soulagement).',
-    savaisTu:'Le repos comme acte de résistance au capitalisme, c\'est une vraie pratique politique queer.', threshold:70 },
-  { type:'morale', emoji:'⛪', name:'La Morale',
-    quote:'Pensez aux enfants !', damage:{vibe:8},
-    queerEmoji:'📚', queerName:'L\'ex-bigot·e qui lit bell hooks',
-    queerMsg:'Iel a lu "tout le monde peut aimer". Iel demande où s\'inscrire au prochain atelier.',
-    savaisTu:'bell hooks a écrit sur l\'amour, la féminisme et la libération — des incontournables.', threshold:100 },
-  { type:'influenceur', emoji:'📱', name:'L\'Influenceur Lifestyle',
-    quote:'Contenu authentique !', damage:{vibe:4,soin:4},
-    queerEmoji:'🪴', queerName:'Le Créateur de Contenu Compost',
-    queerMsg:'Iel filme désormais des vidéos ASMR de vers de terre. Ses abonné·es ne comprennent pas, mais iel s\'en fout.',
-    savaisTu:'La culture queer a toujours subverti les codes médiatiques — la banalité radicale, c\'est queer.', threshold:65 },
-  { type:'coach', emoji:'💪', name:'Le Coach Développement Perso',
-    quote:'Sortez de votre zone de confort !', damage:{vibe:5},
-    queerEmoji:'🧘', queerName:'Le Coach de Dépersonnalisation Radicale',
-    queerMsg:'Iel a tout quitté et rejoint un collectif d\'entraide. Iel pleure et dit que c\'est sa meilleure décision.',
-    savaisTu:'La décroissance et le slow life sont des pratiques militantes, pas juste une tendance Instagram.', threshold:75 },
-  { type:'voisin', emoji:'🤷', name:'Le Voisin Chelou',
-    quote:'C\'est qui ces gens ?', damage:{soin:5},
-    queerEmoji:'🥕', queerName:'Le Voisin Allié',
-    queerMsg:'Iel apporte des légumes du jardin et demande si on peut lui expliquer ce que veut dire non-binaire.',
-    savaisTu:'Les alliés inattendus existent partout. La curiosité sincère est toujours la bienvenue.', threshold:60 },
-  { type:'manager', emoji:'🧑‍💼', name:'Le Manager de Réunion',
-    quote:'Avez-vous un agenda ?', damage:{vibe:3,soin:5},
-    queerEmoji:'🎀', queerName:'Le Bottom Corporate',
-    queerMsg:'Iel a découvert son côté réceptif. Son safeword est "agenda". Il est très heureux.',
-    savaisTu:'Le BDSM peut être un espace de libération pour des personnes formatées à tout contrôler.', threshold:85 },
-  { type:'papa', emoji:'👴', name:'Le Papa Déçu',
-    quote:'J\'aurais voulu des petits-enfants...', damage:{soin:8},
-    queerEmoji:'🫂', queerName:'Le Papa qui Comprend',
-    queerMsg:'Iel a enfin envoyé un message à son enfant : "Je suis fier·ère de toi." Toustes pleurent.',
-    savaisTu:'L\'acceptation familiale est le facteur le plus déterminant pour la santé mentale des personnes LGBTQ+.', threshold:120 },
-  { type:'prof', emoji:'🏫', name:'Le Prof de SVT',
-    quote:'La reproduction est binaire !', damage:{vibe:4,soin:3},
-    queerEmoji:'🐧', queerName:'Le Prof qui Réécrit Ses Cours',
-    queerMsg:'Iel a ajouté les manchots, les poissons clown et les grenouilles à son cours. Les élèves adorent.',
-    savaisTu:'Plus de 1500 espèces animales pratiquent l\'homosexualité. La nature est queer depuis toujours.', threshold:90 },
-  { type:'musclor', emoji:'🥊', name:'Le Monsieur Musclé',
-    quote:'C\'est des malades !', damage:{vibe:7},
-    queerEmoji:'🧸', queerName:'Le Gros Sub Timide',
-    queerMsg:'Iel a découvert qu\'iel aime se faire attacher. Iel est maintenant le pax le plus enthousiaste.',
-    savaisTu:'Le BDSM déconstruit les normes de genre, de pouvoir et de corps. Tout le monde peut y trouver sa place.', threshold:95 },
-  { type:'mediatique', emoji:'📺', name:'Le Chroniqueur CNews',
-    quote:'La woke folie doit cesser !', damage:{vibe:6,soin:2},
+  { type:'patriarche',   emoji:'👴', name:'Le Patriarche',
+    quote:"J'ai toujours fait comme ça. Ça a marché pendant 50 ans.",
+    queerEmoji:'🌱', queerName:'Le Pater en Reconstruction',
+    queerMsg:"Il cuisinait en silence depuis le début. Il ne savait pas que c'était déjà de l'amour.",
+    savaisTu:"L'acceptation familiale est le facteur #1 de santé mentale des jeunes LGBTQ+.",
+    toxicType:'cabinet_rh' },
+  { type:'gardienne',    emoji:'🏛️', name:'La Gardienne des Bonnes Mœurs',
+    quote:"Les enfants ont besoin de repères, pas de confusion !",
+    queerEmoji:'🌸', queerName:'La Libertine Tardive',
+    queerMsg:"Elle a découvert que ses propres désirs étaient les plus tabous. Elle sourit pour la première fois.",
+    savaisTu:"La honte sexuelle a des effets physiologiques mesurables : immunité, tension, sommeil.",
+    toxicType:'salle_ted' },
+  { type:'tradwife',     emoji:'💍', name:'La Tradwife Millionnaire',
+    quote:"La féminité, c'est une force. Arrêtez de vous la faire voler.",
+    queerEmoji:'🌀', queerName:'La Créatrice de Contenu Chaos',
+    queerMsg:"Elle a arrêté de poster. Elle pleure. C'est de la joie.",
+    savaisTu:"Le mouvement tradwife prospère sur la détresse réelle des femmes épuisées.",
+    toxicType:'starbucks' },
+  { type:'proprio',      emoji:'🔑', name:"Le Proprio d'à Côté",
+    quote:"C'est ma propriété. Y'a des règles.",
+    queerEmoji:'🚪', queerName:"Le Voisin qui Frappe Avant d'Entrer",
+    queerMsg:"Il a toqué avant d'entrer. C'est un début. Même Aïoli a été surpris.",
+    savaisTu:"Être locataire LGBTQ+ augmente significativement le risque de discrimination au logement.",
+    toxicType:'open_space' },
+  { type:'profbio',      emoji:'🧬', name:'La Prof de Bio Binaire',
+    quote:"XX ou XY. C'est la biologie, pas une opinion.",
+    queerEmoji:'✏️', queerName:'La Prof qui Réécrit Ses Cours',
+    queerMsg:"Elle a ajouté les manchots, les poissons-clowns et les grenouilles à son cours.",
+    savaisTu:"Plus de 1500 espèces animales pratiquent des comportements homosexuels documentés.",
+    toxicType:'salle_ted' },
+  { type:'masculiniste', emoji:'💪', name:'Le Masculiniste',
+    quote:"Les hommes aussi souffrent. Mais on n'a pas le droit de le dire.",
+    queerEmoji:'🤔', queerName:"L'Homme Qui Se Pose Des Questions",
+    queerMsg:"Il se pose des questions. C'est déjà beaucoup. Il reviendra.",
+    savaisTu:"Les hommes cisgenres ont les taux de suicide les plus élevés — conséquence de la norme de virilité.",
+    toxicType:'salle_seminaire' },
+  { type:'papa',         emoji:'😔', name:'Le Papa Déçu',
+    quote:"J'aurais voulu des petits-enfants... normaux.",
+    queerEmoji:'💌', queerName:'Le Papa Qui Comprend',
+    queerMsg:"Il a envoyé un message. Trois mots : « Je suis là. » Son enfant a répondu en dix secondes.",
+    savaisTu:"Un simple message d'acceptation réduit de 40% le risque de dépression chez les jeunes LGBTQ+.",
+    toxicType:'cabinet_rh' },
+  { type:'chroniqueur',  emoji:'📺', name:'Le Chroniqueur CNews',
+    quote:"La woke folie doit s'arrêter là.",
     queerEmoji:'📻', queerName:'La Chroniqueuse Radio Féministe',
-    queerMsg:'Iel anime désormais une émission sur les sexualités positives. Record d\'audience.',
-    savaisTu:'La représentation médiatique des personnes LGBTQ+ a un impact direct sur les violences et discriminations.', threshold:100 },
+    queerMsg:"Elle interviewe maintenant des personnes trans. L'audience monte.",
+    savaisTu:"La représentation médiatique positive réduit les actes de violence homophobes.",
+    toxicType:'salle_seminaire' },
+  { type:'allie',        emoji:'🙋', name:"L'Allié qui Mansplaine le Féminisme",
+    quote:"En tant qu'homme cisgendre, je pense qu'il est important que je dise...",
+    queerEmoji:'👂', queerName:"L'Allié qui Écoute",
+    queerMsg:"Il s'est tu. Longtemps. Puis il a posé une question. Une vraie.",
+    savaisTu:"L'écoute active reste l'acte le plus rare chez les « alliés ».",
+    toxicType:'coworking' },
 ];
+
+// ===== BÂTIMENTS TOXIQUES =====
+const TOXIC_BUILDINGS = {
+  open_space:      { name:'Open Space',              emoji:'💻', effect:'vibeBleed',     desc:'Tout le monde s\'entend, personne ne se parle. La vibe saigne.' },
+  salle_ted:       { name:'Conférence TED',           emoji:'🎤', effect:'ennuiBoost',    desc:'Une personne parle. Les autres écoutent, vidé·es. Ennui garanti.' },
+  salle_seminaire: { name:'Séminaire de cohésion',    emoji:'🏢', effect:'fatigueBoost',  desc:'Les pax y entrent motivé·es. Iels ressortent épuisé·es.' },
+  starbucks:       { name:'Starbucks',                emoji:'🧋', effect:'vibeBleed',     desc:'Tout le monde a un prénom, personne ne se connaît.' },
+  coworking:       { name:'WeWork',                   emoji:'☕', effect:'vibeBleed',     desc:'Plantes plastiques, isolation réelle.' },
+  cabinet_rh:      { name:'Cabinet RH',               emoji:'👔', effect:'crisisAmplify', desc:'Les crises durent deux fois plus longtemps. Quelqu\'un prend des notes.' },
+};
 
 // ===== CRIÉE MESSAGES =====
 const CRIEE = [
@@ -996,7 +1117,7 @@ const state = {
   pax: {},   // id → {state, vibe, faim, ennui, fatigue, placedIn, shiftTicks, solitudeTicks, inCrisis, lastCrisisAt, crisisAutoHandled}
   zones: {},
   invaders: [],
-  stats: { queerised:0, normeChased:0, crisisTotal:0, crisisResolved:0, maxVibe:0 },
+  stats: { queerised:0, normeChased:0, crisisTotal:0, crisisResolved:0, maxVibe:0, builtZones:0 },
   unlockedPax: [],
   selectedZone: null,
   boostCooldowns: {},
@@ -1077,6 +1198,8 @@ function handleCrisis(paxId, zid) {
   const ps = state.pax[paxId];
   const welfareOcc = state.zones['welfare'].occupants;
   const supportAvail = welfareOcc.some(oid => oid !== paxId && state.pax[oid] && !state.pax[oid].inCrisis);
+  // Cabinet RH: crisis recovery halved
+  const hasCrisisAmplify = Object.values(state.zones).some(zs => zs.toxicBuilding?.effect === 'crisisAmplify');
 
   if (zid === 'welfare' && supportAvail) {
     // Check caregiver burnout
@@ -1090,11 +1213,11 @@ function handleCrisis(paxId, zid) {
         return;
       }
     }
-    ps.vibe = Math.min(100, ps.vibe + 1.4);
+    ps.vibe = Math.min(100, ps.vibe + 1.4 * (hasCrisisAmplify ? 0.5 : 1.0));
     if (ps.vibe >= 30) exitCrisis(paxId);
   } else if (zid === 'welfare') {
     // Welfare alone: slow self-recovery
-    ps.vibe = Math.min(100, ps.vibe + 0.3);
+    ps.vibe = Math.min(100, ps.vibe + 0.3 * (hasCrisisAmplify ? 0.5 : 1.0));
     if (ps.vibe >= 30) exitCrisis(paxId);
   } else {
     // Crisis elsewhere: getting worse
@@ -1614,6 +1737,9 @@ function dropPaxOnZone(paxId, zoneId) {
   if (ps.placedIn === zoneId) return;
   const zone = ZONES[zoneId];
   const zstate = state.zones[zoneId];
+  const zs = state.zones[zoneId];
+  if (zs.locked) { toast('🔒 Cet espace n\'existe pas encore — construis-le d\'abord !'); return; }
+  if (zs.toxicBuilding) { toast('🏭 Cet espace est toxique — les pax ne peuvent pas y rester.'); return; }
   if (zstate.occupants.length >= zone.cap) { toast('Zone pleine !'); return; }
   if (ps.placedIn) {
     state.zones[ps.placedIn].occupants = state.zones[ps.placedIn].occupants.filter(id => id !== paxId);
@@ -1776,6 +1902,11 @@ function initState() {
   Object.keys(ZONES).forEach(z => {
     state.zones[z] = { occupants:[], lastBoost:0, boostActive:false, negoProgress:0 };
   });
+  // Toutes les zones sauf welfare et bulle_nego commencent verrouillées
+  Object.keys(ZONES).forEach(z => {
+    state.zones[z].locked = (z !== 'welfare' && z !== 'bulle_nego');
+    state.zones[z].toxicBuilding = null;
+  });
   PAX_DATA.filter(p => p.unlockDay === 0).forEach(p => {
     state.pax[p.id].state = 'available';
     state.unlockedPax.push(p.id);
@@ -1799,10 +1930,47 @@ function startGame() {
   setTimeout(tutoStart, 400);
 }
 
+function applyToxicEffects() {
+  const toxicZones = Object.entries(state.zones).filter(([z, zs]) => zs.toxicBuilding);
+  if (!toxicZones.length) return;
+  const activePax = PAX_DATA.filter(p => state.pax[p.id] && (state.pax[p.id].state === 'placed' || state.pax[p.id].state === 'available'));
+  toxicZones.forEach(([zid, zs]) => {
+    const tb = zs.toxicBuilding;
+    if (!tb) return;
+    switch (tb.effect) {
+      case 'vibeBleed':
+        // Drain vibe of all active pax slightly
+        activePax.forEach(p => {
+          const ps = state.pax[p.id];
+          if (ps && !ps.inCrisis) ps.vibe = Math.max(0, ps.vibe - 0.15);
+        });
+        break;
+      case 'ennuiBoost':
+        activePax.forEach(p => {
+          const ps = state.pax[p.id];
+          if (ps) ps.ennui = Math.min(100, ps.ennui + 0.1);
+        });
+        break;
+      case 'fatigueBoost':
+        // Extra fatigue for pax in this zone (handled via zone multiplier)
+        // Here we apply mild global fatigue
+        activePax.forEach(p => {
+          const ps = state.pax[p.id];
+          if (ps) ps.fatigue = Math.min(100, ps.fatigue + 0.08);
+        });
+        break;
+      case 'crisisAmplify':
+        // Handled in handleCrisis — nothing to do per tick
+        break;
+    }
+  });
+}
+
 // ===== PRODUCTION TICK (v3) =====
 function productionTick() {
   if (!state.started || state.gameEnded || state.paused) return;
   state.totalTicks++;
+  applyToxicEffects();
 
   // Food stock: collective consumption
   const totalActive = PAX_DATA.filter(p => state.pax[p.id] && (state.pax[p.id].state === 'placed' || state.pax[p.id].state === 'available')).length;
@@ -2084,7 +2252,7 @@ function spawnInvader() {
   // Target = centre de la carte
   const tx = 400 + (Math.random() - 0.5) * 200;
   const ty = 300 + (Math.random() - 0.5) * 200;
-  const invObj = { id: Date.now(), type:inv.type, data:inv, x:sx, y:sy, tx, ty, health:100, el:null, barEl:null };
+  const invObj = { id: Date.now(), type:inv.type, data:inv, x:sx, y:sy, tx, ty, health:100, toxicType:inv.toxicType, atelierOpen:false, el:null, barEl:null };
   state.invaders.push(invObj);
   renderInvader(invObj);
 }
@@ -2103,6 +2271,7 @@ function renderInvader(inv) {
   const fill = document.createElement('div');
   fill.className = 'invader-bar-fill';
   fill.style.width = '100%';
+  fill.style.background = 'var(--teal)';
   bar.appendChild(fill);
   el.appendChild(bar);
   const bubble = document.createElement('div');
@@ -2126,94 +2295,351 @@ function renderInvader(inv) {
 
 function updateInvaders() {
   if (!state.invaders.length) return;
+  const toRemove = [];
   state.invaders.forEach(inv => {
-    // Movement
-    const dx = inv.tx - inv.x; const dy = inv.ty - inv.y;
+    // Movement toward target
+    const dx = inv.tx - inv.x;
+    const dy = inv.ty - inv.y;
     const dist = Math.sqrt(dx*dx + dy*dy);
     if (dist > 5) {
       inv.x += (dx / dist) * 3;
       inv.y += (dy / dist) * 3;
       if (inv.el) { inv.el.style.left = inv.x + 'px'; inv.el.style.top = inv.y + 'px'; }
     }
-    // Queerisation speed based on vibe globale (v3)
-    const vg = state.vibeGlobale;
-    let hpLoss = 0;
-    if      (vg > 80) hpLoss = 1.5;  // auto ~67s
-    else if (vg > 60) hpLoss = 0.5;  // auto ~200s (very slow)
-    else if (vg > 40) hpLoss = 0.1;  // barely
-    // < 40: click only (hpLoss = 0)
-    inv.health -= hpLoss;
-    if (inv.barEl) inv.barEl.style.width = Math.max(0, inv.health) + '%';
-    if (inv.health <= 0) queeriseInvader(inv.id);
+    // Countdown timer (100 ticks = ~100s)
+    if (!inv.atelierOpen) {
+      inv.health = Math.max(0, inv.health - 1.0);
+      if (inv.barEl) inv.barEl.style.width = Math.max(0, inv.health) + '%';
+      // Change bar color as time runs out
+      if (inv.barEl) {
+        if (inv.health < 25) inv.barEl.style.background = 'var(--red)';
+        else if (inv.health < 50) inv.barEl.style.background = 'var(--orange)';
+        else inv.barEl.style.background = 'var(--teal)';
+      }
+      if (inv.health <= 0) {
+        toRemove.push(inv.id);
+        buildToxicBuilding(inv);
+      }
+    }
+  });
+  toRemove.forEach(id => {
+    const idx = state.invaders.findIndex(i => i.id === id);
+    if (idx !== -1) {
+      if (state.invaders[idx].el) state.invaders[idx].el.remove();
+      state.invaders.splice(idx, 1);
+    }
   });
 }
 
 function clickInvader(id) {
   const inv = state.invaders.find(i => i.id === id);
-  if (!inv) return;
-  inv.health -= 15; // ~7 clicks to queerise
-  if (inv.barEl) inv.barEl.style.width = Math.max(0, inv.health) + '%';
-  state.stats.normeChased++;
-  if (inv.health <= 0) {
-    spawnConfetti(inv.x, inv.y, '❤️');
-    queeriseInvader(id);
-  } else if (inv.health <= 20) {
-    spawnConfetti(inv.x, inv.y, '❤️'); toast('💕 Iel vacille...');
-  } else {
-    spawnConfetti(inv.x, inv.y, '✊'); toast('✊ Résistance !');
-  }
+  if (!inv || inv.atelierOpen) return;
+  inv.atelierOpen = true;
+  openAtelierModal(id);
 }
 
-function queeriseInvader(id) {
+function queeriseInvader(id, success = true) {
   const idx = state.invaders.findIndex(i => i.id === id);
   if (idx === -1) return;
   const inv = state.invaders[idx];
   state.invaders.splice(idx, 1);
+  if (inv.el) inv.el.remove();
+  
+  if (!success) {
+    // Atelier failed → build toxic
+    buildToxicBuilding(inv);
+    return;
+  }
+  
+  // Success confetti
   for (let i = 0; i < 6; i++) {
     setTimeout(() => spawnConfetti(inv.x + (Math.random()-0.5)*60, inv.y + (Math.random()-0.5)*60,
       ['🌈','🎉','💜','⭐','🦋','✨'][Math.floor(Math.random()*6)]), i * 80);
   }
-  if (inv.el) inv.el.remove();
   state.stats.queerised++;
   logEvent('queer', `${inv.data.emoji} ${inv.data.name} devient ${inv.data.queerEmoji} ${inv.data.queerName} !`);
-  // Gift: boost vibe or food
-  const roll = Math.random();
-  let gift = '';
-  if (roll < 0.5) {
-    PAX_DATA.forEach(p => {
-      const ps = state.pax[p.id];
-      if (ps && ps.state === 'placed' && !ps.inCrisis) ps.vibe = Math.min(100, ps.vibe + 8);
-    });
-    gift = '+8 Vibe pour toustes 🌈';
-  } else if (roll < 0.8) {
-    PAX_DATA.forEach(p => {
-      const ps = state.pax[p.id];
-      if (ps && ps.state === 'placed') ps.faim = Math.max(0, ps.faim - 20);
-    });
-    state.food_stock = Math.min(CFG.FOOD_STOCK_MAX, state.food_stock + 40);
-    gift = '+Provisions & -Faim 🍽';
-  } else {
-    // Reduce fatigue
-    PAX_DATA.forEach(p => {
-      const ps = state.pax[p.id];
-      if (ps && ps.state === 'placed') ps.fatigue = Math.max(0, ps.fatigue - 10);
-    });
-    gift = '💤 La tension retombe. -Fatigue pour toustes.';
-  }
-  showDiscovery(inv.data, gift);
+  
+  // Show discovery + zone pick
+  showDiscovery(inv.data, '');
+  
+  // Queue zone build picker after discovery modal closes
+  state._pendingZoneBuild = true;
   checkEnd();
 }
 
-function showDiscovery(invData, gift) {
+function buildToxicBuilding(inv) {
+  // Find a lockable zone to corrupt (prefer unlocked, non-toxic)
+  const candidates = Object.keys(ZONES).filter(z => {
+    const zs = state.zones[z];
+    return !zs.locked && !zs.toxicBuilding && z !== 'welfare' && z !== 'bulle_nego';
+  });
+  // Fallback: any non-toxic zone
+  const fallback = Object.keys(ZONES).filter(z => !state.zones[z].toxicBuilding && z !== 'welfare' && z !== 'bulle_nego');
+  const pool = candidates.length ? candidates : fallback;
+  if (!pool.length) {
+    toast(`😤 ${inv.data.emoji} ${inv.data.name} repart — mais la Norme progresse.`);
+    return;
+  }
+  const target = pool[Math.floor(Math.random() * pool.length)];
+  const tb = TOXIC_BUILDINGS[inv.toxicType] || TOXIC_BUILDINGS.open_space;
+  state.zones[target].locked = false;
+  state.zones[target].toxicBuilding = { type: inv.toxicType, ...tb, builtAt: state.totalTicks };
+  // Kick out pax from the zone
+  const kicked = [...state.zones[target].occupants];
+  kicked.forEach(paxId => {
+    const ps = state.pax[paxId];
+    if (ps) { ps.placedIn = null; ps.state = 'available'; }
+  });
+  state.zones[target].occupants = [];
+  const zoneName = ZONES[target].name;
+  logEvent('alert', `🏭 ${tb.emoji} ${tb.name} construit à la place de ${zoneName}. ${kicked.length ? kicked.map(id => { const p = PAX_DATA.find(d=>d.id===id); return p ? p.emoji+' '+p.name : ''; }).join(', ') + ' ont été chassé·es.' : ''}`);
+  toast(`🏭 ${inv.data.emoji} ${inv.data.name} a construit un ${tb.name} !`);
+  renderZones();
+  if (state.selectedZone === target) openZone(target);
+}
+
+// ===== ATELIER FLOW =====
+let _atelierFlow = null; // { invId, options, pickedKey, qIdx, score, idealKey, passables }
+
+function openAtelierModal(invId) {
+  const inv = state.invaders.find(i => i.id === invId);
+  if (!inv) return;
+  const agentKey = inv.type;
+  const agentMsg = MSG.invaders[agentKey];
+  
+  // Set agent header
+  document.getElementById('atelier-agent-emoji').textContent = inv.data.emoji;
+  document.getElementById('atelier-agent-name').textContent = inv.data.name;
+  document.getElementById('atelier-agent-quote').textContent = '« ' + inv.data.quote + ' »';
+  
+  // Select ateliers: always include ideal, pick 2 more from passables+wildcard
+  const ideal = agentMsg?.atelierIdeal || 'lettre';
+  const passables = agentMsg?.atelierPassables || ['corps', 'oisivete'];
+  const wildcard = agentMsg?.atelierWildcard || 'drag';
+  const pool = [ideal];
+  const rest = [...passables, wildcard].sort(() => Math.random() - 0.5);
+  pool.push(...rest.slice(0, 2));
+  // Shuffle
+  pool.sort(() => Math.random() - 0.5);
+  
+  _atelierFlow = { invId, options: pool, pickedKey: null, qIdx: 0, score: 0, idealKey: ideal, passables };
+  
+  // Show step-pick, hide others
+  document.getElementById('atelier-step-pick').style.display = '';
+  document.getElementById('atelier-step-question').style.display = 'none';
+  document.getElementById('atelier-step-result').style.display = 'none';
+  document.getElementById('atelier-result-fill').style.width = '0%';
+  
+  // Build atelier options grid
+  const grid = document.getElementById('atelier-pick-grid');
+  grid.innerHTML = '';
+  pool.forEach(key => {
+    const a = MSG.ateliers[key];
+    if (!a) return;
+    const div = document.createElement('div');
+    div.className = 'atelier-option';
+    div.innerHTML = `<span class="atelier-option-emoji">${a.emoji}</span>
+      <div class="atelier-option-info">
+        <div class="atelier-option-name">${a.nom}</div>
+        <div class="atelier-option-desc">${a.description}</div>
+      </div>`;
+    div.onclick = () => pickAtelier(key);
+    grid.appendChild(div);
+  });
+  
+  state.paused = true;
+  document.getElementById('atelier-modal').classList.add('show');
+}
+
+function pickAtelier(key) {
+  _atelierFlow.pickedKey = key;
+  _atelierFlow.qIdx = 0;
+  _atelierFlow.score = 0;
+  showAtelierQuestion();
+}
+
+function showAtelierQuestion() {
+  const { pickedKey, qIdx } = _atelierFlow;
+  const atelier = MSG.ateliers[pickedKey];
+  if (!atelier || qIdx >= atelier.questions.length) { resolveAtelier(); return; }
+  const q = atelier.questions[qIdx];
+  
+  // Switch views
+  document.getElementById('atelier-step-pick').style.display = 'none';
+  document.getElementById('atelier-step-question').style.display = '';
+  document.getElementById('atelier-step-result').style.display = 'none';
+  
+  // Progress dots
+  const prog = document.getElementById('atelier-progress');
+  prog.innerHTML = '';
+  atelier.questions.forEach((_, i) => {
+    const dot = document.createElement('div');
+    dot.className = 'atelier-progress-dot' + (i < qIdx ? ' done' : i === qIdx ? ' current' : '');
+    prog.appendChild(dot);
+  });
+  
+  // Question header
+  document.getElementById('atelier-q-header').textContent = atelier.nom + ' — ' + (qIdx + 1) + '/3';
+  document.getElementById('atelier-q-text').textContent = q.texte;
+  
+  // Choices (shuffle order)
+  const choices = [...q.choix].sort(() => Math.random() - 0.5);
+  const choicesEl = document.getElementById('atelier-choices');
+  choicesEl.innerHTML = '';
+  choices.forEach(c => {
+    const btn = document.createElement('button');
+    btn.className = 'atelier-choice';
+    btn.textContent = c.texte;
+    btn.onclick = () => answerQuestion(c.score, c.type);
+    choicesEl.appendChild(btn);
+  });
+}
+
+function answerQuestion(score, type) {
+  _atelierFlow.score += score;
+  _atelierFlow.qIdx++;
+  if (_atelierFlow.qIdx >= 3) {
+    resolveAtelier();
+  } else {
+    showAtelierQuestion();
+  }
+}
+
+function resolveAtelier() {
+  const { invId, pickedKey, score, idealKey, passables } = _atelierFlow;
+  const inv = state.invaders.find(i => i.id === invId);
+  if (!inv) { closeAtelierModal(); return; }
+  
+  // Atelier match multiplier
+  let atelierMult = 0.5; // wildcard
+  if (pickedKey === idealKey) atelierMult = 1.0;
+  else if (passables && passables.includes(pickedKey)) atelierMult = 0.75;
+  
+  // Probability: 5% + (score/6)*80% * atelierMult
+  const scorePct = score / 6;
+  const prob = Math.max(0.05, Math.min(0.85, (0.05 + scorePct * 0.80) * atelierMult + (1 - atelierMult) * 0.05));
+  const success = Math.random() < prob;
+  
+  // Show result screen
+  document.getElementById('atelier-step-pick').style.display = 'none';
+  document.getElementById('atelier-step-question').style.display = 'none';
+  document.getElementById('atelier-step-result').style.display = '';
+  
+  const matchLabel = pickedKey === idealKey ? 'Idéal ✨' : (passables?.includes(pickedKey) ? 'Passable' : 'Wildcard 🎲');
+  const pctDisplay = Math.round(prob * 100);
+  document.getElementById('atelier-result-fill').style.width = '0%';
+  document.getElementById('atelier-result-fill').style.background = success ? 'var(--green)' : 'var(--red)';
+  setTimeout(() => {
+    document.getElementById('atelier-result-fill').style.width = pctDisplay + '%';
+  }, 100);
+  
+  document.getElementById('atelier-score-text').textContent =
+    `Score : ${score}/6 · Atelier : ${matchLabel} · Probabilité : ${pctDisplay}%`;
+  
+  if (success) {
+    document.getElementById('atelier-result-title').textContent = '★ TRANSFORMATION ★';
+    document.getElementById('atelier-result-emoji').textContent = inv.data.queerEmoji;
+    document.getElementById('atelier-result-msg').textContent =
+      inv.data.queerName + ' — ' + inv.data.queerMsg;
+    document.getElementById('atelier-result-btn').textContent = '🌈 MAGNIFIQUE !';
+    document.getElementById('atelier-result-btn').onclick = () => {
+      closeAtelierModal();
+      queeriseInvader(invId, true);
+    };
+  } else {
+    document.getElementById('atelier-result-title').textContent = 'PAS ENCORE...';
+    document.getElementById('atelier-result-emoji').textContent = '🏭';
+    const tb = TOXIC_BUILDINGS[inv.data.toxicType] || TOXIC_BUILDINGS.open_space;
+    document.getElementById('atelier-result-msg').textContent =
+      inv.data.name + ' n\'a pas accroché. Un ' + tb.name + ' va être construit.';
+    document.getElementById('atelier-result-btn').textContent = 'Ok...';
+    document.getElementById('atelier-result-btn').onclick = () => {
+      closeAtelierModal();
+      queeriseInvader(invId, false);
+    };
+  }
+}
+
+function closeAtelierModal() {
+  const flow = _atelierFlow;
+  document.getElementById('atelier-modal').classList.remove('show');
+  state.paused = false;
+  _atelierFlow = null;
+  // Restore invader atelierOpen flag if still present
+  if (flow) {
+    const inv = state.invaders.find(i => i.id === flow.invId);
+    if (inv) inv.atelierOpen = false;
+  }
+}
+
+function showDiscovery(invData, gift = '') {
   document.getElementById('disc-emoji').textContent = invData.queerEmoji;
   document.getElementById('disc-name').textContent = invData.queerName;
-  document.getElementById('disc-msg').textContent = invData.queerMsg + ' (' + gift + ')';
+  document.getElementById('disc-msg').textContent = invData.queerMsg + (gift ? ' (' + gift + ')' : '');
   const savais = document.getElementById('disc-savais');
   if (invData.savaisTu) {
     savais.style.display = 'block';
     document.getElementById('disc-savais-text').textContent = invData.savaisTu;
   } else { savais.style.display = 'none'; }
   document.getElementById('discovery-modal').classList.add('show');
+}
+
+function onCloseDiscovery() {
+  closeModal('discovery-modal');
+  if (state._pendingZoneBuild) {
+    state._pendingZoneBuild = false;
+    setTimeout(showZoneBuildPicker, 200);
+  }
+}
+
+function showZoneBuildPicker() {
+  // Zones unlockables = still locked, not toxic
+  const buildable = Object.keys(ZONES).filter(z => state.zones[z].locked && !state.zones[z].toxicBuilding);
+  if (!buildable.length) {
+    // All zones built — just give a bonus
+    PAX_DATA.forEach(p => {
+      const ps = state.pax[p.id];
+      if (ps && ps.state === 'placed' && !ps.inCrisis) ps.vibe = Math.min(100, ps.vibe + 12);
+    });
+    toast('🌈 Toustes les espaces sont construits ! +12 Vibe pour toustes.');
+    return;
+  }
+  // Pick min(3, available) random zones
+  const shuffled = buildable.sort(() => Math.random() - 0.5).slice(0, 3);
+  const grid = document.getElementById('zone-build-grid');
+  grid.innerHTML = '';
+  shuffled.forEach(zid => {
+    const z = ZONES[zid];
+    const div = document.createElement('div');
+    div.className = 'zone-build-option';
+    div.dataset.zid = zid;
+    const zoneIcon = { playroom_ext:'⚡', tente_cer:'🎪', mixroom:'🌀', bat1:'🏠', bat2:'🛖', cantina:'🍽', pmu:'🍺' };
+    div.innerHTML = `<span style="font-size:20px;">${zoneIcon[zid] || '🏗'}</span>
+      <div style="display:inline-block;margin-left:8px;">
+        <div style="font-family:'Press Start 2P',monospace;font-size:8px;color:var(--dark);">${z.name}</div>
+        <div style="font-size:12px;color:rgba(0,0,0,0.7);margin-top:2px;">${z.desc}</div>
+      </div>`;
+    div.onclick = () => {
+      grid.querySelectorAll('.zone-build-option').forEach(el => el.classList.remove('selected'));
+      div.classList.add('selected');
+    };
+    grid.appendChild(div);
+  });
+  document.getElementById('zone-build-modal').classList.add('show');
+}
+
+function confirmZoneBuild() {
+  const grid = document.getElementById('zone-build-grid');
+  const sel = grid.querySelector('.zone-build-option.selected');
+  if (!sel) { toast('⚠️ Sélectionne un espace !'); return; }
+  const zid = sel.dataset.zid;
+  state.zones[zid].locked = false;
+  state.stats.builtZones = (state.stats.builtZones || 0) + 1;
+  const z = ZONES[zid];
+  closeModal('zone-build-modal');
+  toast(`🏗️ ${z.name} vient d'être construit·e ! 🌈`);
+  logEvent('queer', `🏗️ ${z.name} construit·e. La Norme recule.`);
+  renderZones();
 }
 
 function showPaxArrival(pData, uq) {
@@ -2349,12 +2775,22 @@ function openZone(zoneId) {
     cancelCarry();
     return;
   }
+  const zs = state.zones[zoneId];
+  if (zs && zs.locked) {
+    toast('🔒 Cet espace n\'est pas encore construit. Queerise quelqu\'un pour l\'ouvrir !');
+    return;
+  }
+  if (zs && zs.toxicBuilding) {
+    const tb = zs.toxicBuilding;
+    toast(`🏭 ${tb.emoji} ${tb.name} occupe cet espace. ${tb.desc}`);
+    // Still open zone panel to show toxic info
+  }
   state.selectedZone = zoneId;
   const zone = ZONES[zoneId];
   const zstate = state.zones[zoneId];
   const capDisplay = zone.cap >= 12 ? zstate.occupants.length : `${zstate.occupants.length}/${zone.cap}`;
   document.getElementById('zone-panel-name').textContent = zone.name + '  (' + capDisplay + ')';
-  document.getElementById('zone-panel-desc').textContent = getZoneAtmosphere(zoneId);
+  document.getElementById('zone-panel-desc').textContent = zstate.toxicBuilding ? `🏭 ${zstate.toxicBuilding.emoji} ${zstate.toxicBuilding.name} — ${zstate.toxicBuilding.desc}` : getZoneAtmosphere(zoneId);
 
   const paxRow = document.getElementById('zone-panel-pax');
   paxRow.innerHTML = '';
@@ -2430,8 +2866,8 @@ function openZone(zoneId) {
   }
 
   const btnAdd = document.getElementById('btn-add-pax');
-  btnAdd.disabled = zstate.occupants.length >= zone.cap;
-  btnAdd.textContent = `+ PAX`;
+  btnAdd.disabled = !!zstate.toxicBuilding || zstate.occupants.length >= zone.cap;
+  btnAdd.textContent = zstate.toxicBuilding ? `🏭 TOXIQUE` : `+ PAX`;
 
   // Synergy indicator
   let synergyEl = document.getElementById('zone-synergy-badge');
@@ -2570,12 +3006,37 @@ function renderZones() {
     const elId = 'zone-' + zid.replace(/_/g,'-');
     const el = document.getElementById(elId);
     if (!el) return;
+    // Locked zone visual
+    if (zstate.locked) {
+      el.classList.add('locked');
+      el.classList.remove('toxic');
+    } else if (zstate.toxicBuilding) {
+      el.classList.add('toxic');
+      el.classList.remove('locked');
+    } else {
+      el.classList.remove('locked', 'toxic');
+    }
     el.innerHTML = '';
     // Label
     const label = document.createElement('div');
     label.className = 'zone-label';
     label.textContent = ZONES[zid].name;
     el.appendChild(label);
+    if (zstate.locked) {
+      const lck = document.createElement('div');
+      lck.style.cssText = 'font-size:16px;pointer-events:none;';
+      lck.textContent = '🔒';
+      el.appendChild(lck);
+      return; // skip rest of rendering for locked zone
+    }
+    if (zstate.toxicBuilding) {
+      const tb = zstate.toxicBuilding;
+      const tbl = document.createElement('div');
+      tbl.className = 'zone-toxic-label';
+      tbl.textContent = tb.emoji + ' ' + tb.name;
+      el.appendChild(tbl);
+      // Still show pax if any (shouldn't be any, but just in case)
+    }
     // Pax dots
     if (zstate.occupants.length > 0) {
       const row = document.createElement('div');
