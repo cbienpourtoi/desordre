@@ -2858,6 +2858,7 @@ function showAtelierQuestion() {
   
   const choices = [...etape.choix].sort(() => Math.random() - 0.5);
   const choicesEl = document.getElementById('atelier-choices');
+  choicesEl.style.display = '';
   choicesEl.innerHTML = '';
   choices.forEach(c => {
     const btn = document.createElement('button');
@@ -2872,7 +2873,7 @@ function answerQuestion(score, type, reponse) {
   if (_atelierFlow.showingReponse) return;
   _atelierFlow.score += score;
   _atelierFlow.showingReponse = true;
-  document.querySelectorAll('#atelier-choices .atelier-choice').forEach(btn => { btn.disabled = true; });
+  document.getElementById('atelier-choices').style.display = 'none';
   const reponseEl = document.getElementById('atelier-reponse');
   reponseEl.textContent = reponse || '';
   reponseEl.style.display = '';
