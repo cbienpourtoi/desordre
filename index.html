@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>Le Désordre — Cultive le bordel</title>
+<title>Le Désordre : Cultive le bordel</title>
 <script src="messages.js"></script>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=VT323&family=Press+Start+2P&family=DM+Mono:wght@400;500&display=swap');
@@ -1108,7 +1108,7 @@ const INVADERS_DATA = [
     queerEmoji: "🌱",
     queerName: "Le Pater en Reconstruction",
     queerMsg: "Il pleure facilement maintenant. Les gens trouvent ça beau.",
-    savaisTu: "L'acceptation familiale est le facteur #1 de santé mentale des personnes LGBTQ+. Pas les lois — les familles.",
+    savaisTu: "L'acceptation familiale est le facteur #1 de santé mentale des personnes LGBTQ+. Pas les lois : les familles.",
     failBuilding: {
       name: "Salle de réunion familiale",
       emoji: "🪑",
@@ -1131,7 +1131,7 @@ const INVADERS_DATA = [
     queerEmoji: "🌸",
     queerName: "La Libertine Tardive",
     queerMsg: "À 58 ans elle découvre qu'elle avait juste peur. Elle pose des questions un peu trop directes.",
-    savaisTu: "La honte sexuelle a des effets mesurables sur la santé physique : système immunitaire, tension, sommeil. Pas metaphoriquement — littéralement.",
+    savaisTu: "La honte sexuelle a des effets mesurables sur la santé physique : système immunitaire, tension, sommeil. Pas métaphoriquement : littéralement.",
     failBuilding: {
       name: "Permanence Bien-être™",
       emoji: "🌈",
@@ -1223,7 +1223,7 @@ const INVADERS_DATA = [
     queerEmoji: "🤔",
     queerName: "L'Homme qui Se Pose des Questions",
     queerMsg: "Il a arrêté de crier. Il écoute. C'est déjà énorme.",
-    savaisTu: "Les hommes cisgenres ont les taux de suicide les plus élevés — conséquence directe de la norme de virilité qui interdit l'expression émotionnelle.",
+    savaisTu: "Les hommes cisgenres ont les taux de suicide les plus élevés. C'est une conséquence directe de la norme de virilité qui interdit l'expression émotionnelle.",
     failBuilding: {
       name: "Forum d'entraide masculine",
       emoji: "🖥️",
@@ -1312,20 +1312,20 @@ const INVADERS_DATA = [
 // ===== CRIÉE MESSAGES =====
 const CRIEE = [
   '📢 La Criée : atelier shibari à 15h dans la playroom intérieure.',
-  '📢 La Criée : quelqu\'un a perdu son harnais en latex — réclamation au PMU.',
+  '📢 La Criée : quelqu\'un a perdu son harnais en latex, réclamation au PMU.',
   '📢 La Criée : la cuisine a besoin de main d\'œuvre pour les pâtes !',
   '📢 La Criée : Will McClick essaie encore de coordonner. Ignorez-iel gentiment.',
   '📢 La Criée : nouveau fil rouge → « câlinothérapie », sur le tableau.',
   '📢 La Criée : tique repérée près du camping. Sortez le beurre.',
   '📢 La Criée : Nuageon distribue des couronnes de fleurs au Welfare.',
   '📢 La Criée : Ananas a organisé une orgie de cucurbitacées. On est au courant.',
-  '📢 La Criée : rappel — test Covid pour les arrivant·es du jeudi.',
+  '📢 La Criée : rappel, test Covid pour les arrivant·es du jeudi.',
   '📢 La Criée : le Courrier du Cœur et du Cul déborde. Quelqu\'un peut le vider ?',
   '📢 La Criée : Avril attend pour le cercle de parole à la tente.',
   '📢 La Criée : Pastèque est en cuisine. Ça sent incroyablement bon.',
   '📢 La Criée : Choufleur Royal proclame un royaume de 3m² autour du PMU.',
-  '📢 La Criée : Onigiri propose un atelier "beaucoup de couches" — interprétation libre.',
-  '📢 La Criée : rappel — la bulle de négo sert à se parler avant le play.',
+  '📢 La Criée : Onigiri propose un atelier "beaucoup de couches", interprétation libre.',
+  '📢 La Criée : rappel, la bulle de négo sert à se parler avant le play.',
 ];
 
 
@@ -1757,7 +1757,7 @@ function getZoneAtmosphere(zid) {
     if (zid === 'pmu')         return "🍺 Les tabourets sont vides. La buvette attend ses habitué·es.";
     if (zid === 'bulle_nego')  return "🤝 Personne n'est en train de négocier. La porte est ouverte.";
     if (zid === 'camping')     return "🏕 Les tentes sont là. Un réchaud, des sacs de couchage. De quoi tenir.";
-    return zone.desc + ' — Vide pour l\'instant.';
+    return zone.desc + ' Vide pour l\'instant.';
   }
 
   // Welfare: special description showing support émo dynamic
@@ -1775,38 +1775,38 @@ function getZoneAtmosphere(zid) {
     }
     if (giverPax.length > 0 && inCrisisPax.length === 0) {
       const gNames = giverPax.map(pid => { const p = PAX_DATA.find(d=>d.id===pid); return p?p.emoji+' '+p.name:''; }).join(', ');
-      return `💜 ${gNames} assure le support émo — disponible si quelqu'un entre en crise.`;
+      return `💜 ${gNames} assure le support émo, disponible si quelqu'un entre en crise.`;
     }
   }
   const archs = occ.map(pid => { const p = PAX_DATA.find(d => d.id === pid); return p ? p.archetype : null; }).filter(Boolean);
   const names = occ.map(pid => { const p = PAX_DATA.find(d => d.id === pid); return p ? p.emoji + '\u00a0' + p.name : null; }).filter(Boolean).join(', ');
   if (archs.includes('dom') && archs.includes('sub'))
-    return '🔥 ' + names + ' — La tension est palpable. Une scène pourrait se déclencher d\'un moment à l\'autre.';
+    return '🔥 ' + names + '. La tension est palpable. Une scène pourrait se déclencher d\'un moment à l\'autre.';
   if (archs.includes('top') && archs.includes('bottom'))
-    return '🪢 ' + names + ' — Concentration totale. Ne pas déranger.';
+    return '🪢 ' + names + '. Concentration totale. Ne pas déranger.';
   if (archs.includes('pet') && archs.includes('dom'))
-    return '🐾 ' + names + ' — On entend des petits bruits heureux. Tout va bien.';
+    return '🐾 ' + names + '. On entend des petits bruits heureux. Tout va bien.';
   if (archs.includes('soigneurice'))
-    return '💜 ' + names + ' — Une douceur particulière règne ici. Quelqu\'un prend soin de toustes.';
+    return '💜 ' + names + '. Une douceur particulière règne ici. Quelqu\'un prend soin de toustes.';
   if (archs.includes('chaotique') && zid === 'pmu')
-    return '🤡 ' + names + ' — Le micro a été confisqué deux fois. Ambiance électrique.';
+    return '🤡 ' + names + '. Le micro a été confisqué deux fois. Ambiance électrique.';
   if (archs.includes('servicetop') && zid === 'cantina')
-    return '🍳 ' + names + ' — Ça sent incroyablement bon depuis là-dedans.';
+    return '🍳 ' + names + '. Ça sent incroyablement bon depuis là-dedans.';
   if (archs.includes('festif') && occ.length >= 2)
-    return '🎉 ' + names + ' — L\'ambiance monte. Le Désordre avec.';
+    return '🎉 ' + names + '. L\'ambiance monte. Le Désordre avec.';
   if (archs.includes('creatif'))
-    return '🎨 ' + names + ' — Une installation improbable se forme dans le coin.';
+    return '🎨 ' + names + '. Une installation improbable se forme dans le coin.';
   if (archs.filter(a => a === 'slut').length >= 1 && occ.length >= 3)
-    return '💋 ' + names + ' — Beaucoup de monde, beaucoup d\'énergie. La zone déborde.';
+    return '💋 ' + names + '. Beaucoup de monde, beaucoup d\'énergie. La zone déborde.';
 
   // Bulle de Négo special atmosphere
   if (zid === 'bulle_nego') {
     const nego = state.zones['bulle_nego'];
     const pct = Math.round((nego.negoProgress || 0) / 30 * 100);
     if (occ.length >= 2) {
-      if (pct >= 100) return `🤝 ${names} — La scène est négociée ! Iels repartent boostée·s.`;
-      if (pct >= 60)  return `🤝 ${names} — La discussion avance. Encore un peu... (${pct}%)`;
-      return `🤝 ${names} — La négociation commence. Iels prennent le temps de se parler. (${pct}%)`;
+      if (pct >= 100) return `🤝 ${names}. La scène est négociée ! Iels repartent boostée·s.`;
+      if (pct >= 60)  return `🤝 ${names}. La discussion avance. Encore un peu... (${pct}%)`;
+      return `🤝 ${names}. La négociation commence. Iels prennent le temps de se parler. (${pct}%)`;
     }
     if (occ.length === 1) return `🤝 ${names} est là. Iel attend quelqu'un pour négocier une scène.`;
   }
@@ -1817,7 +1817,7 @@ function getZoneAtmosphere(zid) {
     if (isRepos) return `${p.emoji} ${p.name} se repose. La fatigue diminue doucement.`;
     return p.emoji + ' ' + p.name + ' est seul·e ici. ' + (zone.type === 'low' ? 'Iel se ressource tranquillement.' : 'Iel produit, mais une synergie manque.');
   }
-  return names + ' — ' + (zone.activityMode === 'repos' || zone.activityMode === 'nego'
+  return names + '. ' + (zone.activityMode === 'repos' || zone.activityMode === 'nego'
     ? 'Toustes se reposent. La fatigue descend.'
     : zone.type === 'high' ? 'Le Désordre monte doucement. L\'énergie est là.' : 'Calme et productif. Tout roule.');
 }
@@ -1833,7 +1833,7 @@ const TUTORIAL_STEPS = [
   {
     target: '#hud',
     title: '🌀 DÉSORDRE GLOBAL',
-    text: 'La jauge montre le <strong style="color:var(--pink)">Désordre global</strong> — la moyenne du bien-être de toustes les pax.\nChaque pax a sa propre Vibe, sa Fatigue, sa Faim, son Ennui. Si quelqu\'un va très mal, ça tire tout le monde vers le bas.',
+    text: 'La jauge montre le <strong style="color:var(--pink)">Désordre global</strong> : la moyenne du bien-être de toustes les pax.\nChaque pax a sa propre Vibe, sa Fatigue, sa Faim, son Ennui. Si quelqu\'un va très mal, ça tire tout le monde vers le bas.',
     pos: 'bottom',
   },
   {
@@ -1845,7 +1845,7 @@ const TUTORIAL_STEPS = [
   {
     target: '#map-wrapper',
     title: '🗺 LA CARTE',
-    text: 'Glisse pour déplacer la carte. Molette ou pinch pour zoomer.\nLes zones encadrées sont les espaces du camp — clique dessus pour les ouvrir.',
+    text: 'Glisse pour déplacer la carte. Molette ou pinch pour zoomer.\nLes zones encadrées sont les espaces du camp : clique dessus pour les ouvrir.',
     pos: 'center',
   },
   {
@@ -2101,8 +2101,8 @@ function dropPaxOnZone(paxId, zoneId) {
   const zone = ZONES[zoneId];
   const zstate = state.zones[zoneId];
   const zs = state.zones[zoneId];
-  if (zs.locked) { toast('🔒 Cet espace n\'existe pas encore — construis-le d\'abord !'); return; }
-  if (zs.toxicBuilding) { toast('🏭 Cet espace est toxique — les pax ne peuvent pas y rester.'); return; }
+  if (zs.locked) { toast('🔒 Cet espace n\'existe pas encore. Construis-le d\'abord !'); return; }
+  if (zs.toxicBuilding) { toast('🏭 Cet espace est toxique. Les pax ne peuvent pas y rester.'); return; }
   if (zstate.occupants.length >= zone.cap) { toast('Zone pleine !'); return; }
   if (ps.placedIn) {
     state.zones[ps.placedIn].occupants = state.zones[ps.placedIn].occupants.filter(id => id !== paxId);
@@ -2439,7 +2439,7 @@ function getCrieeBoostMessage() {
   const boosts = getActiveAllyBoosts('criee_boost');
   if (!boosts.length) return null;
   const boost = boosts[Math.floor(Math.random() * boosts.length)];
-  return `📢 ${boost.ally.emoji} ${boost.ally.name} — ${boost.ally.description}`;
+  return `📢 ${boost.ally.emoji} ${boost.ally.name} : ${boost.ally.description}`;
 }
 
 function getToxicCrieeMessage() {
@@ -2448,7 +2448,7 @@ function getToxicCrieeMessage() {
     .filter(tb => tb?.effect === 'criee_toxic');
   if (!toxic.length) return null;
   const tb = toxic[Math.floor(Math.random() * toxic.length)];
-  return `⚠️ ${tb.emoji} ${tb.name} — ${tb.desc}`;
+  return `⚠️ ${tb.emoji} ${tb.name} : ${tb.desc}`;
 }
 
 function applyToxicEffects() {
@@ -2881,7 +2881,7 @@ function onNewDay() {
   if (state.day === 4) {
     clearInterval(state.invaderTimer);
     state.invaderTimer = setInterval(spawnInvader, 36000);
-    toast('🎉 VENDREDI ! Grande soirée Teuf — les agents de la Norme arrivent plus vite !');
+    toast('🎉 VENDREDI ! Grande soirée Teuf : les agents de la Norme arrivent plus vite !');
   }
   setTimeout(() => {
     if (document.getElementById('quest-panel')?.classList.contains('open')) renderQuestPanel();
@@ -3028,22 +3028,22 @@ function applyAllyEffect(inv) {
       PAX_DATA.filter(p => state.pax[p.id]?.state === 'placed').forEach(p => {
         state.pax[p.id].vibe = Math.min(100, state.pax[p.id].vibe + 15);
       });
-      toast(`${ally.emoji} ${ally.name} — +15 Désordre pour tous les pax !`);
+      toast(`${ally.emoji} ${ally.name} : +15 Désordre pour tous les pax !`);
       break;
     case 'criee_boost':
       state._allyBoosts = state._allyBoosts || [];
       state._allyBoosts.push({ type: 'criee_boost', ally, endsAt: state.totalTicks + duration });
-      toast(`${ally.emoji} ${ally.name} — La Criée s'anime !`);
+      toast(`${ally.emoji} ${ally.name} : La Criée s'anime !`);
       break;
     case 'welfare_boost':
       state._allyBoosts = state._allyBoosts || [];
       state._allyBoosts.push({ type: 'welfare_boost', ally, endsAt: state.totalTicks + duration });
-      toast(`${ally.emoji} ${ally.name} — Le Welfare est boosté pour ${duration} ticks !`);
+      toast(`${ally.emoji} ${ally.name} : Le Welfare est boosté pour ${duration} ticks !`);
       break;
     case 'fun_facts_boost': {
       const fact = getRandomFunFact();
       if (fact) updateCriee(`📚 ${fact.texte} (${fact.source})`);
-      toast(`${ally.emoji} ${ally.name} — Un fun fact queer dans la Criée !`);
+      toast(`${ally.emoji} ${ally.name} : Un fun fact queer dans la Criée !`);
       break;
     }
   }
@@ -3060,7 +3060,7 @@ function buildToxicBuilding(inv) {
   const fallback = Object.keys(ZONES).filter(z => !state.zones[z].toxicBuilding && !state.zones[z].queerBuilt && z !== 'camping');
   const pool = candidates.length ? candidates : fallback;
   if (!pool.length) {
-    toast(`😤 ${inv.data.emoji} ${inv.data.name} repart — mais la Norme progresse.`);
+    toast(`😤 ${inv.data.emoji} ${inv.data.name} repart, mais la Norme progresse.`);
     return;
   }
   // Préférer les zones non-vitales ; ne cibler les vitales que si rien d'autre
@@ -3185,7 +3185,7 @@ function showAtelierQuestion() {
     prog.appendChild(dot);
   });
   
-  document.getElementById('atelier-q-header').textContent = atelier.nom + ' — ' + (qIdx + 1) + '/' + etapes.length;
+  document.getElementById('atelier-q-header').textContent = atelier.nom + ' · ' + (qIdx + 1) + '/' + etapes.length;
   document.getElementById('atelier-q-text').textContent = etape.question;
   const reponseEl = document.getElementById('atelier-reponse');
   reponseEl.style.display = 'none';
@@ -3258,7 +3258,7 @@ function resolveAtelier() {
     document.getElementById('atelier-result-title').textContent = '★ TRANSFORMATION ★';
     document.getElementById('atelier-result-emoji').textContent = ally.emoji || inv.data.queerEmoji;
     document.getElementById('atelier-result-msg').textContent =
-      `${ally.name || inv.data.queerName} — ${ally.description || inv.data.queerMsg}`;
+      `${ally.name || inv.data.queerName} : ${ally.description || inv.data.queerMsg}`;
     document.getElementById('atelier-result-btn').textContent = '🌈 MAGNIFIQUE !';
     document.getElementById('atelier-result-btn').onclick = () => {
       closeAtelierModal();
@@ -3396,7 +3396,7 @@ function showPaxArrival(pData, uq) {
   const banner = document.getElementById('pax-arrival-banner');
   document.getElementById('pab-emoji').textContent = pData.emoji;
   document.getElementById('pab-name').innerHTML =
-    `✨ NOUVEAU PAX ARRIVÉ·E !<span>${pData.name} — ${ARCHETYPES[pData.archetype]?.label || ''}</span>`;
+    `✨ NOUVEAU PAX ARRIVÉ·E !<span>${pData.name}, ${ARCHETYPES[pData.archetype]?.label || ''}</span>`;
   document.getElementById('pab-quote').textContent = uq ? `« ${uq.quote} »` : '';
   banner.classList.add('show');
   setTimeout(() => banner.classList.remove('show'), 5000);
@@ -3540,7 +3540,7 @@ function openZone(zoneId) {
   const zstate = state.zones[zoneId];
   const capDisplay = zone.cap >= 12 ? zstate.occupants.length : `${zstate.occupants.length}/${zone.cap}`;
   document.getElementById('zone-panel-name').textContent = zone.name + '  (' + capDisplay + ')';
-  document.getElementById('zone-panel-desc').textContent = zstate.toxicBuilding ? `🏭 ${zstate.toxicBuilding.emoji} ${zstate.toxicBuilding.name} — ${zstate.toxicBuilding.desc}` : getZoneAtmosphere(zoneId);
+  document.getElementById('zone-panel-desc').textContent = zstate.toxicBuilding ? `🏭 ${zstate.toxicBuilding.emoji} ${zstate.toxicBuilding.name} : ${zstate.toxicBuilding.desc}` : getZoneAtmosphere(zoneId);
 
   const paxRow = document.getElementById('zone-panel-pax');
   paxRow.innerHTML = '';
@@ -3628,7 +3628,7 @@ function openZone(zoneId) {
     document.getElementById('zone-panel-info').appendChild(synergyEl);
   }
   if (zstate.boostActive) {
-    synergyEl.textContent = '🌀 SYNERGIE ACTIVE — Désordre x2 !';
+    synergyEl.textContent = '🌀 SYNERGIE ACTIVE ! Désordre x2 !';
   } else if (hasSynergyPair(zstate.occupants)) {
     synergyEl.textContent = '💫 Synergie détectée';
     synergyEl.style.color = 'var(--teal)';
@@ -3711,7 +3711,7 @@ function tryAutoBoost(zid) {
   if (pair) {
     const pa = archs.find(x=>x.arch===pair[0]);
     const pb = archs.find(x=>x.arch===pair[1]);
-    if (pa && pb) msg = `🌀 ${pa.emoji}${pa.name} & ${pb.emoji}${pb.name} — synergie ! Désordre x2 dans ${zone.name}`;
+    if (pa && pb) msg = `🌀 ${pa.emoji}${pa.name} & ${pb.emoji}${pb.name}, synergie ! Désordre x2 dans ${zone.name}`;
   }
   toast(msg);
   setTimeout(() => {
@@ -3815,7 +3815,7 @@ function renderZones() {
         else if (ps2.vibe < 60)   outlineColor = '#ffe93f';
         span.style.outline = '2.5px solid ' + outlineColor;
         span.style.borderRadius = '50%';
-        span.title = p.name + ' — vibe ' + Math.round(ps2.vibe) + (ps2.inCrisis ? ' 🆘 CRISE' : '');
+        span.title = p.name + ' : vibe ' + Math.round(ps2.vibe) + (ps2.inCrisis ? ' 🆘 CRISE' : '');
         span.textContent = p.emoji;
         span.style.animationDelay = Math.random() * 2 + 's';
         makePaxDraggable(span, p.id, p.emoji);
@@ -4535,7 +4535,7 @@ if (DEV_MODE) {
       const commitStr  = commitDate ? commitDate.toLocaleTimeString('fr-FR', {hour:'2-digit',minute:'2-digit'}) : '?';
       const pageStr    = pageDate.toLocaleTimeString('fr-FR', {hour:'2-digit',minute:'2-digit'});
       if (deployed) {
-        statusEl.innerHTML = `<span style="color:#7fff5a">✅ à jour — commit ${commitSha}</span><br>page: ${pageStr} / commit: ${commitStr}`;
+        statusEl.innerHTML = `<span style="color:#7fff5a">✅ à jour, commit ${commitSha}</span><br>page: ${pageStr} / commit: ${commitStr}`;
       } else {
         statusEl.innerHTML = `<span style="color:#e74c3c">⏳ deploy en cours (commit ${commitSha})</span><br>page: ${pageStr} / commit: ${commitStr}`;
       }
@@ -4550,34 +4550,34 @@ function _devEnsureStarted() {
 
 function devSpawnInvader() {
   _devEnsureStarted();
-  setTimeout(() => { spawnInvader(); toast('⚙️ DEV — Invader spawné'); }, 100);
+  setTimeout(() => { spawnInvader(); toast('⚙️ DEV : Invader spawné'); }, 100);
 }
 function devFailInvader() {
   _devEnsureStarted();
   setTimeout(() => {
-    if (!state.invaders.length) { toast('⚙️ Aucun invader — en spawn un d\'abord'); return; }
+    if (!state.invaders.length) { toast('⚙️ Aucun invader, en spawn un d\'abord'); return; }
     const inv = state.invaders[0];
     // Fermer modale atelier si ouverte
     closeAtelierModal && closeAtelierModal();
     queeriseInvader(inv.id, false);
-    toast('⚙️ DEV — Échec → bâtiment norme');
+    toast('⚙️ DEV : Échec → bâtiment norme');
   }, 100);
 }
 function devQueerInvader() {
   _devEnsureStarted();
   setTimeout(() => {
-    if (!state.invaders.length) { toast('⚙️ Aucun invader — en spawn un d\'abord'); return; }
+    if (!state.invaders.length) { toast('⚙️ Aucun invader, en spawn un d\'abord'); return; }
     const inv = state.invaders[0];
     closeAtelierModal && closeAtelierModal();
     queeriseInvader(inv.id, true);
-    toast('⚙️ DEV — Queerisation forcée !');
+    toast('⚙️ DEV : Queerisation forcée !');
   }, 100);
 }
 function devFillFood() {
   _devEnsureStarted();
   state.food_stock = CFG.FOOD_STOCK_MAX;
   renderHUD();
-  toast('⚙️ DEV — Nourriture max');
+  toast('⚙️ DEV : Nourriture max');
 }
 let _devFastDay = false;
 function devFastDay() {
@@ -4589,11 +4589,11 @@ function devFastDay() {
       if (state.started && !state.gameEnded) state.dayProgress += 0.004;
     }, 100);
     if (btn) { btn.textContent = '⏸ Stop jour rapide'; btn.style.borderColor = '#ff0'; }
-    toast('⚙️ DEV — Jour rapide ON');
+    toast('⚙️ DEV : Jour rapide ON');
   } else {
     clearInterval(window._devDayInterval);
     if (btn) { btn.textContent = '⏩ Jour rapide'; btn.style.borderColor = '#aaa'; }
-    toast('⚙️ DEV — Jour rapide OFF');
+    toast('⚙️ DEV : Jour rapide OFF');
   }
 }
 

@@ -58,7 +58,7 @@ const MSG = {
   invaders: {
     patriarche: {
       quote: "J'ai toujours fait comme ça. Ça a marché pendant 50 ans.",
-      savaisTu: "L'acceptation familiale est le facteur #1 de santé mentale des personnes LGBTQ+. Pas les lois — les familles.",
+      savaisTu: "L'acceptation familiale est le facteur #1 de santé mentale des personnes LGBTQ+. Pas les lois : les familles.",
       ateliers: {
         cuisine: 80,
         corps: 40,
@@ -81,7 +81,7 @@ const MSG = {
     },
     gardienne: {
       quote: "Les enfants ont besoin de repères, pas de confusion !",
-      savaisTu: "La honte sexuelle a des effets mesurables sur la santé physique : système immunitaire, tension, sommeil. Pas metaphoriquement — littéralement.",
+      savaisTu: "La honte sexuelle a des effets mesurables sur la santé physique : système immunitaire, tension, sommeil. Pas métaphoriquement : littéralement.",
       ateliers: {
         corps: 80,
         lettre: 40,
@@ -173,7 +173,7 @@ const MSG = {
     },
     masculiniste: {
       quote: "Les hommes aussi souffrent. Mais on n'a pas le droit de le dire.",
-      savaisTu: "Les hommes cisgenres ont les taux de suicide les plus élevés — conséquence directe de la norme de virilité qui interdit l'expression émotionnelle.",
+      savaisTu: "Les hommes cisgenres ont les taux de suicide les plus élevés. C'est une conséquence directe de la norme de virilité qui interdit l'expression émotionnelle.",
       ateliers: {
         impact: 80,
         corps: 40,
@@ -280,7 +280,7 @@ const MSG = {
           question: "Comment ça commence ?",
           choix: [
             {
-              texte: "On lui propose de choisir lui-même ce qu'il veut essayer — une pièce, une couleur, un geste. On est là si il veut des idées.",
+              texte: "On lui propose de choisir lui-même ce qu'il veut essayer : une pièce, une couleur, un geste. On est là si il veut des idées.",
               type: "excellent",
               score: 2,
               reponse: "Il prend son temps. Il tend la main vers quelque chose. C'est le sien."
@@ -309,7 +309,7 @@ const MSG = {
           question: "Il hésite devant le miroir.",
           choix: [
             {
-              texte: "On lui dit : tu peux regarder, ne pas regarder, t'approcher, t'éloigner — le miroir fait ce que tu veux.",
+              texte: "On lui dit : tu peux regarder, ne pas regarder, t'approcher, t'éloigner. Le miroir fait ce que tu veux.",
               type: "excellent",
               score: 2,
               reponse: "Il s'approche lentement. Il regarde. Son visage change de quelque chose."
@@ -463,14 +463,14 @@ const MSG = {
     cuisine: {
       id: "cuisine",
       nom: "Shift de cuisine",
-      description: "Cuisiner ensemble — le care par les actes.",
+      description: "Cuisiner ensemble : le care par les actes.",
       emoji: "🥕",
       etapes: [
         {
           question: "Quelle tâche on lui confie ?",
           choix: [
             {
-              texte: "On lui présente les options — couper, mélanger, goûter, surveiller la cuisson — et on lui demande ce qui lui parle.",
+              texte: "On lui présente les options : couper, mélanger, goûter, surveiller la cuisson. On lui demande ce qui lui parle.",
               type: "excellent",
               score: 2,
               reponse: "Il choisit quelque chose de manuel. Il commence. Il est dans le présent."
@@ -499,7 +499,7 @@ const MSG = {
           question: "Quelqu'un chante pendant qu'on cuisine.",
           choix: [
             {
-              texte: "On chante aussi — pas pour l'inciter, juste parce qu'on en a envie. Il fait ce qu'il veut avec ça.",
+              texte: "On chante aussi, pas pour l'inciter, juste parce qu'on en a envie. Il fait ce qu'il veut avec ça.",
               type: "excellent",
               score: 2,
               reponse: "Il fredonne quelque chose. À peine. Mais c'est là."
@@ -558,14 +558,14 @@ const MSG = {
     corps: {
       id: "corps",
       nom: "Atelier dessins sur le corps",
-      description: "Se dessiner dessus — le corps comme espace propre.",
+      description: "Se dessiner dessus : le corps comme espace propre.",
       emoji: "🎨",
       etapes: [
         {
           question: "On lui explique l'atelier.",
           choix: [
             {
-              texte: "On lui explique qu'on va dessiner sur les corps — le sien si il veut, celui des autres si ils veulent. On lui montre les peintures. On lui dit qu'il peut aussi juste regarder.",
+              texte: "On lui explique qu'on va dessiner sur les corps : le sien si il veut, celui des autres si ils veulent. On lui montre les peintures. On lui dit qu'il peut aussi juste regarder.",
               type: "excellent",
               score: 2,
               reponse: "Il regarde les peintures. Il tend la main pour en toucher une. C'est un début."
@@ -653,7 +653,7 @@ const MSG = {
     oisivete: {
       id: "oisivete",
       nom: "Atelier oisiveté radicale",
-      description: "Ne rien faire ensemble — résistance à la productivité.",
+      description: "Ne rien faire ensemble : résistance à la productivité.",
       emoji: "☁️",
       etapes: [
         {
@@ -672,7 +672,7 @@ const MSG = {
               reponse: "Il s'assoit. Il essaie de 'se reposer'. C'est un peu performatif mais ça ira."
             },
             {
-              texte: "On lui dit 'le but c'est d'apprendre à ne rien faire — concentre-toi là-dessus'.",
+              texte: "On lui dit : 'le but c'est d'apprendre à ne rien faire. Concentre-toi là-dessus'.",
               type: "mauvais",
               score: 0,
               reponse: "Il essaie de ne rien faire avec beaucoup d'effort. L'injonction est dans la phrase."
@@ -843,7 +843,7 @@ const MSG = {
     shibari: {
       id: "shibari",
       nom: "Atelier shibari",
-      description: "Initiation corde — lâcher le contrôle.",
+      description: "Initiation corde : lâcher le contrôle.",
       emoji: "🪢",
       etapes: [
         {
@@ -908,7 +908,7 @@ const MSG = {
           question: "Après l'expérience, l'aftercare.",
           choix: [
             {
-              texte: "On lui demande ce dont il a besoin — couverture, eau, silence, contact, parler. On lui laisse le temps de revenir à lui avant de faire quoi que ce soit.",
+              texte: "On lui demande ce dont il a besoin : couverture, eau, silence, contact, parler. On lui laisse le temps de revenir à lui avant de faire quoi que ce soit.",
               type: "excellent",
               score: 2,
               reponse: "Il prend le temps. Il dit ce dont il a besoin. Quelqu'un le lui donne. C'est complet."
@@ -938,7 +938,7 @@ const MSG = {
     impact: {
       id: "impact",
       nom: "Atelier impact",
-      description: "Donner et recevoir des sensations — sentir ses limites.",
+      description: "Donner et recevoir des sensations : sentir ses limites.",
       emoji: "⚡",
       etapes: [
         {
@@ -1003,7 +1003,7 @@ const MSG = {
           question: "Après le premier impact, il réagit.",
           choix: [
             {
-              texte: "On fait une pause. On lui demande ce qu'il a ressenti — dans son corps, dans sa tête. On lui demande s'il veut continuer, changer quelque chose, ou s'arrêter.",
+              texte: "On fait une pause. On lui demande ce qu'il a ressenti : dans son corps, dans sa tête. On lui demande s'il veut continuer, changer quelque chose, ou s'arrêter.",
               type: "excellent",
               score: 2,
               reponse: "Il répond honnêtement. Il ajuste. Il choisit de continuer, autrement. C'est du vrai consentement continu."
@@ -1037,19 +1037,19 @@ const MSG = {
   // ou dans la Criée en cours de partie
   funFacts: [
     { id: "ff_01", texte: "Les comportements homosexuels ont été documentés chez plus de 1 500 espèces animales. La nature a visiblement ignoré les memo.", source: "MNHN, 2021" },
-    { id: "ff_02", texte: "76% des chercheurs en biologie animale avaient observé des comportements homosexuels chez leurs sujets — mais seulement 18,5% en avaient parlé dans leurs publications. Même la science avait honte.", source: "Méta-analyse, Wikipedia" },
+    { id: "ff_02", texte: "76% des chercheurs en biologie animale avaient observé des comportements homosexuels chez leurs sujets, mais seulement 18,5% en avaient parlé dans leurs publications. Même la science avait honte.", source: "Méta-analyse, Wikipedia" },
     { id: "ff_03", texte: "Environ 1,7% des humains naissent avec des caractéristiques intersexes. C'est la même proportion que les personnes rousses. Personne ne dit que les roux sont contre-nature.", source: "ONU" },
-    { id: "ff_04", texte: "Les chromosomes sexuels ne se limitent pas à XX et XY. Il en existe plein d'autres — XXY, XO, XYY... Beaucoup de gens les portent sans le savoir.", source: "Wikipedia, distinction sexe/genre" },
+    { id: "ff_04", texte: "Les chromosomes sexuels ne se limitent pas à XX et XY. Il en existe plein d'autres : XXY, XO, XYY... Beaucoup de gens les portent sans le savoir.", source: "Wikipedia, distinction sexe/genre" },
     { id: "ff_05", texte: "Le terme Two-Spirit a été créé en 1990 par des autochtones à Winnipeg pour désigner des identités documentées dans plus de 130 peuples d'Amérique du Nord. La diversité de genre n'est pas une invention récente.", source: "Encyclopédie canadienne" },
     { id: "ff_06", texte: "Quand le mariage pour tous a été légalisé aux États-Unis, les tentatives de suicide chez les ados LGB ont baissé de 15%. Les droits sauvent des vies.", source: "Santé Publique France, 2021" },
-    { id: "ff_07", texte: "C'est l'acceptation familiale — pas la thérapie, pas les médicaments — qui est le principal facteur de bonne santé mentale chez les personnes LGB. Un 'je t'aime' suffit souvent.", source: "Enquête Virage, INED" },
+    { id: "ff_07", texte: "C'est l'acceptation familiale (pas la thérapie, pas les médicaments) qui est le principal facteur de bonne santé mentale chez les personnes LGB. Un 'je t'aime' suffit souvent.", source: "Enquête Virage, INED" },
     { id: "ff_08", texte: "En France aujourd'hui, 1 adulte sur 10 a une identité de genre ou une orientation autre qu'hétéro-cisgenre. C'est beaucoup de gens autour de toi.", source: "Statista, 2023" },
-    { id: "ff_09", texte: "Le concept d'intersectionnalité a été créé en 1989 par Kimberlé Crenshaw pour montrer que les discriminations ne s'additionnent pas — elles se multiplient.", source: "Stanford Law Review, 1989" },
+    { id: "ff_09", texte: "Le concept d'intersectionnalité a été créé en 1989 par Kimberlé Crenshaw pour montrer que les discriminations ne s'additionnent pas : elles se multiplient.", source: "Stanford Law Review, 1989" },
     { id: "ff_10", texte: "Les espaces LGBT+ eux-mêmes sont souvent inaccessibles aux personnes handicapées : lumières fortes, bruit, promiscuité. L'inclusion ça se construit aussi chez soi.", source: "Hétéroclite, 2020" },
     { id: "ff_11", texte: "Les émeutes de Stonewall en 1969 ont été menées par des drag-queens, des femmes trans racisées et des gays des classes populaires. Les gens 'respectables' du mouvement gay n'étaient pas là ce soir-là.", source: "Wikipedia" },
     { id: "ff_12", texte: "La culture Ballroom est née à Harlem dans les années 1920. Crystal Labeija a fondé la première maison en 1977 après avoir perdu un concours drag jugé par Andy Warhol. Cent ans de culture, pas une tendance.", source: "dragqueens.fr" },
     { id: "ff_13", texte: "Le voguing s'est construit comme une façon de performer la respectabilité pour échapper aux violences. Défiler comme un mannequin était un acte de survie.", source: "Time, 2021" },
-    { id: "ff_14", texte: "Les règles éthiques du BDSM — Safe, Sane, Consensual — ont été formalisées en 1983 par un groupe activiste gay new-yorkais. La communauté kink a réfléchi au consentement bien avant le reste du monde.", source: "nawajutsu.fr" },
+    { id: "ff_14", texte: "Les règles éthiques du BDSM (Safe, Sane, Consensual) ont été formalisées en 1983 par un groupe activiste gay new-yorkais. La communauté kink a réfléchi au consentement bien avant le reste du monde.", source: "nawajutsu.fr" },
     { id: "ff_15", texte: "Des études montrent que les pratiquant·es de BDSM ont souvent une meilleure communication dans leurs relations que la moyenne. Négocier ses désirs, ça s'apprend et ça profite à tout le monde.", source: "Archives of Sexual Behavior" },
   ],
 
@@ -1059,17 +1059,17 @@ const MSG = {
     "📢 La Criée : quelqueer a perdu une laisse en cuir près du campement. Se reconnaître.",
     "📢 La Criée : la cantina a besoin de main d'oeuvre. On y va avec amour.",
     "📢 La Criée : Will McClick se laisse aller à coordonner. On va prendre soin de lui.",
-    "📢 La Criée : nouveau fil rouge — « câlinothérapie », sur le tableau.",
+    "📢 La Criée : nouveau fil rouge : « câlinothérapie », sur le tableau.",
     "📢 La Criée : tique repérée près du camping. Sortez le beurre.",
     "📢 La Criée : Nuageon distribue des couronnes de fleurs au Welfare.",
     "📢 La Criée : Ananas a organisé une orgie de cucurbitacées. On est au courant.",
-    "📢 La Criée : rappel — test Covid pour les arrivant·es du jeudi.",
+    "📢 La Criée : rappel, test Covid pour les arrivant·es du jeudi.",
     "📢 La Criée : le Courrier du Cœur et du Cul déborde. Quelqueer peut aider ?",
     "📢 La Criée : Avril attend pour le cercle de parole à la tente.",
     "📢 La Criée : Pastèque est en cuisine. Ça sent incroyablement bon.",
     "📢 La Criée : Choufleur Royal proclame un royaume de 3m² autour du PMU.",
-    "📢 La Criée : Onigiri propose un atelier \"beaucoup de couches\" — interprétation libre.",
-    "📢 La Criée : rappel — les isoloirs sont pour le soin, pas pour le play.",
+    "📢 La Criée : Onigiri propose un atelier \"beaucoup de couches\", interprétation libre.",
+    "📢 La Criée : rappel, les isoloirs sont pour le soin, pas pour le play.",
     "📢 La Criée : Chaton cherche un·e partenaire d'étirements. C'est sérieux.",
     "📢 La Criée : Papille est à la Mix-room avec de la limonade de fleur de sureau. Première arrivée.",
     "📢 La Criée : Vigne fait des grappes humaines dans la tente. C'est beau.",
@@ -1109,7 +1109,7 @@ const MSG = {
       "💜 C'est calme ici. Un peu trop calme. Quelqueer a besoin de soin ?",
       "💜 Ouh ouh... y'a quelqueer ? Les coussins sont chauds, les tisanes sont prêtes.",
       "💜 Vide pour l'instant. Le welfare attend, patient comme toujours.",
-      "💜 Silence doux. Aucun pax n'est épuisé — ou alors iels font semblant de tenir le coup.",
+      "💜 Silence doux. Aucun pax n'est épuisé (ou alors iels font semblant de tenir le coup).",
       "💜 Personne ici. C'est soit très bon signe, soit le signe que tout le monde serre les dents.",
     ],
     cantina: [
@@ -1179,19 +1179,19 @@ const MSG = {
   // ── 11. DESCRIPTIONS DYNAMIQUES DES ZONES (avec pax) ─────────
   // {pax} = liste des pax présents, insérée automatiquement.
   atmosphere: {
-    dom_sub:            "🔥 {pax} — La tension est palpable. Une scène pourrait se déclencher.",
-    top_bottom:         "🪢 {pax} — Concentration totale. Ne pas déranger.",
-    pet_dom:            "🐾 {pax} — On entend des petits bruits heureux. Tout va bien.",
-    soigneurice:        "💜 {pax} — Une douceur particulière règne ici. Quelqu'un prend soin de toustes.",
-    chaotique_pmu:      "🤡 {pax} — Le micro a été confisqué deux fois. Ambiance électrique.",
-    servicetop_cantina: "🍳 {pax} — Ça sent incroyablement bon depuis là-dedans.",
-    festif:             "🎉 {pax} — L'ambiance monte. La Vibe avec.",
-    creatif:            "🎨 {pax} — Une installation improbable se forme dans le coin.",
-    slut_crowd:         "💋 {pax} — Beaucoup de monde, beaucoup d'énergie. La zone déborde.",
+    dom_sub:            "🔥 {pax}. La tension est palpable. Une scène pourrait se déclencher.",
+    top_bottom:         "🪢 {pax}. Concentration totale. Ne pas déranger.",
+    pet_dom:            "🐾 {pax}. On entend des petits bruits heureux. Tout va bien.",
+    soigneurice:        "💜 {pax}. Une douceur particulière règne ici. Quelqu'un prend soin de toustes.",
+    chaotique_pmu:      "🤡 {pax}. Le micro a été confisqué deux fois. Ambiance électrique.",
+    servicetop_cantina: "🍳 {pax}. Ça sent incroyablement bon depuis là-dedans.",
+    festif:             "🎉 {pax}. L'ambiance monte. La Vibe avec.",
+    creatif:            "🎨 {pax}. Une installation improbable se forme dans le coin.",
+    slut_crowd:         "💋 {pax}. Beaucoup de monde, beaucoup d'énergie. La zone déborde.",
     solo_low:           "{emoji} {nom} est seul·e ici. Iel se ressource tranquillement.",
     solo_high:          "{emoji} {nom} est seul·e ici. Iel produit, mais une synergie manque.",
-    generic_low:        "{pax} — Calme et productif. Tout roule.",
-    generic_high:       "{pax} — La Vibe monte doucement. L'énergie est là.",
+    generic_low:        "{pax}. Calme et tranquille. Tout roule.",
+    generic_high:       "{pax}. La Vibe monte doucement. L'énergie est là.",
   },
 
   // ── 12. TITRES DE VICTOIRE ───────────────────────────────────
