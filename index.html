@@ -632,6 +632,7 @@ html,body{width:100%;height:100%;overflow:hidden;background:var(--dark);font-fam
     onclick="startGame(); setTimeout(() => { localStorage.removeItem('tuto_done'); tutoStart(); }, 500);">
     🌱 NOUVELLEAU ?
   </button>
+  <div id="dev-commit-time" style="font-size:8px;color:rgba(255,255,255,0.3);margin-top:8px;font-family:monospace;"></div>
 </div>
 
 <!-- HUD TOP -->
@@ -3997,6 +3998,31 @@ function setupMapInteraction() {
     lastTap = now;
   });
 }
+</script>
+<script>
+// ── Dev : temps depuis le dernier commit ──────────────────────
+(async () => {
+  const el = document.getElementById('dev-commit-time');
+  if (!el) return;
+  try {
+    const r = await fetch('https://api.github.com/repos/cbienpourtoi/desordre/commits/main');
+    if (!r.ok) return;
+    const data = await r.json();
+    const date = new Date(data.commit?.committer?.date || data.commit?.author?.date);
+    if (isNaN(date)) return;
+    const updateEl = () => {
+      const diff = Math.floor((Date.now() - date) / 1000);
+      let txt;
+      if (diff < 60)        txt = `${diff}s`;
+      else if (diff < 3600) txt = `${Math.floor(diff/60)}min`;
+      else if (diff < 86400)txt = `${Math.floor(diff/3600)}h`;
+      else                  txt = `${Math.floor(diff/86400)}j`;
+      el.textContent = `⌚ dernier commit : il y a ${txt}`;
+    };
+    updateEl();
+    setInterval(updateEl, 30000);
+  } catch(e) { /* silencieux en prod */ }
+})();
 </script>
 </body>
 </html>
