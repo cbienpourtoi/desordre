@@ -2122,33 +2122,42 @@ function _clearAllDragGlows() {
 }
 
 function setupZoneDropTargets() {
-  // .zone divs comme drop targets HTML5 (fiable cross-browser)
-  // pointer-events activés uniquement pendant le drag via drag-active
-  document.querySelectorAll('.zone').forEach(zoneEl => {
-    const zid = zoneEl.dataset.zone;
-    zoneEl.addEventListener('dragover', e => {
-      if (!_dragPaxId) return;
+  // Écoute dragover sur le map-wrapper entier, utilise elementFromPoint pour
+  // hit-tester le vrai polygone du bâtiment (clip-path respecté par elementFromPoint).
+  // Les .zone ont pointer-events:none → elementFromPoint retourne le map-reveal si dans le polygone.
+  const mapWrapper = document.getElementById('map-wrapper');
+
+  mapWrapper.addEventListener('dragover', e => {
+    if (!_dragPaxId) return;
+    const under = document.elementFromPoint(e.clientX, e.clientY);
+    const revealEl = under && under.classList.contains('map-reveal') ? under : null;
+    if (revealEl && revealEl.dataset.unlocked === '1') {
       e.preventDefault();
       e.dataTransfer.dropEffect = 'move';
-      if (!zoneEl.dataset.dragOver) {
+      const zid = revealEl.id.replace('reveal-', '');
+      if (mapWrapper.dataset.dragOverZone !== zid) {
         _clearAllDragGlows();
-        zoneEl.dataset.dragOver = '1';
+        mapWrapper.dataset.dragOverZone = zid;
         _dragRevealGlow(zid, true);
       }
-    });
-    zoneEl.addEventListener('dragleave', e => {
-      if (!e.relatedTarget || !zoneEl.contains(e.relatedTarget)) {
-        delete zoneEl.dataset.dragOver;
-        _dragRevealGlow(zid, false);
+    } else {
+      if (mapWrapper.dataset.dragOverZone) {
+        _dragRevealGlow(mapWrapper.dataset.dragOverZone, false);
+        delete mapWrapper.dataset.dragOverZone;
       }
-    });
-    zoneEl.addEventListener('drop', e => {
-      e.preventDefault();
-      delete zoneEl.dataset.dragOver;
-      _dragRevealGlow(zid, false);
-      if (_dragPaxId) dropPaxOnZone(_dragPaxId, zid);
-      _dragPaxId = null;
-    });
+    }
+  });
+
+  mapWrapper.addEventListener('drop', e => {
+    e.preventDefault();
+    const under = document.elementFromPoint(e.clientX, e.clientY);
+    const revealEl = under && under.classList.contains('map-reveal') ? under : null;
+    if (revealEl && revealEl.dataset.unlocked === '1' && _dragPaxId) {
+      dropPaxOnZone(_dragPaxId, revealEl.id.replace('reveal-', ''));
+    }
+    delete mapWrapper.dataset.dragOverZone;
+    _clearAllDragGlows();
+    _dragPaxId = null;
   });
 }
 
@@ -2160,7 +2169,6 @@ function makePaxDraggable(el, paxId, emoji, excludeEl) {
     _dragPaxId = paxId;
     e.dataTransfer.setData('text/plain', paxId);
     e.dataTransfer.effectAllowed = 'move';
-    document.querySelectorAll('.zone').forEach(z => z.classList.add('drag-active'));
     const ghost = document.createElement('div');
     ghost.textContent = emoji;
     ghost.style.cssText = 'position:fixed;top:-100px;font-size:32px;';
@@ -2171,7 +2179,8 @@ function makePaxDraggable(el, paxId, emoji, excludeEl) {
   el.addEventListener('dragend', () => {
     _dragPaxId = null;
     _clearAllDragGlows();
-    document.querySelectorAll('.zone').forEach(z => { delete z.dataset.dragOver; z.classList.remove('drag-active'); });
+    const mw = document.getElementById('map-wrapper');
+    if (mw) delete mw.dataset.dragOverZone;
   });
 
   // ── Pointer/touch drag with movement threshold ──
