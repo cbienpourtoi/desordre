@@ -2174,9 +2174,9 @@ function initState() {
   Object.keys(ZONES).forEach(z => {
     state.zones[z] = { occupants:[], lastBoost:0, boostActive:false, negoProgress:0 };
   });
-  // Welfare et camping débloqués au départ — le reste arrive via ZONE_PROGRESSION
+  // Seul le camping est débloqué au départ — le reste via ZONE_PROGRESSION ou invaders
   Object.keys(ZONES).forEach(z => {
-    state.zones[z].locked = (z !== 'welfare' && z !== 'camping');
+    state.zones[z].locked = (z !== 'camping');
     state.zones[z].toxicBuilding = null;
   });
   PAX_DATA.filter(p => p.unlockDay === 0).forEach(p => {
@@ -2213,8 +2213,7 @@ function startGame() {
   renderZones();
   updateMapTimeFilter();
   updateMapTimeImages();
-  // Révéler les zones toujours actives dès le départ
-  revealZoneOnMap('welfare');
+  // Seul le camping est révélé dès le départ
   revealZoneOnMap('camping');
   // Lancer le tuto si première fois (délai pour que l'UI soit rendue)
   setTimeout(tutoStart, 400);
@@ -2530,14 +2529,23 @@ function updateRevealForZone(zid) {
   const el = document.getElementById('reveal-' + zid);
   if (!el) return;
   const isToxic = !!(state.zones[zid]?.toxicBuilding);
-  el.src = isToxic ? getNormeMapSrc() : (TOD_SLOTS[_todSlot]?.bat || 'maps/tod/bat_8h.png');
+  // Reveal de jour : toujours la version jour (map norme jour ou bat TOD)
+  el.src = isToxic ? 'maps/map_norme_jour.png' : (TOD_SLOTS[_todSlot]?.bat || 'maps/tod/bat_8h.png');
   el.dataset.toxic = isToxic ? '1' : '0';
+  // Reveal de nuit : synchroniser avec la bonne image nuit
+  const nightEl = document.getElementById('reveal-night-' + zid);
+  if (nightEl) {
+    nightEl.src = isToxic ? 'maps/map_norme_nuit.png' : 'maps/map_nocturne.png';
+    nightEl.dataset.toxic = isToxic ? '1' : '0';
+  }
 }
 
 function updateAllToxicReveals() {
-  const normeSrc = getNormeMapSrc();
   document.querySelectorAll('.map-reveal[data-toxic="1"]').forEach(el => {
-    el.src = normeSrc;
+    el.src = 'maps/map_norme_jour.png';
+  });
+  document.querySelectorAll('.map-reveal-night[data-toxic="1"]').forEach(el => {
+    el.src = 'maps/map_norme_nuit.png';
   });
 }
 
@@ -2806,7 +2814,7 @@ function buildToxicBuilding(inv) {
     const zs = state.zones[z];
     return !zs.locked && !zs.toxicBuilding && z !== 'welfare' && z !== 'camping';
   });
-  const fallback = Object.keys(ZONES).filter(z => !state.zones[z].toxicBuilding && z !== 'welfare' && z !== 'camping');
+  const fallback = Object.keys(ZONES).filter(z => !state.zones[z].toxicBuilding && z !== 'camping');
   const pool = candidates.length ? candidates : fallback;
   if (!pool.length) {
     toast(`😤 ${inv.data.emoji} ${inv.data.name} repart — mais la Norme progresse.`);
@@ -2837,6 +2845,11 @@ function buildToxicBuilding(inv) {
   if (revealEl) {
     revealEl.dataset.unlocked = '1';
     revealEl.style.opacity = '1';
+  }
+  const nightRevealEl = document.getElementById('reveal-night-' + target);
+  if (nightRevealEl) {
+    nightRevealEl.dataset.unlocked = '1';
+    if (state.isNight) nightRevealEl.style.opacity = '1';
   }
   updateRevealForZone(target);
   renderZones();
