@@ -499,13 +499,11 @@ html,body{width:100%;height:100%;overflow:hidden;background:var(--dark);font-fam
   display: none !important;
 }
 .zone.toxic {
-  background: rgba(192,57,43,0.05) !important;
-  border-color: rgba(192,57,43,0.6) !important;
-  animation: toxicPulse 2.5s ease-in-out infinite;
-}
-@keyframes toxicPulse {
-  0%,100% { box-shadow: 0 0 0 0 rgba(192,57,43,0.5); }
-  50%      { box-shadow: 0 0 10px 3px rgba(192,57,43,0.35); }
+  background: transparent !important;
+  border-color: transparent !important;
+  animation: none !important;
+  pointer-events: none !important;
+  cursor: default !important;
 }
 .zone-toxic-label {
   font-size: 9px; color: var(--red);
@@ -2201,11 +2199,18 @@ function revealZoneOnMap(zid) {
   if (day) {
     day.dataset.unlocked = '1';
     day.style.opacity = '1';
+    // Le polygon de la carte devient zone de clic (fallback hors du rect .zone)
+    day.style.pointerEvents = 'auto';
+    day.style.cursor = 'pointer';
+    day.onclick = (e) => { e.stopPropagation(); openZone(zid); };
   }
   const night = document.getElementById('reveal-night-' + zid);
   if (night) {
     night.dataset.unlocked = '1';
     if (state.isNight) night.style.opacity = '1';
+    night.style.pointerEvents = 'auto';
+    night.style.cursor = 'pointer';
+    night.onclick = (e) => { e.stopPropagation(); openZone(zid); };
   }
 }
 
@@ -2859,16 +2864,20 @@ function buildToxicBuilding(inv) {
   const zoneName = ZONES[target].name;
   logEvent('alert', `🏭 ${fb.emoji} ${fb.name} construit à la place de ${zoneName}. ${kicked.length ? kicked.map(id => { const p = PAX_DATA.find(d=>d.id===id); return p ? p.emoji+' '+p.name : ''; }).join(', ') + ' ont été chassé·es.' : ''}`);
   toast(`🏭 ${inv.data.emoji} ${inv.data.name} a construit ${fb.emoji} ${fb.name} !`);
-  // Révéler la zone sur la carte si elle ne l'était pas encore, puis basculer sur la carte norme
+  // Révéler la zone sur la carte — norme : pas de clic, juste l'image
   const revealEl = document.getElementById('reveal-' + target);
   if (revealEl) {
     revealEl.dataset.unlocked = '1';
     revealEl.style.opacity = '1';
+    revealEl.style.pointerEvents = 'none';
+    revealEl.onclick = null;
   }
   const nightRevealEl = document.getElementById('reveal-night-' + target);
   if (nightRevealEl) {
     nightRevealEl.dataset.unlocked = '1';
     if (state.isNight) nightRevealEl.style.opacity = '1';
+    nightRevealEl.style.pointerEvents = 'none';
+    nightRevealEl.onclick = null;
   }
   updateRevealForZone(target);
   renderZones();
@@ -3523,7 +3532,6 @@ function renderZones() {
     const elId = 'zone-' + zid.replace(/_/g,'-');
     const el = document.getElementById(elId);
     if (!el) return;
-    // Locked zone visual
     if (zstate.locked) {
       el.classList.add('locked');
       el.classList.remove('toxic');
@@ -3534,19 +3542,10 @@ function renderZones() {
       el.classList.remove('locked', 'toxic');
     }
     el.innerHTML = '';
-    if (zstate.locked) return; // invisible — nothing to render
-    // Label : si zone toxique, montrer le nom du bâtiment norme (pas le nom queer)
-    const label = document.createElement('div');
-    label.className = 'zone-label';
-    if (zstate.toxicBuilding) {
-      const tb = zstate.toxicBuilding;
-      label.textContent = tb.emoji + ' ' + tb.name;
-      label.style.color = 'var(--red)';
-      el.appendChild(label);
-      // Pas de pax dans une zone toxique — stop ici
-    } else {
-      label.textContent = ZONES[zid].name;
-      el.appendChild(label);
+    if (zstate.locked) return;
+    // Zone norme : div invisible et inerte, l'image de la carte parle d'elle-même
+    if (zstate.toxicBuilding) return;
+
     // Pax dots
     if (zstate.occupants.length > 0) {
       const row = document.createElement('div');
@@ -3573,20 +3572,16 @@ function renderZones() {
         row.appendChild(span);
       });
       el.appendChild(row);
-      // Activity badge
-      const actIcons = { fun_high:'⚡', fun_low:'💜', cuisine:'🍽', repos:'💤', nego:'🤝' };
-      const badge = document.createElement('div');
-      badge.className = 'zone-act-badge';
-      badge.textContent = actIcons[ZONES[zid].activityMode] || '';
-      el.appendChild(badge);
     }
-    // Cap indicator
-    const cap = document.createElement('div');
-    cap.className = 'zone-cap';
+    // Indicateur de capacité (seulement si zone non pleine ou cap limité)
     const zoneCap = ZONES[zid].cap;
-    cap.textContent = zoneCap >= 12 ? (zstate.occupants.length || '') : zstate.occupants.length + '/' + zoneCap;
-    el.appendChild(cap);
-    } // end else (non-toxic)
+    const occ = zstate.occupants.length;
+    if (zoneCap < 12 || occ > 0) {
+      const cap = document.createElement('div');
+      cap.className = 'zone-cap';
+      cap.textContent = zoneCap < 12 ? occ + '/' + zoneCap : (occ || '');
+      if (cap.textContent) el.appendChild(cap);
+    }
   });
 }
 
