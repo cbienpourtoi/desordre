@@ -3053,9 +3053,9 @@ function buildToxicBuilding(inv) {
 
   const candidates = Object.keys(ZONES).filter(z => {
     const zs = state.zones[z];
-    return !zs.locked && !zs.toxicBuilding && z !== 'welfare' && z !== 'camping';
+    return !zs.locked && !zs.toxicBuilding && !zs.queerBuilt && z !== 'welfare' && z !== 'camping';
   });
-  const fallback = Object.keys(ZONES).filter(z => !state.zones[z].toxicBuilding && z !== 'camping');
+  const fallback = Object.keys(ZONES).filter(z => !state.zones[z].toxicBuilding && !state.zones[z].queerBuilt && z !== 'camping');
   const pool = candidates.length ? candidates : fallback;
   if (!pool.length) {
     toast(`😤 ${inv.data.emoji} ${inv.data.name} repart — mais la Norme progresse.`);
@@ -3313,6 +3313,7 @@ function onCloseDiscovery() {
 // Construit une zone : unlock + reveal + toast
 function buildZone(zid) {
   state.zones[zid].locked = false;
+  state.zones[zid].queerBuilt = true; // protégé contre les bâtiments toxiques
   state.stats.builtZones = (state.stats.builtZones || 0) + 1;
   revealZoneOnMap(zid);
   const z = ZONES[zid];
