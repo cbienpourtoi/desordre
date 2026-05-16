@@ -646,43 +646,42 @@ html,body{width:100%;height:100%;overflow:hidden;background:var(--dark);font-fam
     <div style="font-family:'Press Start 2P',monospace;font-size:9px;color:var(--yellow);margin-bottom:10px;text-align:center;">COMMENT ÇA MARCHE ?</div>
 
     <div style="margin-bottom:12px;">
-      <span style="color:var(--green);font-family:'Press Start 2P',monospace;font-size:7px;">⚡ PLACER DES PAX</span><br>
-      Appuie sur 👥 pour voir tous les pax. <strong>Glisse</strong> un pax sur une zone de la carte, ou ouvre une zone et tape <strong>+ PAX</strong>.<br>
-      Tape sur l'emoji d'un pax sur la carte pour voir ses stats et le déplacer.<br>
-      La <strong style="color:var(--pink);">Désordre 🌀</strong> mesure le bonheur collectif — garde-le haut !
+      <span style="color:var(--green);font-family:'Press Start 2P',monospace;font-size:7px;">🏕 AU DÉPART</span><br>
+      Tu as le camping et le Welfare. Les pax peuvent y attendre, mais s'y ennuient vite.<br>
+      <strong style="color:var(--pink);">Queerise des agents de la Norme</strong> pour débloquer de nouveaux espaces et agrandir le camp.
+    </div>
+
+    <div style="margin-bottom:12px;">
+      <span style="color:var(--green);font-family:'Press Start 2P',monospace;font-size:7px;">👥 GÉRER LES PAX</span><br>
+      Appuie sur 👥 pour voir tous les pax. Glisse leur emoji sur une zone, ou ouvre une zone → <strong>+ PAX</strong>.<br>
+      Chaque pax a une <strong>Vibe</strong>, une <strong>Fatigue</strong>, une <strong>Faim</strong> et un <strong>Ennui</strong>. Surveille tout ça.
     </div>
 
     <div style="margin-bottom:12px;">
       <span style="color:var(--green);font-family:'Press Start 2P',monospace;font-size:7px;">🗺 LES ZONES</span><br>
-      • <strong>Playrooms / Mix-room / Tente</strong> — génèrent du Désordre 🌀<br>
-      • <strong>Cuisine</strong> — nourrit toustes les pax 🍽<br>
+      • <strong>Playrooms / Tente / Mix-room</strong> — génèrent du Désordre 🌀<br>
+      • <strong>Cantina</strong> — nourrit toustes 🍽 (priorité !)<br>
       • <strong>Chambres</strong> — récupère la fatigue 💤<br>
-      • <strong>Welfare</strong> — soigne les crises 💜 (plus vite à deux)<br>
-      • <strong>Bulle de Négo</strong> — négocie avant de jouer 🤝 (+40% Désordre)<br>
-      • <strong>PMU</strong> — buvette 🍺, déclenche des events aléatoires
-    </div>
-
-    <div style="margin-bottom:12px;">
-      <span style="color:var(--green);font-family:'Press Start 2P',monospace;font-size:7px;">😴 FATIGUE, FAIM &amp; CRISES</span><br>
-      Les pax accumulent fatigue, faim et ennui au fil du temps.<br>
-      Si ça déborde → <strong style="color:var(--red);">crise</strong> 🆘. Glisse-les au <strong>Welfare</strong> pour les aider à récupérer. Le journal t'alerte quand quelqu'un a besoin de soutien.
-    </div>
-
-    <div style="margin-bottom:12px;">
-      <span style="color:var(--green);font-family:'Press Start 2P',monospace;font-size:7px;">✨ SYNERGIES</span><br>
-      Chaque pax a un archétype (Dom, Sub, Sadist, Créatif…).<br>
-      Les bons combos déclenchent des <strong>boosts de Désordre</strong> et des <strong>scènes spéciales</strong> automatiquement.
+      • <strong>Welfare</strong> — soigne les crises 💜<br>
+      • <strong>Bulle de Négo</strong> — booste le Désordre après passage 🤝
     </div>
 
     <div style="margin-bottom:12px;">
       <span style="color:var(--green);font-family:'Press Start 2P',monospace;font-size:7px;">👔 LA NORME DÉBARQUE</span><br>
-      Des agents de la Norme font baisser la vibe. <strong>Tape dessus</strong> pour les <strong style="color:var(--pink);">queeriser</strong>. Une vibe haute les ramollit tout seuls.
+      Des agents arrivent et font baisser le Désordre. <strong>Clique dessus</strong> pour lancer un <strong style="color:var(--pink);">atelier de queerisation</strong>.<br>
+      Si ça marche → nouveau bâtiment queer. Si ça rate → la Norme s'installe à la place.
+    </div>
+
+    <div style="margin-bottom:12px;">
+      <span style="color:var(--green);font-family:'Press Start 2P',monospace;font-size:7px;">🆘 CRISES</span><br>
+      Fatigue + faim + ennui qui débordent → crise (outline rouge). Envoie au <strong>Welfare</strong> immédiatement.<br>
+      Le journal 📖 t'alerte quand quelqu'un a besoin d'aide.
     </div>
 
     <div style="margin-bottom:4px;">
-      <span style="color:var(--yellow);font-family:'Press Start 2P',monospace;font-size:7px;">🏆 OBJECTIF</span><br>
-      <strong>Maximise le Désordre</strong> et garde toustes les pax heureux·ses jusqu'au <strong>dimanche soir</strong>.<br>
-      Queerise <strong>8 personnes</strong> pour déclencher la victoire ! 🌿
+      <span style="color:var(--yellow);font-family:'Press Start 2P',monospace;font-size:7px;">🏆 SCORE & OBJECTIF</span><br>
+      Le <strong>Désordre</strong> se calcule sur toute la partie : vibe × nombre de pax à chaque instant.<br>
+      <strong>Queerise 8 personnes</strong> pour déclencher la victoire et soumettre ton score ! 🌿
     </div>
 
   </div>
@@ -1903,20 +1902,20 @@ const TUTORIAL_STEPS = [
   },
   {
     target: '#hud',
-    title: '😴 FATIGUE & CRISES',
-    text: 'Les pax accumulent de la <strong style="color:#e74c3c">Fatigue</strong>, surtout en fin de semaine.\nUn pax épuisé risque une <strong>crise émotionnelle</strong> — outline rouge pulsant sur la carte.\nGlisse-les au <strong>Welfare</strong> et ajoute un·e autre pax pour assurer le support.',
+    title: '🆘 FATIGUE, FAIM & CRISES',
+    text: 'Chaque pax accumule Fatigue, Faim et Ennui.\nSi ça déborde → <strong style="color:#e74c3c">crise</strong> (outline rouge pulsant sur la carte).\nEnvoie-les au <strong>Welfare</strong> immédiatement. La <strong>Cantina</strong> gère la nourriture collective.',
     pos: 'bottom',
   },
   {
     target: null,
     title: '👔 LES AGENTS DE LA NORME',
-    text: 'La Norme va débarquer régulièrement sur la carte.\nCes personnages réduisent le Désordre de toustes — si 5 arrivent en même temps, −40% sur le Désordre global !\n<strong style="color:var(--pink)">Clique dessus</strong> pour les queeriser. Plus ton Désordre est haut, plus c\'est facile.',
+    text: 'Des personnages vont débarquer sur la carte et faire baisser le Désordre.\n<strong style="color:var(--pink)">Clique dessus</strong> pour lancer un <strong>atelier de queerisation</strong> : choisis un cadre, réponds aux questions.\nSuccès → nouveau bâtiment queer débloqué. Échec → la Norme s\'installe à la place.',
     pos: 'center',
   },
   {
     target: null,
     title: '🌱 C\'EST PARTI !',
-    text: 'Voilà, tu sais tout ce qu\'il faut.\n\nObjectif : <strong style="color:var(--yellow)">queerise 8 personnes</strong> pour déclencher la victoire — ou tiens jusqu\'au dimanche soir !\n\nBonne chance, coordinateurice. 🎉',
+    text: 'Queerise <strong style="color:var(--yellow)">8 personnes</strong> pour déclencher la victoire et soumettre ton score au classement 🏆.\n\nTon score = Désordre × pax présent·es sur toute la partie. Plus vous êtes nombreux·ses et heureux·ses, plus il monte !\n\nBonne chance, coordinateurice. 🎉',
     pos: 'center',
     last: true,
   },
