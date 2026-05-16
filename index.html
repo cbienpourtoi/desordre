@@ -1326,6 +1326,19 @@ function applyMessages() {
 }
 applyMessages();
 
+// ── Fun facts helper ──────────────────────────────────────────
+let _shownFunFactIds = [];
+function getRandomFunFact() {
+  const facts = MSG.funFacts || [];
+  if (!facts.length) return null;
+  const available = facts.filter(f => !_shownFunFactIds.includes(f.id));
+  const pool = available.length ? available : facts; // reset when all shown
+  if (pool === facts) _shownFunFactIds = [];
+  const fact = pool[Math.floor(Math.random() * pool.length)];
+  _shownFunFactIds.push(fact.id);
+  return fact;
+}
+
 // ===== STATE =====
 const state = {
   started: false,
@@ -2711,8 +2724,8 @@ function applyAllyEffect(inv) {
       toast(`${ally.emoji} ${ally.name} — Le Welfare est boosté pour ${duration} ticks !`);
       break;
     case 'fun_facts_boost': {
-      const agentMsg = MSG.invaders[inv.type];
-      if (agentMsg?.savaisTu) updateCriee('📚 ' + agentMsg.savaisTu);
+      const fact = getRandomFunFact();
+      if (fact) updateCriee(`📚 ${fact.texte} (${fact.source})`);
       toast(`${ally.emoji} ${ally.name} — Un fun fact queer dans la Criée !`);
       break;
     }
@@ -3629,9 +3642,13 @@ function spawnConfetti(x, y, emoji) {
 function updateCriee(msg) {
   const boostedMsg = getCrieeBoostMessage();
   const toxicMsg = getToxicCrieeMessage();
+  const funFactMsg = (!msg && !toxicMsg && !boostedMsg && Math.random() < 0.15)
+    ? (() => { const f = getRandomFunFact(); return f ? `📚 ${f.texte} (${f.source})` : null; })()
+    : null;
   const text = msg
     || (toxicMsg && Math.random() < 0.45 ? toxicMsg : null)
     || (boostedMsg && Math.random() < 0.7 ? boostedMsg : null)
+    || funFactMsg
     || CRIEE[Math.floor(Math.random() * CRIEE.length)];
   document.getElementById('criee-text').textContent = text;
 }

@@ -1033,23 +1033,24 @@ const MSG = {
   },
 
   // ── 6. FUN FACTS QUEER ───────────────────────────────────────
-  // Affichés aléatoirement dans les popups "savais-tu" lors des queerisations.
+  // Affichés aléatoirement lors des queerisations réussies
+  // ou dans la Criée en cours de partie
   funFacts: [
-    "Plus de 1500 espèces animales pratiquent des comportements homosexuels documentés. La diversité sexuelle est une constante du vivant.",
-    "L'acceptation familiale est le facteur #1 de santé mentale des jeunes LGBTQ+. Pas les lois, pas les thérapeutes — les familles.",
-    "Le « coming out » n'est pas un événement unique. La plupart des personnes queer en font des dizaines tout au long de leur vie.",
-    "Le terme « queer » était une insulte jusqu'aux années 1990. Il a été retourné comme outil de fierté par les militant·es eux-mêmes.",
-    "Le BDSM a développé des codes de consentement (SSC, RACK, PRICK) souvent plus explicites que n'importe quelle relation mainstream.",
-    "Les personnes non-binaires existent dans presque toutes les cultures humaines connues — depuis des millénaires.",
-    "Les personnes intersexes représentent environ 1,7% de la population. C'est plus fréquent que les cheveux roux.",
-    "La dépathologisation de l'homosexualité par l'OMS date de 1990. Celle de la transidentité, de 2018.",
-    "La honte sexuelle a des effets physiologiques mesurables : système immunitaire affaibli, tension artérielle, troubles du sommeil.",
-    "Les structures polyamoureuses développent souvent des pratiques de communication plus explicites que les couples monogames.",
-    "Le leather pride a ses origines dans les communautés gay des années 50. C'est une histoire politique autant qu'érotique.",
-    "Les espaces queer comme ce camp ont un rôle de santé publique documenté : ils réduisent l'isolement et les comportements à risque.",
-    "L'espérance de vie et la santé mentale des personnes trans s'améliorent significativement avec l'accès aux soins de transition.",
-    "Le kink et le BDSM pratiqués de façon consentie sont associés à une meilleure communication dans les couples, toutes orientations confondues.",
-    "En France, environ 1% de la population se déclare non-binaire. Le chiffre réel est probablement plus élevé — la langue freine la visibilité.",
+    { id: "ff_01", texte: "Les comportements homosexuels ont été documentés chez plus de 1 500 espèces animales. La nature a visiblement ignoré les memo.", source: "MNHN, 2021" },
+    { id: "ff_02", texte: "76% des chercheurs en biologie animale avaient observé des comportements homosexuels chez leurs sujets — mais seulement 18,5% en avaient parlé dans leurs publications. Même la science avait honte.", source: "Méta-analyse, Wikipedia" },
+    { id: "ff_03", texte: "Environ 1,7% des humains naissent avec des caractéristiques intersexes. C'est la même proportion que les personnes rousses. Personne ne dit que les roux sont contre-nature.", source: "ONU" },
+    { id: "ff_04", texte: "Les chromosomes sexuels ne se limitent pas à XX et XY. Il en existe plein d'autres — XXY, XO, XYY... Beaucoup de gens les portent sans le savoir.", source: "Wikipedia, distinction sexe/genre" },
+    { id: "ff_05", texte: "Le terme Two-Spirit a été créé en 1990 par des autochtones à Winnipeg pour désigner des identités documentées dans plus de 130 peuples d'Amérique du Nord. La diversité de genre n'est pas une invention récente.", source: "Encyclopédie canadienne" },
+    { id: "ff_06", texte: "Quand le mariage pour tous a été légalisé aux États-Unis, les tentatives de suicide chez les ados LGB ont baissé de 15%. Les droits sauvent des vies.", source: "Santé Publique France, 2021" },
+    { id: "ff_07", texte: "C'est l'acceptation familiale — pas la thérapie, pas les médicaments — qui est le principal facteur de bonne santé mentale chez les personnes LGB. Un 'je t'aime' suffit souvent.", source: "Enquête Virage, INED" },
+    { id: "ff_08", texte: "En France aujourd'hui, 1 adulte sur 10 a une identité de genre ou une orientation autre qu'hétéro-cisgenre. C'est beaucoup de gens autour de toi.", source: "Statista, 2023" },
+    { id: "ff_09", texte: "Le concept d'intersectionnalité a été créé en 1989 par Kimberlé Crenshaw pour montrer que les discriminations ne s'additionnent pas — elles se multiplient.", source: "Stanford Law Review, 1989" },
+    { id: "ff_10", texte: "Les espaces LGBT+ eux-mêmes sont souvent inaccessibles aux personnes handicapées : lumières fortes, bruit, promiscuité. L'inclusion ça se construit aussi chez soi.", source: "Hétéroclite, 2020" },
+    { id: "ff_11", texte: "Les émeutes de Stonewall en 1969 ont été menées par des drag-queens, des femmes trans racisées et des gays des classes populaires. Les gens 'respectables' du mouvement gay n'étaient pas là ce soir-là.", source: "Wikipedia" },
+    { id: "ff_12", texte: "La culture Ballroom est née à Harlem dans les années 1920. Crystal Labeija a fondé la première maison en 1977 après avoir perdu un concours drag jugé par Andy Warhol. Cent ans de culture, pas une tendance.", source: "dragqueens.fr" },
+    { id: "ff_13", texte: "Le voguing s'est construit comme une façon de performer la respectabilité pour échapper aux violences. Défiler comme un mannequin était un acte de survie.", source: "Time, 2021" },
+    { id: "ff_14", texte: "Les règles éthiques du BDSM — Safe, Sane, Consensual — ont été formalisées en 1983 par un groupe activiste gay new-yorkais. La communauté kink a réfléchi au consentement bien avant le reste du monde.", source: "nawajutsu.fr" },
+    { id: "ff_15", texte: "Des études montrent que les pratiquant·es de BDSM ont souvent une meilleure communication dans leurs relations que la moyenne. Négocier ses désirs, ça s'apprend et ça profite à tout le monde.", source: "Archives of Sexual Behavior" },
   ],
 
   // ── 7. MESSAGES DE LA CRIÉE ──────────────────────────────────
