@@ -650,16 +650,16 @@ html,body{width:100%;height:100%;overflow:hidden;background:var(--dark);font-fam
       <span style="color:var(--green);font-family:'Press Start 2P',monospace;font-size:7px;">⚡ PLACER DES PAX</span><br>
       Appuie sur 👥 pour voir tous les pax. <strong>Glisse</strong> un pax sur une zone de la carte, ou ouvre une zone et tape <strong>+ PAX</strong>.<br>
       Tape sur l'emoji d'un pax sur la carte pour voir ses stats et le déplacer.<br>
-      La <strong style="color:var(--pink);">Vibe ⚡</strong> mesure le bonheur collectif — garde-la haute !
+      La <strong style="color:var(--pink);">Désordre 🌀</strong> mesure le bonheur collectif — garde-le haut !
     </div>
 
     <div style="margin-bottom:12px;">
       <span style="color:var(--green);font-family:'Press Start 2P',monospace;font-size:7px;">🗺 LES ZONES</span><br>
-      • <strong>Playrooms / Mix-room / Tente</strong> — génèrent de la Vibe ⚡<br>
+      • <strong>Playrooms / Mix-room / Tente</strong> — génèrent du Désordre 🌀<br>
       • <strong>Cuisine</strong> — nourrit toustes les pax 🍽<br>
       • <strong>Chambres</strong> — récupère la fatigue 💤<br>
       • <strong>Welfare</strong> — soigne les crises 💜 (plus vite à deux)<br>
-      • <strong>Bulle de Négo</strong> — négocie avant de jouer 🤝 (+40% Vibe)<br>
+      • <strong>Bulle de Négo</strong> — négocie avant de jouer 🤝 (+40% Désordre)<br>
       • <strong>PMU</strong> — buvette 🍺, déclenche des events aléatoires
     </div>
 
@@ -672,7 +672,7 @@ html,body{width:100%;height:100%;overflow:hidden;background:var(--dark);font-fam
     <div style="margin-bottom:12px;">
       <span style="color:var(--green);font-family:'Press Start 2P',monospace;font-size:7px;">✨ SYNERGIES</span><br>
       Chaque pax a un archétype (Dom, Sub, Sadist, Créatif…).<br>
-      Les bons combos déclenchent des <strong>boosts de Vibe</strong> et des <strong>scènes spéciales</strong> automatiquement.
+      Les bons combos déclenchent des <strong>boosts de Désordre</strong> et des <strong>scènes spéciales</strong> automatiquement.
     </div>
 
     <div style="margin-bottom:12px;">
@@ -682,7 +682,7 @@ html,body{width:100%;height:100%;overflow:hidden;background:var(--dark);font-fam
 
     <div style="margin-bottom:4px;">
       <span style="color:var(--yellow);font-family:'Press Start 2P',monospace;font-size:7px;">🏆 OBJECTIF</span><br>
-      <strong>Maximise la Vibe</strong> et garde toustes les pax heureux·ses jusqu'au <strong>dimanche soir</strong>.<br>
+      <strong>Maximise le Désordre</strong> et garde toustes les pax heureux·ses jusqu'au <strong>dimanche soir</strong>.<br>
       Queerise <strong>8 personnes</strong> pour déclencher la victoire ! 🌿
     </div>
 
@@ -701,7 +701,7 @@ html,body{width:100%;height:100%;overflow:hidden;background:var(--dark);font-fam
 <div id="hud">
   <div id="hud-title">LE DÉSORDRE<span>cultive le bordel</span></div>
   <div class="res-bar vibe" style="flex:2;">
-    <span class="res-label">⚡</span>
+    <span class="res-label">🌀</span>
     <div class="res-track"><div class="res-fill vibe" id="vibe-fill" style="width:0%"></div></div>
     <span class="res-val" id="vibe-val">0%</span>
     <span class="res-rate" id="vibe-rate"></span>
@@ -934,7 +934,7 @@ html,body{width:100%;height:100%;overflow:hidden;background:var(--dark);font-fam
   <div class="end-title">🎉 LE DÉSORDRE<br>A TRIOMPHÉ 🎉</div>
   <div class="end-title-label">La Norme s'enfuit en pleurant.<br>Tout le monde danse autour du compost.</div>
   <div class="end-card">
-    <div>Vibe finale : <span id="end-vibe">0</span></div>
+    <div>Désordre final : <span id="end-vibe">0</span></div>
     <div>Crises résolues : <span id="end-crises">0</span></div>
     <div>Queerisé·es : <span id="end-queer">0</span></div>
     <div>Pax recruté·es : <span id="end-pax">0</span></div>
@@ -1023,14 +1023,14 @@ const CFG = {
 // activityMode: fun_high | fun_low | cuisine | repos | nego | camping
 const ZONES = {
   camping:      { name:'Camping', type:'low', activityMode:'camping', cap:12, bonus:null, desc:'🏕 Tentes et réchaud collectif. Repos basique et cuisine rudimentaire.' },
-  playroom_ext: { name:'Playroom ext.', type:'high', activityMode:'fun_high', cap:12, bonus:'night_x2', desc:'⚡ Fun haute énergie. Structures de play. Vibe x2 la nuit.' },
-  tente_cer:    { name:'Tente cérémonie', type:'high', activityMode:'fun_high', cap:12, bonus:'day_x2', desc:'🎪 Fun haute énergie. Espace rituel et festif. Vibe x2 le jour.' },
-  mixroom:      { name:'Mix-room', type:'high', activityMode:'fun_high', cap:12, bonus:'night_x2', desc:'🌀 Fun haute énergie. Coussins et atmosphère. Vibe x2 la nuit.' },
+  playroom_ext: { name:'Playroom ext.', type:'high', activityMode:'fun_high', cap:12, bonus:'night_x2', desc:'🌀 Fun haute énergie. Structures de play. Désordre x2 la nuit.' },
+  tente_cer:    { name:'Tente cérémonie', type:'high', activityMode:'fun_high', cap:12, bonus:'day_x2', desc:'🎪 Fun haute énergie. Espace rituel et festif. Désordre x2 le jour.' },
+  mixroom:      { name:'Mix-room', type:'high', activityMode:'fun_high', cap:12, bonus:'night_x2', desc:'🌀 Fun haute énergie. Coussins et atmosphère. Désordre x2 la nuit.' },
   bat1:         { name:'Chambres', type:'low', activityMode:'repos', cap:12, bonus:null, desc:'💤 Repos. Les pax récupèrent de la fatigue ici.' },
   bat2:         { name:'Playroom int.', type:'high', activityMode:'fun_high', cap:12, bonus:null, desc:'⚡ Fun haute énergie intérieure. Stable jour/nuit.' },
   cantina:      { name:'Cuisine', type:'low', activityMode:'cuisine', cap:12, bonus:'meal_boost', desc:'🍽 Cuisine collective. Les pax ici nourrissent tout le camp.' },
   welfare:      { name:'Espace Welfare', type:'low', activityMode:'repos', cap:12, bonus:'regen', desc:'💜 Repos & support émo. Soigne la fatigue et les crises.' },
-  bulle_nego:   { name:'Bulle de Négo', type:'low', activityMode:'nego', cap:6, bonus:null, desc:'🤝 Ici on se parle avant de jouer. Négociez une scène pour un boost de Vibe.' },
+  bulle_nego:   { name:'Bulle de Négo', type:'low', activityMode:'nego', cap:6, bonus:null, desc:'🤝 Ici on se parle avant de jouer. Négociez une scène pour un boost de Désordre.' },
   pmu:          { name:'PMU', type:'high', activityMode:'fun_high', cap:12, bonus:'event_trigger', desc:'🍺 Buvette. Déclenche des événements aléatoires.' },
 };
 
@@ -1336,7 +1336,7 @@ const CRIEE = [
 // ===== SCÈNES (combos pax+zone) =====
 const SCENES = [
   { id:'scene_play', archs:['dom','sub'], zones:['playroom_ext','bat2'], minEach:1,
-    msg:'🔥 Scène de jeu en cours ! La Vibe explose.',
+    msg:'🔥 Scène de jeu en cours ! Le Désordre explose.',
     effect:{ vibe:70 }, cooldown:50000 },
   { id:'scene_shibari', archs:['top','bottom'], zones:['playroom_ext','mixroom','bat2'], minEach:1,
     msg:'🪢 Session shibari. C\'est magnifique.',
@@ -1397,12 +1397,12 @@ const QUEST_POOL = [
 
 // ===== PAX UNLOCK QUOTES =====
 const PAX_UNLOCK = {
-  aioli:     { quote:'Aïoli débarque. Iel pique, mais iel protège.', gift:'+15 Vibe' },
-  ananas:    { quote:'Ananas arrive avec une playlist. La nuit va être longue.', gift:'+Vibe bonus nocturne' },
+  aioli:     { quote:'Aïoli débarque. Iel pique, mais iel protège.', gift:'+15 Désordre' },
+  ananas:    { quote:'Ananas arrive avec une playlist. La nuit va être longue.', gift:'+Désordre bonus nocturne' },
   avril:     { quote:'Avril t\'accueille avec un sourire. Bienvenue ma belle graine.', gift:'+10 Soin' },
   chaton:    { quote:'Chaton ronronne. Frrrr. Ramène ta tige.', gift:'+Switch bonus' },
   dodo:      { quote:'Dodo est officiellement disparu·e, et pourtant très là.', gift:'+Créatif bonus' },
-  choufleur: { quote:'Choufleur Royal proclame son règne. Mon royaume pour une graine.', gift:'+20 Vibe' },
+  choufleur: { quote:'Choufleur Royal proclame son règne. Mon royaume pour une graine.', gift:'+20 Désordre' },
   nuageon:   { quote:'Nuageon arrive. Tiens, un peu de rosée pour toi.', gift:'+25 Soin' },
   onigiri:   { quote:'Onigiri s\'installe. Beaucoup de couches, beaucoup de profondeur.', gift:'+Dom bonus' },
   pasteque:  { quote:'Pastèque est là quand t\'as soif. Comme toujours.', gift:'+Cuisine boost' },
@@ -1796,7 +1796,7 @@ function getZoneAtmosphere(zid) {
   if (archs.includes('servicetop') && zid === 'cantina')
     return '🍳 ' + names + ' — Ça sent incroyablement bon depuis là-dedans.';
   if (archs.includes('festif') && occ.length >= 2)
-    return '🎉 ' + names + ' — L\'ambiance monte. La Vibe avec.';
+    return '🎉 ' + names + ' — L\'ambiance monte. Le Désordre avec.';
   if (archs.includes('creatif'))
     return '🎨 ' + names + ' — Une installation improbable se forme dans le coin.';
   if (archs.filter(a => a === 'slut').length >= 1 && occ.length >= 3)
@@ -1822,7 +1822,7 @@ function getZoneAtmosphere(zid) {
   }
   return names + ' — ' + (zone.activityMode === 'repos' || zone.activityMode === 'nego'
     ? 'Toustes se reposent. La fatigue descend.'
-    : zone.type === 'high' ? 'La Vibe monte doucement. L\'énergie est là.' : 'Calme et productif. Tout roule.');
+    : zone.type === 'high' ? 'Le Désordre monte doucement. L\'énergie est là.' : 'Calme et productif. Tout roule.');
 }
 
 // ===== TUTORIAL =====
@@ -1835,8 +1835,8 @@ const TUTORIAL_STEPS = [
   },
   {
     target: '#hud',
-    title: '⚡ VIBE GLOBALE',
-    text: 'La jauge montre la <strong style="color:var(--pink)">Vibe globale</strong> — la moyenne du bien-être de toustes les pax.\nChaque pax a sa propre Vibe, sa Fatigue, sa Faim, son Ennui. Si quelqu\'un va très mal, ça tire tout le monde vers le bas.',
+    title: '🌀 DÉSORDRE GLOBAL',
+    text: 'La jauge montre le <strong style="color:var(--pink)">Désordre global</strong> — la moyenne du bien-être de toustes les pax.\nChaque pax a sa propre Vibe, sa Fatigue, sa Faim, son Ennui. Si quelqu\'un va très mal, ça tire tout le monde vers le bas.',
     pos: 'bottom',
   },
   {
@@ -1881,7 +1881,7 @@ const TUTORIAL_STEPS = [
   {
     target: null,
     title: '👔 LES AGENTS DE LA NORME',
-    text: 'La Norme va débarquer régulièrement sur la carte.\nCes personnages réduisent la Vibe de toustes — si 5 arrivent en même temps, −40% sur la Vibe globale !\n<strong style="color:var(--pink)">Clique dessus</strong> pour les queeriser. Plus ta Vibe est haute, plus c\'est facile.',
+    text: 'La Norme va débarquer régulièrement sur la carte.\nCes personnages réduisent le Désordre de toustes — si 5 arrivent en même temps, −40% sur le Désordre global !\n<strong style="color:var(--pink)">Clique dessus</strong> pour les queeriser. Plus ton Désordre est haut, plus c\'est facile.',
     pos: 'center',
   },
   {
@@ -2093,7 +2093,7 @@ function applyNegoBoostOnArrival(paxId, zoneId) {
     ps.negoBoost = false;
     ps.negoBoostTicks = 30;
     const p2 = PAX_DATA.find(d => d.id === paxId);
-    if (p2) toast(`✨ ${p2.emoji} ${p2.name} arrive avec une énergie décuplée ! (+40% Vibe pendant 30 ticks)`);
+    if (p2) toast(`✨ ${p2.emoji} ${p2.name} arrive avec une énergie décuplée ! (+40% Désordre pendant 30 ticks)`);
   }
 }
 
@@ -2522,7 +2522,7 @@ function productionTick() {
             const p = PAX_DATA.find(d => d.id === pid);
             return p ? p.emoji + ' ' + p.name : '';
           }).join(' & ');
-          toast(`🤝 ${names2} ont négocié leur scène ! Prochain lieu : Vibe ×1.4 ✨`);
+          toast(`🤝 ${names2} ont négocié leur scène ! Prochain lieu : Désordre ×1.4 ✨`);
           zstate.negoProgress = 0;
         }
       } else {
@@ -3009,7 +3009,7 @@ function applyAllyEffect(inv) {
       PAX_DATA.filter(p => state.pax[p.id]?.state === 'placed').forEach(p => {
         state.pax[p.id].vibe = Math.min(100, state.pax[p.id].vibe + 15);
       });
-      toast(`${ally.emoji} ${ally.name} — +15 Vibe pour tous les pax !`);
+      toast(`${ally.emoji} ${ally.name} — +15 Désordre pour tous les pax !`);
       break;
     case 'criee_boost':
       state._allyBoosts = state._allyBoosts || [];
@@ -3313,7 +3313,7 @@ function showZoneBuildPicker() {
       const ps = state.pax[p.id];
       if (ps && ps.state === 'placed' && !ps.inCrisis) ps.vibe = Math.min(100, ps.vibe + 12);
     });
-    toast('🌈 Toustes les espaces sont construits ! +12 Vibe pour toustes.');
+    toast('🌈 Toustes les espaces sont construits ! +12 Désordre pour toustes.');
     state.paused = false;
     return;
   }
@@ -3606,7 +3606,7 @@ function openZone(zoneId) {
     document.getElementById('zone-panel-info').appendChild(synergyEl);
   }
   if (zstate.boostActive) {
-    synergyEl.textContent = '⚡ SYNERGIE ACTIVE — Vibe x2 !';
+    synergyEl.textContent = '🌀 SYNERGIE ACTIVE — Désordre x2 !';
   } else if (hasSynergyPair(zstate.occupants)) {
     synergyEl.textContent = '💫 Synergie détectée';
     synergyEl.style.color = 'var(--teal)';
@@ -3689,7 +3689,7 @@ function tryAutoBoost(zid) {
   if (pair) {
     const pa = archs.find(x=>x.arch===pair[0]);
     const pb = archs.find(x=>x.arch===pair[1]);
-    if (pa && pb) msg = `⚡ ${pa.emoji}${pa.name} & ${pb.emoji}${pb.name} — synergie ! Vibe x2 dans ${zone.name}`;
+    if (pa && pb) msg = `🌀 ${pa.emoji}${pa.name} & ${pb.emoji}${pb.name} — synergie ! Désordre x2 dans ${zone.name}`;
   }
   toast(msg);
   setTimeout(() => {
@@ -4074,7 +4074,7 @@ function checkScenes() {
         const r = Math.random();
         if (r < 0.4) {
           PAX_DATA.forEach(p => { const ps = state.pax[p.id]; if (ps && ps.state === 'placed' && !ps.inCrisis) ps.vibe = Math.min(100, ps.vibe + 12); });
-          toast('🎲 Jackpot Vibe ! +12 Vibe pour toustes');
+          toast('🎲 Jackpot Désordre ! +12 Désordre pour toustes');
         } else if (r < 0.7) {
           state.food_stock = Math.min(CFG.FOOD_STOCK_MAX, state.food_stock + 60);
           toast('🎲 Apport surprise à la cuisine !');
@@ -4200,7 +4200,7 @@ function checkEnd() {
 function endGame() {
   if (state.gameEnded) return;
   state.gameEnded = true;
-  const titles = ['Architecte du Désordre', 'Maîtresse du Chaos Doux', 'Champion·ne du Soin', 'Reine du PMU', 'Légende de la Vibe'];
+  const titles = ['Architecte du Désordre', 'Maîtresse du Chaos Doux', 'Champion·ne du Soin', 'Reine du PMU', 'Légende du Désordre'];
   const title = titles[Math.floor(Math.random() * titles.length)];
   document.getElementById('end-vibe').textContent = Math.round(state.vibeGlobale) + '%';
   document.getElementById('end-crises').textContent = (state.stats.crisisResolved || 0) + '/' + (state.stats.crisisTotal || 0);
@@ -4278,7 +4278,7 @@ function buildLeaderboardTable(scores, highlightPseudo) {
     html += `<tr class="${isMe ? 'lb-me' : ''}">
       <td class="lb-rank">${medal}</td>
       <td class="lb-pseudo">${escapeHtml(s.pseudo)}</td>
-      <td class="lb-score">${s.score}%</td>
+      <td class="lb-score">${s.score}🌀</td>
       <td style="text-align:center;font-size:12px;">${s.queerises}</td>
     </tr>`;
   });
