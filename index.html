@@ -958,6 +958,20 @@ const ZONE_PROGRESSION = [
   // Q8 → victoire, pas de zone
 ];
 
+// ===== BÂTIMENTS TOXIQUES PAR ZONE =====
+// Chaque zone a son bâtiment de la Norme fixe, indépendamment de l'invader.
+const ZONE_TOXIC_MAP = {
+  welfare:      { name: 'Centre Commercial',        emoji: '🏬', effect: 'welfare_fake',    description: 'La consommation remplace le soin collectif.' },
+  bat1:         { name: 'Airbnb',                   emoji: '🛏️', effect: 'welfare_drain',   description: 'L\'hébergement marchandisé. Pas de chambre pour toi.' },
+  cantina:      { name: 'Starbucks',                emoji: '🧋', effect: 'vibe_drain_slow',  description: 'La bouffe industrielle remplace la cuisine collective.' },
+  playroom_ext: { name: 'Concessionnaire Auto',     emoji: '🚗', effect: 'vibe_drain_slow',  description: 'L\'espace de jeu devient un showroom de berlines.' },
+  tente_cer:    { name: 'École de Commerce',        emoji: '🎓', effect: 'vibe_drain_slow',  description: 'Le rituel remplacé par des slides PowerPoint.' },
+  mixroom:      { name: 'WeWork',                   emoji: '☕', effect: 'vibe_drain_slow',  description: 'Le social remplacé par le networking.' },
+  pmu:          { name: 'Club d\'Entrepreneurs',    emoji: '🤝', effect: 'vibe_drain_fast',  description: 'Le bar remplacé par des pitch decks.' },
+  bat2:         { name: 'Agence Immobilière',       emoji: '🏡', effect: 'vibe_drain_slow',  description: 'L\'intime devient un produit immobilier.' },
+  bulle_nego:   { name: 'Cellule de Médiation RH',  emoji: '📊', effect: 'welfare_drain',    description: 'Le consentement remplacé par un process HR.' },
+};
+
 // ===== ARCHÉTYPES =====
 const ARCHETYPES = {
   dom:        { label:'🔥 Dom',         vibeX:1.5, soinX:0.8, synergy:['sub','pet'] },
@@ -2786,7 +2800,7 @@ function buildToxicBuilding(inv) {
     return;
   }
   const target = pool[Math.floor(Math.random() * pool.length)];
-  const fb = inv.data?.failBuilding || { name: 'Bâtiment toxique', emoji: '🏭', effect: 'vibe_drain_slow', description: 'La Norme s\'est installée.' };
+  const fb = ZONE_TOXIC_MAP[target] || { name: 'Bâtiment toxique', emoji: '🏭', effect: 'vibe_drain_slow', description: 'La Norme s\'est installée.' };
   state.zones[target].locked = false;
   state.zones[target].toxicBuilding = {
     type: fb.effect,
