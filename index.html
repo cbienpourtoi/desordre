@@ -94,10 +94,18 @@ html,body{width:100%;height:100%;overflow:hidden;background:var(--dark);font-fam
   width:900px;height:675px;
   image-rendering:auto;
   pointer-events:none;
-  transition:opacity 1.2s ease;
+  transition:opacity 1.2s ease, filter 0.3s ease;
 }
 .map-reveal { opacity:0; }
 .map-reveal-night { opacity:0; }
+/* Bâtiment révélé : luminosité naturelle */
+.map-reveal[data-unlocked="1"], .map-reveal-night[data-unlocked="1"] {
+  filter: brightness(1.2) saturate(1.15);
+}
+/* Hover souris sur un bâtiment révélé */
+.map-reveal[data-unlocked="1"]:hover, .map-reveal-night[data-unlocked="1"]:hover {
+  filter: brightness(1.45) saturate(1.3);
+}
 
 /* Masque de terrain vide pour cacher un bâtiment dans la couche terrain */
 .zone-blank {
@@ -2112,7 +2120,7 @@ function setupCarryInteraction() {
 
 
 function _dragRevealGlow(zoneId, on) {
-  const glow = 'brightness(1.25) saturate(1.3) drop-shadow(0 0 12px gold)';
+  const glow = 'brightness(1.65) saturate(1.4) drop-shadow(0 0 14px gold)';
   const day = document.getElementById('reveal-' + zoneId);
   const night = document.getElementById('reveal-night-' + zoneId);
   if (day)   day.style.filter   = on ? glow : '';
