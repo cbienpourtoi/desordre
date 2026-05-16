@@ -933,7 +933,7 @@ html,body{width:100%;height:100%;overflow:hidden;background:var(--dark);font-fam
   <div class="end-title">🎉 LE DÉSORDRE<br>A TRIOMPHÉ 🎉</div>
   <div class="end-title-label">La Norme s'enfuit en pleurant.<br>Tout le monde danse autour du compost.</div>
   <div class="end-card">
-    <div>Désordre final : <span id="end-vibe">0</span></div>
+    <div>Score Désordre : <span id="end-vibe">0</span></div>
     <div>Crises résolues : <span id="end-crises">0</span></div>
     <div>Queerisé·es : <span id="end-queer">0</span></div>
     <div>Pax recruté·es : <span id="end-pax">0</span></div>
@@ -1470,6 +1470,7 @@ const state = {
   day: 0, hour: 8, isNight: false,
   dayProgress: 0,
   totalTicks: 0,
+  scoreTotal: 0,
   pax: {},   // id → {state, vibe, faim, ennui, fatigue, placedIn, shiftTicks, solitudeTicks, inCrisis, lastCrisisAt, crisisAutoHandled}
   zones: {},
   invaders: [],
@@ -2704,6 +2705,8 @@ function productionTick() {
 
   state.vibeGlobale = getVibeGlobale();
   if (state.vibeGlobale > state.stats.maxVibe) state.stats.maxVibe = Math.round(state.vibeGlobale);
+  // Score cumulatif : Σ(vibeGlobale × nbPax) — récompense maintenir une vibe haute avec beaucoup de monde
+  state.scoreTotal += state.vibeGlobale * state.unlockedPax.length;
 
   // Boost collectif visual
   document.getElementById('map-viewport')?.classList.toggle('boost-collectif', state.boostCollectif);
@@ -4216,7 +4219,7 @@ function endGame() {
   state.gameEnded = true;
   const titles = ['Architecte du Désordre', 'Maîtresse du Chaos Doux', 'Champion·ne du Soin', 'Reine du PMU', 'Légende du Désordre'];
   const title = titles[Math.floor(Math.random() * titles.length)];
-  document.getElementById('end-vibe').textContent = Math.round(state.vibeGlobale) + '%';
+  document.getElementById('end-vibe').textContent = Math.round(state.scoreTotal).toLocaleString('fr-FR') + ' pts';
   document.getElementById('end-crises').textContent = (state.stats.crisisResolved || 0) + '/' + (state.stats.crisisTotal || 0);
   document.getElementById('end-queer').textContent = state.stats.queerised;
   document.getElementById('end-pax').textContent = state.unlockedPax.length;
@@ -4264,7 +4267,7 @@ async function submitAndShowLeaderboard() {
   btn.disabled = true;
   status.textContent = 'Envoi…';
 
-  const score = Math.round(state.vibeGlobale);
+  const score = Math.round(state.scoreTotal);
   const ok = await submitScore(pseudo, score, state.stats.queerised, state.unlockedPax.length);
 
   if (ok) {
