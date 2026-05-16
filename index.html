@@ -2890,7 +2890,7 @@ function onNewDay() {
 
 // ===== INVADERS =====
 function spawnInvader() {
-  if (!state.started || state.gameEnded) return;
+  if (!state.started || state.gameEnded || state.paused) return;
   if (state.invaders.length >= 5) return; // v3: max 5
   // Ne pas spawner un type déjà présent sur la carte
   const activeTypes = new Set(state.invaders.map(i => i.type));
@@ -3291,6 +3291,7 @@ function closeAtelierModal() {
 }
 
 function showDiscovery(invData, gift = '') {
+  state.paused = true;
   document.getElementById('disc-emoji').textContent = invData.queerEmoji;
   document.getElementById('disc-name').textContent = invData.queerName;
   document.getElementById('disc-msg').textContent = invData.queerMsg + (gift ? ' (' + gift + ')' : '');
