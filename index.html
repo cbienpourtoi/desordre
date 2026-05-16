@@ -966,20 +966,45 @@ const CFG = {
   EVENT_TICK: 1000,      // ms per event tick
   DAY_SECS: 270,         // seconds per game day (≈4.5 min/day, ~31 min total)
   TICKS_PER_DAY: 450,    // = DAY_SECS * 1000 / PROD_TICK
-  // v3 spec uses 180 ticks/day; scale = 180/450 = 0.4
   FOOD_STOCK_INIT: 150,
   FOOD_STOCK_MAX: 300,
+  FOOD_CONSUME_RATE: 0.16,   // food consumed per pax per tick
+  FOOD_MEAL_BONUS: 60,       // food gained at meal time (13h, 20h)
+  FOOD_PROD_RATE: 1.6,       // food produced per cantina pax per tick
   INVADER_INTERVAL: 35000,
-  BOOST_DURATION: 15000,  // 15s boost when synergy fires
-  BOOST_COOLDOWN: 120000, // 2min between auto-boosts per zone
+  INVADER_INTERVAL_FRIDAY: 36000,
+  INVADER_MAX: 5,
+  BOOST_DURATION: 15000,   // 15s boost when synergy fires
+  BOOST_COOLDOWN: 120000,  // 2min between auto-boosts per zone
   MAP_W: 900,
   MAP_H: 675,
+  MAP_SCALE_MIN: 0.5,
+  MAP_SCALE_MAX: 1.6,
+  MAP_PADDING: 60,
+  ZOOM_STEP: 0.08,
   DAYS: ['LUN','MAR','MER','JEU','VEN','SAM','DIM'],
   DAY_FATIGUE_MULT: [1.0, 1.0, 1.0, 1.15, 1.35, 1.6, 1.8],
   BASE_CRISIS_RISK: 0.0004,  // per tick baseline
   CRISIS_MIN_DELAY: 50,      // ticks between crises per pax
-  ENNUI_BASE:     { cuisine: 60,  support_emo: 75  }, // ticks before ennui starts
+  CRISIS_EXIT_VIBE: 30,      // vibe threshold to exit crisis
+  ENNUI_BASE:     { cuisine: 60,  support_emo: 75  },
   ENNUI_AFFINITY: { cuisine: 100, support_emo: 125 },
+  // Fatigue rates by activity mode
+  FATIGUE: {
+    fun_high: 0.32, fun_low: 0.12, repos: -0.8, camping: -0.4, nego: -0.4,
+    cuisine: 0.55, cuisine_affinity: 0.28,
+    welfare_support: 0.6, welfare_support_affinity: 0.4,
+  },
+  // Vibe production base rates
+  VIBE_BASE: { fun_high: 0.16, fun_low: 0.08 },
+  // Crisis recovery rates (per tick)
+  CRISIS_RECOVERY: {
+    welfare_support: 1.4,  // welfare + support pax
+    welfare_alone: 0.3,    // welfare, no support
+    repos: 0.12,           // chambres (repos)
+    camping: 0.08,         // camping
+  },
+  JOURNAL_MAX: 40,
 };
 
 // ===== ZONES =====
@@ -1092,6 +1117,10 @@ const PAX_DATA_FICTIFS = [
 
 // Liste complète utilisée par le jeu
 const PAX_DATA = [...PAX_DATA_REELS, ...PAX_DATA_FICTIFS];
+// Lookup rapide par id (évite 29+ scans linéaires de PAX_DATA.find)
+const PAX_MAP = Object.fromEntries(PAX_DATA.map(p => [p.id, p]));
+// Helper: "🌶️ Piment" from id
+function paxLabel(id) { const p = PAX_MAP[id]; return p ? p.emoji + ' ' + p.name : '?'; }
 
 // ===== INVADERS =====
 const INVADERS_DATA = [
@@ -1522,7 +1551,7 @@ function triggerCrisis(paxId) {
   ps.lastCrisisAt = state.totalTicks;
   ps.crisisAutoHandled = false;
   state.stats.crisisTotal++;
-  const pData = PAX_DATA.find(p => p.id === paxId);
+  const pData = PAX_MAP[paxId];
   if (pData) {
     const welfareAvail = !state.zones['welfare']?.locked && !state.zones['welfare']?.toxicBuilding;
     const crisisHint = welfareAvail
@@ -1532,7 +1561,7 @@ function triggerCrisis(paxId) {
     logEvent('crise', crisisHint);
   }
   renderZones();
-  if (document.getElementById('sidebar').classList.contains('open')) renderSidebar();
+  refreshSidebarIfOpen();
   showCrisisGuidance(paxId);
 }
 
@@ -1542,7 +1571,7 @@ function movePaxToZone(paxId, zoneId) {
 
   // Bâtiment toxique : refus de placement + crise immédiate
   if (zs?.toxicBuilding) {
-    const pData = PAX_DATA.find(p => p.id === paxId);
+    const pData = PAX_MAP[paxId];
     const tb = zs.toxicBuilding;
     if (pData) {
       toast(`🏭 ${pData.emoji} ${pData.name} entre dans ${tb.name}... et repart en crise !`);
@@ -1555,7 +1584,7 @@ function movePaxToZone(paxId, zoneId) {
     ps.crisisAutoHandled = false;
     state.stats.crisisTotal++;
     renderZones();
-    if (document.getElementById('sidebar').classList.contains('open')) renderSidebar();
+    refreshSidebarIfOpen();
     return;
   }
 
@@ -1577,34 +1606,32 @@ function handleCrisis(paxId, zid) {
   const welfareOcc = state.zones['welfare'].occupants;
   const supportAvail = welfareOcc.some(oid => oid !== paxId && state.pax[oid] && !state.pax[oid].inCrisis);
   const welfareMult = getWelfareRecoveryMult();
+  const exitThreshold = CFG.CRISIS_EXIT_VIBE;
+  const R = CFG.CRISIS_RECOVERY;
 
   if (zid === 'welfare' && supportAvail) {
     const caregiverId = welfareOcc.find(oid => oid !== paxId && state.pax[oid] && !state.pax[oid].inCrisis);
     if (caregiverId) {
       const cps = state.pax[caregiverId];
       if (cps.fatigue > 85 && Math.random() < 0.002) {
-        const cp = PAX_DATA.find(p => p.id === caregiverId);
+        const cp = PAX_MAP[caregiverId];
         if (cp) toast(`😰 ${cp.emoji} ${cp.name} s'effondre d'épuisement !`);
         triggerCrisis(caregiverId);
         return;
       }
     }
-    ps.vibe = Math.min(100, ps.vibe + 1.4 * welfareMult);
-    if (ps.vibe >= 30) exitCrisis(paxId);
+    ps.vibe = Math.min(100, ps.vibe + R.welfare_support * welfareMult);
+    if (ps.vibe >= exitThreshold) exitCrisis(paxId);
   } else if (zid === 'welfare') {
-    ps.vibe = Math.min(100, ps.vibe + 0.3 * welfareMult);
-    if (ps.vibe >= 30) exitCrisis(paxId);
+    ps.vibe = Math.min(100, ps.vibe + R.welfare_alone * welfareMult);
+    if (ps.vibe >= exitThreshold) exitCrisis(paxId);
   } else {
-    // Pas au welfare : récupération très lente au camping ou en chambre, sinon vibe stagne
     const actMode = ZONES[zid]?.activityMode;
-    if (actMode === 'camping') {
-      ps.vibe = Math.min(100, ps.vibe + 0.08);
-      if (ps.vibe >= 30) exitCrisis(paxId);
-    } else if (actMode === 'repos') {
-      ps.vibe = Math.min(100, ps.vibe + 0.12);
-      if (ps.vibe >= 30) exitCrisis(paxId);
+    const rate = R[actMode] || 0;
+    if (rate > 0) {
+      ps.vibe = Math.min(100, ps.vibe + rate);
+      if (ps.vibe >= exitThreshold) exitCrisis(paxId);
     }
-    // Ailleurs : vibe reste à 0 (pas d'évolution)
   }
 }
 
@@ -1614,18 +1641,18 @@ function exitCrisis(paxId) {
   ps.inCrisis = false;
   ps.vibe = 35;
   state.stats.crisisResolved++;
-  const pData = PAX_DATA.find(p => p.id === paxId);
+  const pData = PAX_MAP[paxId];
   if (pData) {
     toast(`💚 ${pData.emoji} ${pData.name} s'en sort ! ✨`);
     logEvent('soin', `${pData.emoji} ${pData.name} sort de crise. ♥`);
   }
   renderZones();
   if (state.selectedZone) openZone(state.selectedZone);
-  if (document.getElementById('sidebar').classList.contains('open')) renderSidebar();
+  refreshSidebarIfOpen();
 }
 
 function showCrisisGuidance(paxId) {
-  const pData = PAX_DATA.find(p => p.id === paxId);
+  const pData = PAX_MAP[paxId];
   const welfareAvail = !state.zones['welfare']?.locked && !state.zones['welfare']?.toxicBuilding;
   const hasRepos = Object.entries(state.zones).some(([zid, zs]) => !zs.locked && !zs.toxicBuilding && ZONES[zid]?.activityMode === 'repos');
   const alreadyExplained = localStorage.getItem('crisis_explained');
@@ -1732,7 +1759,7 @@ function checkFoodAlerts() {
 
 // ===== PAX DETAIL POPUP =====
 function showPaxDetail(paxId) {
-  const p = PAX_DATA.find(d => d.id === paxId);
+  const p = PAX_MAP[paxId];
   const ps = state.pax[paxId];
   if (!p || !ps) return;
   document.getElementById('pax-detail-emoji').textContent = p.emoji;
@@ -1814,21 +1841,21 @@ function getZoneAtmosphere(zid) {
     const inCrisisPax = occ.filter(pid => state.pax[pid] && state.pax[pid].inCrisis);
     const giverPax = occ.filter(pid => state.pax[pid] && !state.pax[pid].inCrisis);
     if (inCrisisPax.length > 0 && giverPax.length > 0) {
-      const gNames = giverPax.map(pid => { const p = PAX_DATA.find(d=>d.id===pid); return p?p.emoji+' '+p.name:''; }).join(', ');
-      const rNames = inCrisisPax.map(pid => { const p = PAX_DATA.find(d=>d.id===pid); return p?p.emoji+' '+p.name:''; }).join(', ');
+      const gNames = giverPax.map(pid => { const p = PAX_MAP[pid]; return p?p.emoji+' '+p.name:''; }).join(', ');
+      const rNames = inCrisisPax.map(pid => { const p = PAX_MAP[pid]; return p?p.emoji+' '+p.name:''; }).join(', ');
       return `💜 ${gNames} assure le support émo. ${rNames} est en soin et récupère vite.`;
     }
     if (inCrisisPax.length > 0 && giverPax.length === 0) {
-      const rNames = inCrisisPax.map(pid => { const p = PAX_DATA.find(d=>d.id===pid); return p?p.emoji+' '+p.name:''; }).join(', ');
+      const rNames = inCrisisPax.map(pid => { const p = PAX_MAP[pid]; return p?p.emoji+' '+p.name:''; }).join(', ');
       return `🆘 ${rNames} est en crise au Welfare, mais récupère lentement sans support. Envoie quelqu'un ici !`;
     }
     if (giverPax.length > 0 && inCrisisPax.length === 0) {
-      const gNames = giverPax.map(pid => { const p = PAX_DATA.find(d=>d.id===pid); return p?p.emoji+' '+p.name:''; }).join(', ');
+      const gNames = giverPax.map(pid => { const p = PAX_MAP[pid]; return p?p.emoji+' '+p.name:''; }).join(', ');
       return `💜 ${gNames} assure le support émo, disponible si quelqu'un entre en crise.`;
     }
   }
-  const archs = occ.map(pid => { const p = PAX_DATA.find(d => d.id === pid); return p ? p.archetype : null; }).filter(Boolean);
-  const names = occ.map(pid => { const p = PAX_DATA.find(d => d.id === pid); return p ? p.emoji + '\u00a0' + p.name : null; }).filter(Boolean).join(', ');
+  const archs = occ.map(pid => { const p = PAX_MAP[pid]; return p ? p.archetype : null; }).filter(Boolean);
+  const names = occ.map(pid => { const p = PAX_MAP[pid]; return p ? p.emoji + '\u00a0' + p.name : null; }).filter(Boolean).join(', ');
   if (archs.includes('dom') && archs.includes('sub'))
     return '🔥 ' + names + '. La tension est palpable. Une scène pourrait se déclencher d\'un moment à l\'autre.';
   if (archs.includes('top') && archs.includes('bottom'))
@@ -1861,7 +1888,7 @@ function getZoneAtmosphere(zid) {
   }
 
   if (occ.length === 1) {
-    const p = PAX_DATA.find(d => d.id === occ[0]);
+    const p = PAX_MAP[occ[0]];
     const isRepos = zone.activityMode === 'repos' || zone.activityMode === 'nego';
     if (isRepos) return `${p.emoji} ${p.name} se repose. La fatigue diminue doucement.`;
     return p.emoji + ' ' + p.name + ' est seul·e ici. ' + (zone.type === 'low' ? 'Iel se ressource tranquillement.' : 'Iel produit, mais une synergie manque.');
@@ -2100,7 +2127,7 @@ let _carriedPaxId = null;   // click-to-carry mechanic
 let _carryGhost = null;
 
 function pickUpPax(paxId) {
-  const p = PAX_DATA.find(d => d.id === paxId);
+  const p = PAX_MAP[paxId];
   if (!p) return;
   const ps = state.pax[paxId];
   if (!ps || ps.state === 'locked') return;
@@ -2138,7 +2165,7 @@ function applyNegoBoostOnArrival(paxId, zoneId) {
   if (ps.negoBoost && (ZONES[zoneId].activityMode === 'fun_high' || ZONES[zoneId].activityMode === 'fun_low')) {
     ps.negoBoost = false;
     ps.negoBoostTicks = 30;
-    const p2 = PAX_DATA.find(d => d.id === paxId);
+    const p2 = PAX_MAP[paxId];
     if (p2) toast(`✨ ${p2.emoji} ${p2.name} arrive avec une énergie décuplée ! (+40% Désordre pendant 30 ticks)`);
   }
 }
@@ -2164,8 +2191,8 @@ function dropPaxOnZone(paxId, zoneId) {
   applyNegoBoostOnArrival(paxId, zoneId);
   renderZones();
   if (state.selectedZone) openZone(state.selectedZone);
-  if (document.getElementById('sidebar').classList.contains('open')) renderSidebar();
-  const p = PAX_DATA.find(d => d.id === paxId);
+  refreshSidebarIfOpen();
+  const p = PAX_MAP[paxId];
   toast(`${p.emoji} ${p.name} → ${zone.name}`);
 }
 
@@ -2456,7 +2483,6 @@ function startGame() {
   setupCarryInteraction();
   renderHUD();
   renderZones();
-  updateMapTimeFilter();
   updateMapTimeImages();
   // Seul le camping est révélé dès le départ
   revealZoneOnMap('camping');
@@ -2551,6 +2577,75 @@ function applyToxicEffects() {
 }
 
 // ===== PRODUCTION TICK (v3) =====
+
+// Sub-function: compute fatigue delta for a pax in a zone
+function calcFatigue(ps, pData, actMode, zid, occ, hasAffinity) {
+  const F = CFG.FATIGUE;
+  let dFatigue = F[actMode] || 0;
+  if (actMode === 'cuisine') dFatigue = hasAffinity ? F.cuisine_affinity : F.cuisine;
+  if (actMode === 'repos' && zid === 'welfare') {
+    const isSupportRole = occ.some(oid => oid !== pData.id && state.pax[oid]?.inCrisis);
+    if (isSupportRole) dFatigue = hasAffinity ? F.welfare_support_affinity : F.welfare_support;
+    else dFatigue *= getWelfareRecoveryMult();
+  }
+  if (dFatigue > 0) dFatigue *= CFG.DAY_FATIGUE_MULT[Math.min(state.day, 6)];
+  return dFatigue;
+}
+
+// Sub-function: compute ennui delta for a pax
+function calcEnnui(ps, actMode, zid, hasAffinity) {
+  if (actMode === 'cuisine' || (actMode === 'repos' && zid === 'welfare')) {
+    const actKey = actMode === 'cuisine' ? 'cuisine' : 'support_emo';
+    const seuil = hasAffinity ? CFG.ENNUI_AFFINITY[actKey] : CFG.ENNUI_BASE[actKey];
+    if      (ps.shiftTicks >= seuil * 2.8) return hasAffinity ? 0.16 : 0.48;
+    else if (ps.shiftTicks >= seuil * 1.8) return hasAffinity ? 0.06 : 0.20;
+    else if (ps.shiftTicks >= seuil)        return hasAffinity ? 0.02 : 0.06;
+  } else if (actMode === 'camping') {
+    if      (ps.shiftTicks >= 80) return 0.40;
+    else if (ps.shiftTicks >= 50) return 0.18;
+    else if (ps.shiftTicks >= 30) return 0.06;
+  } else if (actMode === 'fun_high' || actMode === 'fun_low') {
+    return -0.20;
+  }
+  return 0;
+}
+
+// Sub-function: compute hunger delta from food stock
+function calcFaim(actMode) {
+  if (actMode === 'camping') return -0.08;
+  if (state.food_stock > 100) return -0.5;
+  if (state.food_stock >= 50) return -0.15;
+  if (state.food_stock >= 20) return 0.12;
+  if (state.food_stock > 0)  return 0.32;
+  return 0.80;
+}
+
+// Sub-function: compute vibe production for fun zones
+function calcVibeProduction(ps, pData, arch, zone, zid, zstate, occ, hasAffinity, actMode) {
+  if (actMode !== 'fun_high' && actMode !== 'fun_low') return 0;
+  let vBase = CFG.VIBE_BASE[actMode];
+  vBase *= arch.vibeX;
+  if (hasAffinity) vBase *= 1.4;
+  if (pData.pref === 'day'   && !state.isNight) vBase *= 1.3;
+  if (pData.pref === 'night' &&  state.isNight) vBase *= 1.5;
+  if (zone.bonus === 'night_x2' && state.isNight) vBase *= 2;
+  if (zone.bonus === 'day_x2'   && !state.isNight) vBase *= 2;
+  if (zone.bonus === 'cycle') vBase *= state.isNight ? 0.6 : 1.4;
+  if (pData.archetype === 'switch') vBase *= state.isNight ? 1.2 : 1.3;
+  // Synergies
+  occ.filter(o => o !== pData.id).forEach(otherId => {
+    const oth = PAX_MAP[otherId];
+    if (oth && arch.synergy && arch.synergy.includes(oth.archetype))
+      vBase *= (1 + (arch.synergyBonus || 0.3));
+  });
+  if (pData.archetype === 'slut')                  vBase *= (1 + (occ.length - 1) * 0.25);
+  if (pData.archetype === 'toy' && occ.length === 1) vBase *= 0.3;
+  if (pData.archetype === 'festif') occ.filter(o => o !== pData.id).forEach(() => { vBase *= 1.15; });
+  if (zstate.boostActive) vBase *= 2;
+  if (ps.negoBoostTicks > 0) { vBase *= 1.4; ps.negoBoostTicks--; }
+  return vBase;
+}
+
 function productionTick() {
   if (!state.started || state.gameEnded || state.paused) return;
   state.totalTicks++;
@@ -2559,30 +2654,26 @@ function productionTick() {
 
   // Food stock: collective consumption
   const totalActive = PAX_DATA.filter(p => state.pax[p.id] && (state.pax[p.id].state === 'placed' || state.pax[p.id].state === 'available')).length;
-  state.food_stock = Math.max(0, state.food_stock - 0.16 * totalActive);
+  state.food_stock = Math.max(0, state.food_stock - CFG.FOOD_CONSUME_RATE * totalActive);
 
   // Per-pax simulation per zone
   Object.keys(ZONES).forEach(zid => {
     const zone = ZONES[zid];
     const zstate = state.zones[zid];
-    const occ = zstate.occupants.slice(); // snapshot
+    const occ = zstate.occupants.slice();
     if (!occ.length) {
       if (zone.activityMode === 'nego') zstate.negoProgress = 0;
       return;
     }
 
-    // Auto-boost from synergy (checked once per zone per tick, rate-limited by cooldown)
     tryAutoBoost(zid);
 
     if (zone.activityMode === 'nego') {
-    if (occ.length >= 2) {
+      if (occ.length >= 2) {
         zstate.negoProgress = (zstate.negoProgress || 0) + 1;
         if (zstate.negoProgress === 30) {
           occ.forEach(pid => { state.pax[pid].negoBoost = true; });
-          const names2 = occ.map(pid => {
-            const p = PAX_DATA.find(d => d.id === pid);
-            return p ? p.emoji + ' ' + p.name : '';
-          }).join(' & ');
+          const names2 = occ.map(pid => paxLabel(pid)).join(' & ');
           toast(`🤝 ${names2} ont négocié leur scène ! Prochain lieu : Désordre ×1.4 ✨`);
           zstate.negoProgress = 0;
         }
@@ -2592,7 +2683,7 @@ function productionTick() {
     }
 
     occ.forEach(paxId => {
-      const pData = PAX_DATA.find(p => p.id === paxId);
+      const pData = PAX_MAP[paxId];
       if (!pData) return;
       const ps = state.pax[paxId];
       if (!ps) return;
@@ -2602,99 +2693,33 @@ function productionTick() {
 
       ps.shiftTicks++;
 
-      // ── BULLE DE NÉGO ──
+      // Bulle de négo : early return
       if (actMode === 'nego') {
-        if (ps.inCrisis) {
-          handleCrisis(paxId, zid);
-          return;
-        }
+        if (ps.inCrisis) { handleCrisis(paxId, zid); return; }
         ps.vibe = Math.min(100, ps.vibe + 0.04);
         ps.fatigue = Math.max(0, ps.fatigue - 0.4);
         return;
       }
 
-      // ── FATIGUE ──
-      let dFatigue = 0;
-      if      (actMode === 'fun_high')    dFatigue = 0.32;
-      else if (actMode === 'fun_low')     dFatigue = 0.12;
-      else if (actMode === 'cuisine')     dFatigue = hasAffinity ? 0.28 : 0.55;
-      else if (actMode === 'repos')       dFatigue = -0.8;
-      else if (actMode === 'camping')     dFatigue = -0.4; // repos rudimentaire
-      else if (actMode === 'nego')        dFatigue = -0.4;
-      // support émo = repos actif (fatigue still drains from emotional effort)
-      if (actMode === 'repos' && zid === 'welfare') {
-        const isSupportRole = occ.some(oid => oid !== paxId && state.pax[oid]?.inCrisis);
-        if (isSupportRole) dFatigue = hasAffinity ? 0.4 : 0.6; // tiring to support others
-        else dFatigue *= getWelfareRecoveryMult();
-      }
-      if (dFatigue > 0) dFatigue *= CFG.DAY_FATIGUE_MULT[Math.min(state.day, 6)];
-      ps.fatigue = Math.max(0, Math.min(100, ps.fatigue + dFatigue));
+      // Fatigue
+      ps.fatigue = Math.max(0, Math.min(100, ps.fatigue + calcFatigue(ps, pData, actMode, zid, occ, hasAffinity)));
 
-      // ── FOOD PRODUCTION (cantina uniquement) ──
-      if (actMode === 'cuisine') {
-        state.food_stock = Math.min(CFG.FOOD_STOCK_MAX, state.food_stock + 1.6);
-      }
-      // Camping : pas de production collective — chacun se débrouille
+      // Food production (cantina)
+      if (actMode === 'cuisine') state.food_stock = Math.min(CFG.FOOD_STOCK_MAX, state.food_stock + CFG.FOOD_PROD_RATE);
       if (actMode === 'repos' && zid === 'welfare' && !ps.inCrisis && hasActiveAllyBoost('welfare_boost')) {
         ps.vibe = Math.min(100, ps.vibe + 0.04);
       }
 
-      // ── ENNUI (S-curve) ──
-      if (actMode === 'cuisine' || (actMode === 'repos' && zid === 'welfare')) {
-        const actKey = actMode === 'cuisine' ? 'cuisine' : 'support_emo';
-        const seuil = hasAffinity ? CFG.ENNUI_AFFINITY[actKey] : CFG.ENNUI_BASE[actKey];
-        if      (ps.shiftTicks >= seuil * 2.8) ps.ennui += hasAffinity ? 0.16 : 0.48;
-        else if (ps.shiftTicks >= seuil * 1.8) ps.ennui += hasAffinity ? 0.06 : 0.20;
-        else if (ps.shiftTicks >= seuil)        ps.ennui += hasAffinity ? 0.02 : 0.06;
-      } else if (actMode === 'camping') {
-        // Camping : on s'ennuie vite à attendre sous la tente
-        if      (ps.shiftTicks >= 80) ps.ennui += 0.40;
-        else if (ps.shiftTicks >= 50) ps.ennui += 0.18;
-        else if (ps.shiftTicks >= 30) ps.ennui += 0.06;
-      } else if (actMode === 'fun_high' || actMode === 'fun_low') {
-        ps.ennui = Math.max(0, ps.ennui - 0.20);
-      }
-      ps.ennui = Math.max(0, Math.min(100, ps.ennui));
+      // Ennui
+      ps.ennui = Math.max(0, Math.min(100, ps.ennui + calcEnnui(ps, actMode, zid, hasAffinity)));
 
-      // ── FAIM (from food_stock) ──
-      if (actMode === 'camping') {
-        // Camping : repas autonomes — la faim ne monte pas, récupération très lente
-        ps.faim = Math.max(0, ps.faim - 0.08);
-      } else if (state.food_stock > 100) ps.faim = Math.max(0, ps.faim - 0.5);
-      else if (state.food_stock >= 50) ps.faim = Math.max(0, ps.faim - 0.15);
-      else if (state.food_stock >= 20) ps.faim = Math.min(100, ps.faim + 0.12);
-      else if (state.food_stock > 0)   ps.faim = Math.min(100, ps.faim + 0.32);
-      else                             ps.faim = Math.min(100, ps.faim + 0.80);
+      // Faim
+      const dFaim = calcFaim(actMode);
+      ps.faim = Math.max(0, Math.min(100, ps.faim + dFaim));
 
-      // ── VIBE INDIVIDUELLE ──
+      // Vibe individuelle
       if (!ps.inCrisis) {
-        let dVibe = 0;
-
-        // Fun production
-        if (actMode === 'fun_high' || actMode === 'fun_low') {
-          let vBase = actMode === 'fun_high' ? 0.16 : 0.08;
-          vBase *= arch.vibeX;
-          if (hasAffinity) vBase *= 1.4;
-          if (pData.pref === 'day'   && !state.isNight) vBase *= 1.3;
-          if (pData.pref === 'night' &&  state.isNight) vBase *= 1.5;
-          if (zone.bonus === 'night_x2' && state.isNight) vBase *= 2;
-          if (zone.bonus === 'day_x2'   && !state.isNight) vBase *= 2;
-          if (zone.bonus === 'cycle') vBase *= state.isNight ? 0.6 : 1.4;
-          if (pData.archetype === 'switch') vBase *= state.isNight ? 1.2 : 1.3;
-          // Synergies
-          const coOcc = occ.filter(o => o !== paxId);
-          coOcc.forEach(otherId => {
-            const oth = PAX_DATA.find(p => p.id === otherId);
-            if (oth && arch.synergy && arch.synergy.includes(oth.archetype))
-              vBase *= (1 + (arch.synergyBonus || 0.3));
-          });
-          if (pData.archetype === 'slut')                vBase *= (1 + (occ.length - 1) * 0.25);
-          if (pData.archetype === 'toy' && occ.length === 1) vBase *= 0.3;
-          if (pData.archetype === 'festif') coOcc.forEach(() => { vBase *= 1.15; });
-          if (zstate.boostActive) vBase *= 2;
-          if (ps.negoBoostTicks > 0) { vBase *= 1.4; ps.negoBoostTicks--; }
-          dVibe += vBase;
-        }
+        let dVibe = calcVibeProduction(ps, pData, arch, zone, zid, zstate, occ, hasAffinity, actMode);
 
         // Malus
         if (ps.faim    > 70) dVibe -= 0.24;
@@ -2768,11 +2793,6 @@ function productionTick() {
 }
 
 // ===== EVENT TICK =====
-function updateMapTimeFilter() {
-  // Système CSS filter gardé en réserve — désactivé au profit du système d'images TOD
-  // (voir updateMapTimeImages / TOD_SLOTS)
-}
-
 // ===== SYSTÈME TIME-OF-DAY IMAGES =====
 const TOD_SLOTS = [
   { id: '8h',  minHour: 0,  terrain: 'maps/tod/terrain_8h.png',  bat: 'maps/tod/bat_8h.png'  },
@@ -2889,7 +2909,7 @@ function eventTick() {
   // Meal boost (midi + soir)
   if ((state.hour === 13 || state.hour === 20) && !state.mealBoosted) {
     if (state.zones['cantina'].occupants.length > 0) {
-      state.food_stock = Math.min(CFG.FOOD_STOCK_MAX, state.food_stock + 60);
+      state.food_stock = Math.min(CFG.FOOD_STOCK_MAX, state.food_stock + CFG.FOOD_MEAL_BONUS);
       toast('🍽 Le repas est servi ! Les provisions remontent.');
       state.mealBoosted = true;
       setTimeout(() => state.mealBoosted = false, 3000);
@@ -2911,7 +2931,6 @@ function eventTick() {
   state._vibeLast = state.vibeGlobale;
   state._foodLast = foodPct;
   renderHUD();
-  updateMapTimeFilter();
   updateMapTimeImages();
   updateInvaders();
 }
@@ -2930,7 +2949,7 @@ function onNewDay() {
   });
   if (state.day === 4) {
     clearInterval(state.invaderTimer);
-    state.invaderTimer = setInterval(spawnInvader, 36000);
+    state.invaderTimer = setInterval(spawnInvader, CFG.INVADER_INTERVAL_FRIDAY);
     toast('🎉 VENDREDI ! Grande soirée Teuf : les agents de la Norme arrivent plus vite !');
   }
   setTimeout(() => {
@@ -2941,7 +2960,7 @@ function onNewDay() {
 // ===== INVADERS =====
 function spawnInvader() {
   if (!state.started || state.gameEnded || state.paused) return;
-  if (state.invaders.length >= 5) return; // v3: max 5
+  if (state.invaders.length >= CFG.INVADER_MAX) return;
   // Ne pas spawner un type déjà présent sur la carte
   const activeTypes = new Set(state.invaders.map(i => i.type));
   const pool = INVADERS_DATA.filter(i => !activeTypes.has(i.type));
@@ -3133,7 +3152,7 @@ function buildToxicBuilding(inv) {
   });
   state.zones[target].occupants = [];
   const zoneName = ZONES[target].name;
-  logEvent('alert', `🏭 ${fb.emoji} ${fb.name} construit à la place de ${zoneName}. ${kicked.length ? kicked.map(id => { const p = PAX_DATA.find(d=>d.id===id); return p ? p.emoji+' '+p.name : ''; }).join(', ') + ' ont été chassé·es.' : ''}`);
+  logEvent('alert', `🏭 ${fb.emoji} ${fb.name} construit à la place de ${zoneName}. ${kicked.length ? kicked.map(id => paxLabel(id)).join(', ') + ' ont été chassé·es.' : ''}`);
   toast(`🏭 ${inv.data.emoji} ${inv.data.name} a construit ${fb.emoji} ${fb.name} !`);
   // Révéler la zone sur la carte — norme : pas de clic, juste l'image
   const revealEl = document.getElementById('reveal-' + target);
@@ -3527,32 +3546,12 @@ function confirmPaxPicker() {
     state.zones[zoneId].occupants.push(paxId);
     applyNegoBoostOnArrival(paxId, zoneId);
   });
-  const names = selected.map(id => { const p = PAX_DATA.find(d => d.id === id); return p ? p.emoji + ' ' + p.name : ''; }).join(', ');
+  const names = selected.map(id => paxLabel(id)).join(', ');
   toast(`${names} rejoignent ${ZONES[zoneId].name}`);
   renderZones();
   openZone(zoneId);
-  if (document.getElementById('sidebar').classList.contains('open')) renderSidebar();
+  refreshSidebarIfOpen();
   closeModal('pax-picker');
-}
-
-function placePax(paxId, zoneId) {
-  const ps = state.pax[paxId];
-  if (ps.state !== 'available') return;
-  if (ps.placedIn) {
-    const old = state.zones[ps.placedIn];
-    old.occupants = old.occupants.filter(id => id !== paxId);
-  }
-  ps.state = 'placed';
-  ps.placedIn = zoneId;
-  ps.shiftTicks = 0;
-  ps.ennui = Math.max(0, ps.ennui - 5);
-  state.zones[zoneId].occupants.push(paxId);
-  applyNegoBoostOnArrival(paxId, zoneId);
-  closeModal('pax-picker');
-  renderZones();
-  openZone(zoneId);
-  const p = PAX_DATA.find(d => d.id === paxId);
-  toast(`${p.emoji} ${p.name} rejoint ${ZONES[zoneId].name}`);
 }
 
 function removePaxFromZone(paxId) {
@@ -3565,7 +3564,7 @@ function removePaxFromZone(paxId) {
   ps.ennui = Math.max(0, ps.ennui - 5);
   renderZones();
   if (state.selectedZone) openZone(state.selectedZone);
-  const p = PAX_DATA.find(d => d.id === paxId);
+  const p = PAX_MAP[paxId];
   toast(`${p.emoji} ${p.name} est disponible.`);
 }
 
@@ -3695,7 +3694,7 @@ function openZone(zoneId) {
 }
 
 function makeZoneChip(pid, extraClass) {
-  const p = PAX_DATA.find(d => d.id === pid);
+  const p = PAX_MAP[pid];
   if (!p) return document.createTextNode('');
   const ps = state.pax[pid];
   const chip = document.createElement('div');
@@ -3735,7 +3734,7 @@ const SYNERGY_PAIRS = [
 
 function hasSynergyPair(occupants) {
   const archs = occupants.map(pid => {
-    const p = PAX_DATA.find(d => d.id === pid);
+    const p = PAX_MAP[pid];
     return p ? p.archetype : null;
   }).filter(Boolean);
   return SYNERGY_PAIRS.some(([a, b]) => archs.includes(a) && archs.includes(b));
@@ -3757,7 +3756,7 @@ function tryAutoBoost(zid) {
   const zEl = document.getElementById('zone-' + zid.replace(/_/g,'-'));
   if (zEl) zEl.classList.add('boosted');
   // Find the pair to name them
-  const archs = zstate.occupants.map(pid => { const p = PAX_DATA.find(d=>d.id===pid); return p ? {name:p.name, emoji:p.emoji, arch:p.archetype} : null; }).filter(Boolean);
+  const archs = zstate.occupants.map(pid => { const p = PAX_MAP[pid]; return p ? {name:p.name, emoji:p.emoji, arch:p.archetype} : null; }).filter(Boolean);
   const pair = SYNERGY_PAIRS.find(([a,b]) => archs.some(x=>x.arch===a) && archs.some(x=>x.arch===b));
   let msg = `⚡ Synergie dans ${zone.name} !`;
   if (pair) {
@@ -3773,6 +3772,11 @@ function tryAutoBoost(zid) {
 }
 
 // ===== RENDER =====
+// Helper: refresh sidebar only if open (called after state changes)
+function refreshSidebarIfOpen() {
+  refreshSidebarIfOpen();
+}
+
 function renderHUD() {
   const vPct = Math.round(state.vibeGlobale);
   document.getElementById('vibe-fill').style.width = vPct + '%';
@@ -3826,7 +3830,7 @@ function renderHUD() {
   const icon = state.isNight ? '🌙' : '☀';
   document.getElementById('hud-day').innerHTML = day + '<br><span style="color:var(--teal);font-size:6px;">' + icon + ' ' + String(h).padStart(2,'0') + 'h</span>';
   // Refresh sidebar if open
-  if (document.getElementById('sidebar').classList.contains('open')) renderSidebar();
+  refreshSidebarIfOpen();
 }
 
 function renderZones() {
@@ -3854,7 +3858,7 @@ function renderZones() {
       const row = document.createElement('div');
       row.className = 'zone-pax-row';
       zstate.occupants.forEach(pid => {
-        const p = PAX_DATA.find(d => d.id === pid);
+        const p = PAX_MAP[pid];
         if (!p) return;
         const ps2 = state.pax[p.id];
         const span = document.createElement('span');
@@ -3903,7 +3907,7 @@ function sendToWelfare(paxId) {
   welfare.occupants.push(paxId);
   renderZones();
   renderSidebar();
-  const p = PAX_DATA.find(d => d.id === paxId);
+  const p = PAX_MAP[paxId];
   toast(`${p.emoji} ${p.name} part au Welfare 💜`);
 }
 
@@ -4107,7 +4111,7 @@ function checkScenes() {
       const zoneState = state.zones[zid];
       if (!zoneState || !zoneState.occupants.length) return;
       const archetypes = zoneState.occupants.map(pid => {
-        const p = PAX_DATA.find(d => d.id === pid); return p ? p.archetype : null;
+        const p = PAX_MAP[pid]; return p ? p.archetype : null;
       }).filter(Boolean);
       const allPresent = scene.archs.every(a => archetypes.includes(a));
       if (!allPresent) return;
@@ -4150,7 +4154,7 @@ function checkScenes() {
           PAX_DATA.forEach(p => { const ps = state.pax[p.id]; if (ps && ps.state === 'placed' && !ps.inCrisis) ps.vibe = Math.min(100, ps.vibe + 12); });
           toast('🎲 Jackpot Désordre ! +12 Désordre pour toustes');
         } else if (r < 0.7) {
-          state.food_stock = Math.min(CFG.FOOD_STOCK_MAX, state.food_stock + 60);
+          state.food_stock = Math.min(CFG.FOOD_STOCK_MAX, state.food_stock + CFG.FOOD_MEAL_BONUS);
           toast('🎲 Apport surprise à la cuisine !');
         } else {
           PAX_DATA.forEach(p => { const ps = state.pax[p.id]; if (ps && ps.state === 'placed') ps.fatigue = Math.max(0, ps.fatigue - 15); });
@@ -4214,7 +4218,7 @@ function logEvent(type, msg) {
   const day = CFG.DAYS[Math.min(state.day, 6)] || 'Lundi';
   const h = state.hour !== undefined ? String(state.hour % 24).padStart(2,'0') + 'h' : '';
   state.journal.unshift({ type, msg, time: day + (h ? ' ' + h : '') });
-  if (state.journal.length > 40) state.journal.length = 40;
+  if (state.journal.length > CFG.JOURNAL_MAX) state.journal.length = CFG.JOURNAL_MAX;
   // Update badge
   const badge = document.getElementById('quest-fab-badge');
   if (badge) {
@@ -4403,10 +4407,11 @@ function setupMapInteraction() {
 
   function clampAndApply() {
     const mapW = CFG.MAP_W * scale, mapH = CFG.MAP_H * scale;
-    const maxTx = mapW <= wrW ? (wrW - mapW) / 2 : 60;
-    const minTx = mapW <= wrW ? (wrW - mapW) / 2 : wrW - mapW - 60;
-    const maxTy = mapH <= wrH ? (wrH - mapH) / 2 : 60;
-    const minTy = mapH <= wrH ? (wrH - mapH) / 2 : wrH - mapH - 60;
+    const pad = CFG.MAP_PADDING;
+    const maxTx = mapW <= wrW ? (wrW - mapW) / 2 : pad;
+    const minTx = mapW <= wrW ? (wrW - mapW) / 2 : wrW - mapW - pad;
+    const maxTy = mapH <= wrH ? (wrH - mapH) / 2 : pad;
+    const minTy = mapH <= wrH ? (wrH - mapH) / 2 : wrH - mapH - pad;
     tx = Math.max(Math.min(tx, maxTx), minTx);
     ty = Math.max(Math.min(ty, maxTy), minTy);
     vp.style.transform = `translate(${tx}px,${ty}px) scale(${scale})`;
@@ -4494,7 +4499,7 @@ function setupMapInteraction() {
       }
       // Zoom centered on midpoint
       if (prevDist && prevDist > 0) {
-        const newScale = Math.max(0.5, Math.min(1.6, scale * curDist / prevDist));
+        const newScale = Math.max(CFG.MAP_SCALE_MIN, Math.min(CFG.MAP_SCALE_MAX, scale * curDist / prevDist));
         const ratio = newScale / scale;
         tx = curMid.x - (curMid.x - tx) * ratio;
         ty = curMid.y - (curMid.y - ty) * ratio;
@@ -4532,7 +4537,7 @@ function setupMapInteraction() {
   // Wheel zoom (desktop)
   wrapper.addEventListener('wheel', e => {
     e.preventDefault();
-    scale = Math.max(0.5, Math.min(1.6, scale + (e.deltaY > 0 ? -0.08 : 0.08)));
+    scale = Math.max(CFG.MAP_SCALE_MIN, Math.min(CFG.MAP_SCALE_MAX, scale + (e.deltaY > 0 ? -CFG.ZOOM_STEP : CFG.ZOOM_STEP)));
     clampAndApply();
   }, {passive:false});
 
@@ -4542,7 +4547,7 @@ function setupMapInteraction() {
     if (pts.size > 0) return;
     if (lastDownOnInteractable) { lastTap = 0; return; }
     const now = Date.now();
-    if (now - lastTap < 300) { scale = scale < 1.1 ? 1.3 : 0.7; clampAndApply(); }
+    if (now - lastTap < 300) { scale = scale < 1.1 ? CFG.MAP_SCALE_MAX * 0.81 : 0.7; clampAndApply(); }
     lastTap = now;
   });
 }
