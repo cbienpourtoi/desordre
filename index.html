@@ -1006,7 +1006,7 @@ const CFG = {
   // v3 spec uses 180 ticks/day; scale = 180/450 = 0.4
   FOOD_STOCK_INIT: 150,
   FOOD_STOCK_MAX: 300,
-  INVADER_INTERVAL: 75000,
+  INVADER_INTERVAL: 35000,
   BOOST_DURATION: 15000,  // 15s boost when synergy fires
   BOOST_COOLDOWN: 120000, // 2min between auto-boosts per zone
   MAP_W: 900,
@@ -2584,13 +2584,11 @@ function productionTick() {
       if (dFatigue > 0) dFatigue *= CFG.DAY_FATIGUE_MULT[Math.min(state.day, 6)];
       ps.fatigue = Math.max(0, Math.min(100, ps.fatigue + dFatigue));
 
-      // ── FOOD PRODUCTION (cantina pleine + camping rudimentaire) ──
+      // ── FOOD PRODUCTION (cantina uniquement) ──
       if (actMode === 'cuisine') {
         state.food_stock = Math.min(CFG.FOOD_STOCK_MAX, state.food_stock + 1.6);
       }
-      if (actMode === 'camping') {
-        state.food_stock = Math.min(CFG.FOOD_STOCK_MAX, state.food_stock + 0.8); // moitié de la cantina
-      }
+      // Camping : pas de production collective — chacun se débrouille
       if (actMode === 'repos' && zid === 'welfare' && !ps.inCrisis && hasActiveAllyBoost('welfare_boost')) {
         ps.vibe = Math.min(100, ps.vibe + 0.04);
       }
@@ -2602,13 +2600,21 @@ function productionTick() {
         if      (ps.shiftTicks >= seuil * 2.8) ps.ennui += hasAffinity ? 0.16 : 0.48;
         else if (ps.shiftTicks >= seuil * 1.8) ps.ennui += hasAffinity ? 0.06 : 0.20;
         else if (ps.shiftTicks >= seuil)        ps.ennui += hasAffinity ? 0.02 : 0.06;
+      } else if (actMode === 'camping') {
+        // Camping : on s'ennuie vite à attendre sous la tente
+        if      (ps.shiftTicks >= 80) ps.ennui += 0.40;
+        else if (ps.shiftTicks >= 50) ps.ennui += 0.18;
+        else if (ps.shiftTicks >= 30) ps.ennui += 0.06;
       } else if (actMode === 'fun_high' || actMode === 'fun_low') {
         ps.ennui = Math.max(0, ps.ennui - 0.20);
       }
       ps.ennui = Math.max(0, Math.min(100, ps.ennui));
 
       // ── FAIM (from food_stock) ──
-      if      (state.food_stock > 100) ps.faim = Math.max(0, ps.faim - 0.5);
+      if (actMode === 'camping') {
+        // Camping : repas autonomes — la faim ne monte pas, récupération très lente
+        ps.faim = Math.max(0, ps.faim - 0.08);
+      } else if (state.food_stock > 100) ps.faim = Math.max(0, ps.faim - 0.5);
       else if (state.food_stock >= 50) ps.faim = Math.max(0, ps.faim - 0.15);
       else if (state.food_stock >= 20) ps.faim = Math.min(100, ps.faim + 0.12);
       else if (state.food_stock > 0)   ps.faim = Math.min(100, ps.faim + 0.32);
@@ -3312,6 +3318,7 @@ function onCloseDiscovery() {
 
 // Construit une zone : unlock + reveal + toast
 function buildZone(zid) {
+  if (!state.zones[zid].locked) return; // déjà construit, rien à faire
   state.zones[zid].locked = false;
   state.zones[zid].queerBuilt = true; // protégé contre les bâtiments toxiques
   state.stats.builtZones = (state.stats.builtZones || 0) + 1;
