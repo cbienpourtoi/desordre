@@ -880,6 +880,18 @@ html,body{width:100%;height:100%;overflow:hidden;background:var(--dark);font-fam
   <button class="start-btn" onclick="location.reload()">REJOUER</button>
 </div>
 
+<!-- DEV PANEL (visible si ?dev=1 dans l'URL) -->
+<div id="dev-panel" style="display:none;position:fixed;bottom:60px;right:10px;z-index:9999;background:#0a0f07;border:2px solid #5fcfe8;border-radius:6px;padding:10px;font-family:monospace;font-size:11px;color:#7fff5a;gap:6px;display:flex;flex-direction:column;min-width:160px;">
+  <div style="color:#5fcfe8;font-weight:bold;margin-bottom:4px;">⚙️ DEV MODE</div>
+  <button onclick="devSpawnInvader()" style="background:#1a2f1a;border:1px solid #5fcfe8;color:#5fcfe8;padding:4px 8px;cursor:pointer;border-radius:3px;">👾 Spawn invader</button>
+  <button onclick="devFailInvader()" style="background:#1a2f1a;border:1px solid #e74c3c;color:#e74c3c;padding:4px 8px;cursor:pointer;border-radius:3px;">💥 Fail invader</button>
+  <button onclick="devQueerInvader()" style="background:#1a2f1a;border:1px solid #ffe93f;color:#ffe93f;padding:4px 8px;cursor:pointer;border-radius:3px;">🌈 Queer invader</button>
+  <button onclick="devNextZone()" style="background:#1a2f1a;border:1px solid #7fff5a;color:#7fff5a;padding:4px 8px;cursor:pointer;border-radius:3px;">🏗 Zone suivante</button>
+  <button onclick="devFillFood()" style="background:#1a2f1a;border:1px solid #ffe93f;color:#ffe93f;padding:4px 8px;cursor:pointer;border-radius:3px;">🍽 Remplir food</button>
+  <button onclick="devBoostVibe()" style="background:#1a2f1a;border:1px solid #ff69b4;color:#ff69b4;padding:4px 8px;cursor:pointer;border-radius:3px;">⚡ +Vibe pax</button>
+  <button onclick="devFastDay()" style="background:#1a2f1a;border:1px solid #aaa;color:#aaa;padding:4px 8px;cursor:pointer;border-radius:3px;">⏩ Jour rapide</button>
+</div>
+
 <!-- QUEST PANEL -->
 <div id="quest-panel">
   <div id="quest-panel-header">
@@ -4113,6 +4125,64 @@ function setupMapInteraction() {
     setInterval(updateEl, 30000);
   } catch(e) { /* silencieux en prod */ }
 })();
+
+// ── Dev panel ─────────────────────────────────────────────────
+const DEV_MODE = new URLSearchParams(location.search).get('dev') === '1';
+if (DEV_MODE) {
+  const panel = document.getElementById('dev-panel');
+  if (panel) panel.style.display = 'flex';
+}
+
+function devSpawnInvader() {
+  if (!state.started) return;
+  spawnInvader();
+  toast('⚙️ DEV — Invader spawné');
+}
+function devFailInvader() {
+  if (!state.started || !state.invaders.length) { toast('⚙️ Aucun invader actif'); return; }
+  const inv = state.invaders[0];
+  queeriseInvader(inv.id, false);
+  toast('⚙️ DEV — Échec forcé → bâtiment norme');
+}
+function devQueerInvader() {
+  if (!state.started || !state.invaders.length) { toast('⚙️ Aucun invader actif'); return; }
+  const inv = state.invaders[0];
+  queeriseInvader(inv.id, true);
+  toast('⚙️ DEV — Queerisation forcée !');
+}
+function devNextZone() {
+  if (!state.started) return;
+  state._pendingZoneBuild = true;
+  showZoneBuildPicker();
+  toast('⚙️ DEV — Zone build picker ouvert');
+}
+function devFillFood() {
+  if (!state.started) return;
+  state.food_stock = CFG.FOOD_STOCK_MAX;
+  renderHUD();
+  toast('⚙️ DEV — Nourriture max');
+}
+function devBoostVibe() {
+  if (!state.started) return;
+  PAX_DATA.forEach(p => { if (state.pax[p.id]) state.pax[p.id].vibe = 90; });
+  renderHUD();
+  toast('⚙️ DEV — Vibe pax → 90');
+}
+let _devFastDay = false;
+function devFastDay() {
+  if (!state.started) return;
+  _devFastDay = !_devFastDay;
+  if (_devFastDay) {
+    // Multiplier dayProgress beaucoup plus vite
+    window._devDayInterval = setInterval(() => {
+      if (state.started && !state.gameEnded) state.dayProgress += 0.003;
+    }, 100);
+    toast('⚙️ DEV — Jour rapide ON (×18)');
+  } else {
+    clearInterval(window._devDayInterval);
+    toast('⚙️ DEV — Jour rapide OFF');
+  }
+}
 </script>
 </body>
 </html>
