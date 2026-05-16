@@ -2680,7 +2680,11 @@ function onNewDay() {
 function spawnInvader() {
   if (!state.started || state.gameEnded) return;
   if (state.invaders.length >= 5) return; // v3: max 5
-  const inv = INVADERS_DATA[Math.floor(Math.random() * INVADERS_DATA.length)];
+  // Ne pas spawner un type déjà présent sur la carte
+  const activeTypes = new Set(state.invaders.map(i => i.type));
+  const pool = INVADERS_DATA.filter(i => !activeTypes.has(i.type));
+  if (!pool.length) return; // tous les types déjà présents
+  const inv = pool[Math.floor(Math.random() * pool.length)];
   // Position de départ (bords de la carte)
   const side = Math.floor(Math.random() * 4);
   let sx, sy;
