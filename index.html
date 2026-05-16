@@ -381,9 +381,9 @@ html,body{width:100%;height:100%;overflow:hidden;background:var(--dark);font-fam
 .lb-btn:hover{background:rgba(95,207,232,0.3);}
 .lb-btn:disabled{opacity:0.4;cursor:default;}
 #hud-lb-btn{
-  position:fixed;top:44px;right:10px;z-index:500;
   background:rgba(26,14,46,0.85);border:1.5px solid var(--teal);
   color:var(--teal);font-size:16px;padding:4px 8px;border-radius:4px;cursor:pointer;
+  flex-shrink:0;
 }
 #hud-lb-btn:hover{background:rgba(95,207,232,0.2);}
 
@@ -708,6 +708,7 @@ html,body{width:100%;height:100%;overflow:hidden;background:var(--dark);font-fam
   <div id="food-indicator" style="color:var(--green);">🍽 —</div>
   <div id="boost-collectif-indicator" style="display:none;">✨ BOOST</div>
   <div id="hud-day">LUN<br><span id="hud-time" style="color:var(--teal);font-size:6px;">☀ 08h</span></div>
+  <button id="hud-lb-btn" onclick="showLeaderboard()" title="Leaderboard">🏆</button>
 </div>
 
 <!-- NIGHT OVERLAY -->
@@ -957,8 +958,7 @@ html,body{width:100%;height:100%;overflow:hidden;background:var(--dark);font-fam
   <button class="lb-btn lb-close" onclick="document.getElementById('leaderboard-modal').classList.remove('show')">FERMER</button>
 </div>
 
-<!-- LEADERBOARD HUD BUTTON -->
-<button id="hud-lb-btn" onclick="showLeaderboard()" title="Leaderboard">🏆</button>
+<!-- LEADERBOARD HUD BUTTON (déplacé dans #hud) -->
 
 <!-- DEV PANEL (visible si ?dev=1 dans l'URL) -->
 <div id="dev-panel" style="display:none;position:fixed;bottom:60px;left:10px;z-index:9999;background:#0a0f07;border:2px solid #5fcfe8;border-radius:6px;padding:10px;font-family:monospace;font-size:11px;color:#7fff5a;flex-direction:column;gap:6px;min-width:160px;">
