@@ -98,6 +98,17 @@ html,body{width:100%;height:100%;overflow:hidden;background:var(--dark);font-fam
 .map-reveal { opacity:0; }
 .map-reveal-night { opacity:0; }
 
+/* Masque de terrain vide pour cacher un bâtiment dans la couche terrain */
+.zone-blank {
+  position:absolute;top:0;left:0;
+  display:block;
+  width:900px;height:675px;
+  image-rendering:auto;
+  pointer-events:none;
+  transition:opacity 1.2s ease;
+  opacity:1;
+}
+
 /* ===== ZONES CLIQUABLES sur la carte ===== */
 .zone{
   position:absolute;border-radius:6px;cursor:pointer;
@@ -2563,16 +2574,10 @@ function updateMapTimeImages() {
     if (el) el.style.opacity = s.id === slot.id ? '1' : '0';
   });
 
-  // Reveals bâtiments : bref fondu pour masquer le swap de source
-  // Les zones toxiques gardent leur image norme, les autres suivent le tod
-  const reveals = document.querySelectorAll('.map-reveal');
-  reveals.forEach(el => { if (el.dataset.unlocked === '1') el.style.opacity = '0'; });
-  setTimeout(() => {
-    reveals.forEach(el => {
-      if (el.dataset.toxic !== '1') el.src = slot.bat;
-      if (el.dataset.unlocked === '1') el.style.opacity = '1';
-    });
-  }, 600);
+  // Swap direct du src — pas de hide/show (les images sont déjà en cache, swap quasi-instantané)
+  document.querySelectorAll('.map-reveal').forEach(el => {
+    if (el.dataset.toxic !== '1') el.src = slot.bat;
+  });
 }
 
 function toggleNightGlows(isNight) {
@@ -2597,10 +2602,24 @@ function eventTick() {
   const wasNight = state.isNight;
   state.isNight = state.hour >= 22 || state.hour < 6;
   if (wasNight !== state.isNight) {
+    // Étendre les transitions des reveals à 8s pour matcher le fondu de #map-img-night
+    document.querySelectorAll('.map-reveal, .map-reveal-night').forEach(el => {
+      el.style.transition = 'opacity 8s ease';
+    });
+    setTimeout(() => {
+      document.querySelectorAll('.map-reveal, .map-reveal-night').forEach(el => {
+        el.style.transition = ''; // retour à la transition CSS par défaut (1.2s)
+      });
+    }, 8200);
+
     document.getElementById('night-overlay').classList.toggle('night', state.isNight);
     document.getElementById('map-img-night').classList.toggle('night', state.isNight);
     document.getElementById('map-atmosphere-night').classList.toggle('night', state.isNight);
-    // Révélations nocturnes : visibles seulement si la zone est débloquée ET c'est la nuit
+    // Fade out les reveals de jour la nuit, fade in le jour
+    document.querySelectorAll('.map-reveal').forEach(el => {
+      if (el.dataset.unlocked === '1') el.style.opacity = state.isNight ? '0' : '1';
+    });
+    // Fade in les reveals de nuit la nuit, fade out le jour
     document.querySelectorAll('.map-reveal-night').forEach(el => {
       el.style.opacity = (state.isNight && el.dataset.unlocked === '1') ? '1' : '0';
     });
