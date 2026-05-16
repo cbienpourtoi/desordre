@@ -5,7 +5,7 @@ const fs = require('fs');
 
 async function main() {
   const [mapFull, mapVide] = await Promise.all([
-    Jimp.read('map.png'), Jimp.read('map_vide.png'),
+    Jimp.read('maps/map.png'), Jimp.read('maps/map_vide.png'),
   ]);
 
   // Paramètres de transformation (calculés depuis analyse colorimétrique sur champ_ble)
@@ -38,7 +38,7 @@ async function main() {
     }
   }
   console.log(`Pixels modifiés: ${changed} / ${W * H}`);
-  await out.write('map_vide_chaud.png');
+  await out.write('maps/map_vide_chaud.png');
   console.log('→ map_vide_chaud.png généré');
 
   // Aperçu comparaison : haut-gauche (champ_ble) des 3 versions côte à côte

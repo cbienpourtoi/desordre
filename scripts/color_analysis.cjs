@@ -28,7 +28,7 @@ async function main() {
   const dir = 'noc/comparaisons';
   if (!fs.existsSync(dir)) fs.mkdirSync(dir, {recursive:true});
 
-  const [mapFull, mapVide] = await Promise.all([Jimp.read('map.png'), Jimp.read('map_vide.png')]);
+  const [mapFull, mapVide] = await Promise.all([Jimp.read('maps/map.png'), Jimp.read('maps/map_vide.png')]);
   const CW=900, CH=675;
   const fullS = mapFull.clone().resize({w:CW,h:CH});
   const videS = mapVide.clone().resize({w:CW,h:CH});

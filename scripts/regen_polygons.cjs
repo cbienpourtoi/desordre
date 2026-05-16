@@ -4,7 +4,7 @@ const fs = require('fs');
 
 async function main() {
   const [mapFull, mapVide, limites] = await Promise.all([
-    Jimp.read('map.png'), Jimp.read('map_vide.png'), Jimp.read('map_limites.png'),
+    Jimp.read('maps/map.png'), Jimp.read('maps/map_vide.png'), Jimp.read('maps/map_limites.png'),
   ]);
   const IW=limites.width, IH=limites.height, CW=900, CH=675;
   const SX=IW/CW, SY=IH/CH;

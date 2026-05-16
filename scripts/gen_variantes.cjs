@@ -35,7 +35,7 @@ async function main() {
   if (!fs.existsSync('noc/comparaisons')) fs.mkdirSync('noc/comparaisons', {recursive: true});
 
   const [mapFull, mapVide] = await Promise.all([
-    Jimp.read('map.png'), Jimp.read('map_vide.png'),
+    Jimp.read('maps/map.png'), Jimp.read('maps/map_vide.png'),
   ]);
 
   console.log('Génération map_vide_chaud (terrain vide, ton chaud)…');

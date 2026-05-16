@@ -33,8 +33,8 @@ async function main() {
   console.log(`Scale CSS→image: ${SX.toFixed(3)} × ${SY.toFixed(3)}`);
   console.log('Chargement des images...');
   const [full, vide] = await Promise.all([
-    Jimp.read('map.png'),
-    Jimp.read('map_vide.png'),
+    Jimp.read('maps/map.png'),
+    Jimp.read('maps/map_vide.png'),
   ]);
 
   // 1. Masque diff en coordonnées image (IMG_W × IMG_H)
