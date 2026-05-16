@@ -68,6 +68,8 @@ html,body{width:100%;height:100%;overflow:hidden;background:var(--dark);font-fam
   display:block;
   width:900px;height:675px;
   image-rendering:auto;
+  filter:var(--map-time-filter,none);
+  transition:filter 5s ease;
 }
 #map-img-night{
   position:absolute;top:0;left:0;
@@ -75,7 +77,8 @@ html,body{width:100%;height:100%;overflow:hidden;background:var(--dark);font-fam
   width:900px;height:675px;
   image-rendering:auto;
   opacity:0;
-  transition:opacity 8s ease;
+  filter:var(--map-time-filter,none);
+  transition:opacity 8s ease, filter 5s ease;
   pointer-events:none;
 }
 #map-img-night.night{opacity:1;}
@@ -87,7 +90,8 @@ html,body{width:100%;height:100%;overflow:hidden;background:var(--dark);font-fam
   width:900px;height:675px;
   image-rendering:auto;
   pointer-events:none;
-  transition:opacity 1.2s ease;
+  filter:var(--map-time-filter,none);
+  transition:opacity 1.2s ease, filter 5s ease;
 }
 .map-reveal { opacity:0; }
 .map-reveal-night { opacity:0; }
@@ -1981,6 +1985,7 @@ function startGame() {
   setupCarryInteraction();
   renderHUD();
   renderZones();
+  updateMapTimeFilter();
   // Révéler les zones toujours actives dès le départ
   revealZoneOnMap('welfare');
   revealZoneOnMap('bulle_nego');
@@ -2201,6 +2206,22 @@ function productionTick() {
 }
 
 // ===== EVENT TICK =====
+function updateMapTimeFilter() {
+  // t = 0 à 8h (matin frais), peak = 1 à 20h (soir chaud), retour à 0 à 8h+24
+  // Basé sur analyse colorimétrique : ΔSat=+19.4%, Δa*=+7.91, Δb*=+7.47
+  const h = state.hour || 8;
+  const t = state.isNight ? 0 : Math.max(0, Math.sin(Math.PI * (h - 8) / 24));
+  if (t < 0.005) {
+    document.documentElement.style.setProperty('--map-time-filter', 'none');
+  } else {
+    const sat    = (1 + 0.20 * t).toFixed(3);
+    const hueRot = (-8  * t).toFixed(1);
+    const bright = (1 + 0.04 * t).toFixed(3);
+    document.documentElement.style.setProperty('--map-time-filter',
+      `saturate(${sat}) hue-rotate(${hueRot}deg) brightness(${bright})`);
+  }
+}
+
 function toggleNightGlows(isNight) {
   const ids = ['playroom-ext','tente-cer','mixroom','pmu'];
   ids.forEach(id => {
@@ -2250,6 +2271,7 @@ function eventTick() {
     logEvent('arrivee', `${p.emoji} ${p.name} est arrivé·e !`);
   });
   renderHUD();
+  updateMapTimeFilter();
   updateInvaders();
 }
 
