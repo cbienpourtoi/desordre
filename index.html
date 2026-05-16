@@ -2122,20 +2122,53 @@ function _clearAllDragGlows() {
   document.querySelectorAll('.map-reveal, .map-reveal-night').forEach(r => r.style.filter = '');
 }
 
+function _findZoneAtPoint(clientX, clientY) {
+  // Essai 1 : elementFromPoint (respecte clip-path si le reveal est visible)
+  const under = document.elementFromPoint(clientX, clientY);
+  if (under && under.classList.contains('map-reveal') && under.dataset.unlocked === '1') {
+    return under.id.replace('reveal-', '');
+  }
+  if (under && under.classList.contains('map-reveal-night') && under.dataset.unlocked === '1') {
+    return under.id.replace('reveal-night-', '');
+  }
+  // Essai 2 : point-in-polygon sur les coordonnées CSS de la carte
+  const mapVp = document.getElementById('map-viewport');
+  if (!mapVp) return null;
+  const rect = mapVp.getBoundingClientRect();
+  const scaleX = 900 / rect.width;
+  const scaleY = 675 / rect.height;
+  const px = (clientX - rect.left) * scaleX;
+  const py = (clientY - rect.top) * scaleY;
+  const reveals = document.querySelectorAll('.map-reveal');
+  for (const r of reveals) {
+    if (r.dataset.unlocked !== '1') continue;
+    const cp = r.style.clipPath || '';
+    const pts = [];
+    const re = /([\d.]+)px\s+([\d.]+)px/g;
+    let m;
+    while ((m = re.exec(cp))) pts.push([parseFloat(m[1]), parseFloat(m[2])]);
+    if (pts.length < 3) continue;
+    // Ray-casting
+    let inside = false;
+    for (let i = 0, j = pts.length - 1; i < pts.length; j = i++) {
+      const [xi, yi] = pts[i], [xj, yj] = pts[j];
+      if ((yi > py) !== (yj > py) && px < (xj - xi) * (py - yi) / (yj - yi) + xi) inside = !inside;
+    }
+    if (inside) return r.id.replace('reveal-', '');
+  }
+  return null;
+}
+
 function setupZoneDropTargets() {
-  // Écoute dragover sur le map-wrapper entier, utilise elementFromPoint pour
-  // hit-tester le vrai polygone du bâtiment (clip-path respecté par elementFromPoint).
-  // Les .zone ont pointer-events:none → elementFromPoint retourne le map-reveal si dans le polygone.
   const mapWrapper = document.getElementById('map-wrapper');
 
   mapWrapper.addEventListener('dragover', e => {
     if (!_dragPaxId) return;
-    const under = document.elementFromPoint(e.clientX, e.clientY);
-    const revealEl = under && under.classList.contains('map-reveal') ? under : null;
-    if (revealEl && revealEl.dataset.unlocked === '1') {
-      e.preventDefault();
-      e.dataTransfer.dropEffect = 'move';
-      const zid = revealEl.id.replace('reveal-', '');
+    // Toujours autoriser le drop sur la carte (sinon curseur interdit)
+    e.preventDefault();
+    e.dataTransfer.dropEffect = 'move';
+    const zid = _findZoneAtPoint(e.clientX, e.clientY);
+    if (zid) {
       if (mapWrapper.dataset.dragOverZone !== zid) {
         _clearAllDragGlows();
         mapWrapper.dataset.dragOverZone = zid;
@@ -2151,10 +2184,9 @@ function setupZoneDropTargets() {
 
   mapWrapper.addEventListener('drop', e => {
     e.preventDefault();
-    const under = document.elementFromPoint(e.clientX, e.clientY);
-    const revealEl = under && under.classList.contains('map-reveal') ? under : null;
-    if (revealEl && revealEl.dataset.unlocked === '1' && _dragPaxId) {
-      dropPaxOnZone(_dragPaxId, revealEl.id.replace('reveal-', ''));
+    const zid = _findZoneAtPoint(e.clientX, e.clientY);
+    if (zid && _dragPaxId) {
+      dropPaxOnZone(_dragPaxId, zid);
     }
     delete mapWrapper.dataset.dragOverZone;
     _clearAllDragGlows();
