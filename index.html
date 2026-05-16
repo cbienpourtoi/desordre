@@ -33,7 +33,8 @@ html,body{width:100%;height:100%;overflow:hidden;background:var(--dark);font-fam
 .res-fill{height:100%;border-radius:3px;transition:width 0.3s;}
 .res-fill.vibe{background:linear-gradient(90deg,var(--pink),var(--yellow));}
 .res-fill.soin{background:linear-gradient(90deg,var(--teal),var(--green));}
-.res-val{font-size:16px;font-family:'Press Start 2P',monospace;font-size:8px;min-width:28px;text-align:right;}
+.res-val{font-family:'Press Start 2P',monospace;font-size:8px;min-width:28px;text-align:right;}
+.res-rate{font-family:'DM Mono',monospace;font-size:9px;min-width:32px;text-align:right;opacity:0.85;}
 #hud-day{font-family:'Press Start 2P',monospace;font-size:8px;color:var(--yellow);text-align:center;line-height:1.4;background:rgba(0,0,0,0.4);border:1.5px solid var(--yellow);padding:3px 6px;border-radius:3px;white-space:nowrap;}
 
 /* ===== MAP WRAPPER ===== */
@@ -521,7 +522,7 @@ html,body{width:100%;height:100%;overflow:hidden;background:var(--dark);font-fam
 .atelier-option:hover { background: rgba(127,255,90,0.25); border-color: var(--green); transform: scale(1.01); }
 .atelier-option-emoji { font-size: 24px; flex-shrink: 0; }
 .atelier-option-info { flex: 1; }
-.atelier-option-name { font-family: 'Press Start 2P', monospace; font-size: 8px; color: var(--green); margin-bottom: 3px; }
+.atelier-option-name { font-family: 'Press Start 2P', monospace; font-size: 8px; color: var(--purple); margin-bottom: 3px; }
 .atelier-option-desc { font-size: 12px; color: var(--dark); opacity: 0.75; line-height: 1.3; }
 
 .atelier-progress { display: flex; gap: 4px; margin-bottom: 12px; }
@@ -651,6 +652,7 @@ html,body{width:100%;height:100%;overflow:hidden;background:var(--dark);font-fam
     <span class="res-label">⚡</span>
     <div class="res-track"><div class="res-fill vibe" id="vibe-fill" style="width:0%"></div></div>
     <span class="res-val" id="vibe-val">0%</span>
+    <span class="res-rate" id="vibe-rate"></span>
   </div>
   <div id="food-indicator" style="color:var(--green);">🍽 —</div>
   <div id="boost-collectif-indicator" style="display:none;">✨ BOOST</div>
@@ -1416,6 +1418,10 @@ const state = {
   foodAlerted: { low:false, critical:false, empty:false },
   _stressToastAt: 0,
   _allyBoosts: [],
+  _vibeRate: 0,
+  _foodRate: 0,
+  _vibeLast: null,
+  _foodLast: null,
 };
 
 
@@ -2648,6 +2654,14 @@ function eventTick() {
     showPaxArrival(p, PAX_UNLOCK[p.id]);
     logEvent('arrivee', `${p.emoji} ${p.name} est arrivé·e !`);
   });
+  // Rate tracking lissé (exponentiel) pour indicateurs HUD
+  const foodPct = state.food_stock / CFG.FOOD_STOCK_MAX * 100;
+  if (state._vibeLast !== null) {
+    state._vibeRate = state._vibeRate * 0.75 + (state.vibeGlobale - state._vibeLast) * 0.25;
+    state._foodRate = state._foodRate * 0.75 + (foodPct - state._foodLast) * 0.25;
+  }
+  state._vibeLast = state.vibeGlobale;
+  state._foodLast = foodPct;
   renderHUD();
   updateMapTimeFilter();
   updateMapTimeImages();
@@ -3504,17 +3518,33 @@ function tryAutoBoost(zid) {
 function renderHUD() {
   const vPct = Math.round(state.vibeGlobale);
   document.getElementById('vibe-fill').style.width = vPct + '%';
-  document.getElementById('vibe-val').textContent = vPct + '%';
-  // Color by value
+  // Couleur de la barre ET du texte selon le niveau
   const fill = document.getElementById('vibe-fill');
-  if (vPct < 30) fill.style.background = 'linear-gradient(90deg,#c0392b,#e74c3c)';
-  else if (vPct < 60) fill.style.background = 'linear-gradient(90deg,var(--orange),var(--yellow))';
-  else fill.style.background = 'linear-gradient(90deg,var(--pink),var(--yellow))';
-  // Food indicator
+  const valEl = document.getElementById('vibe-val');
+  let vibeColor;
+  if (vPct < 30)      { fill.style.background = 'linear-gradient(90deg,#c0392b,#e74c3c)'; vibeColor = 'var(--red)'; }
+  else if (vPct < 60) { fill.style.background = 'linear-gradient(90deg,var(--orange),var(--yellow))'; vibeColor = 'var(--orange)'; }
+  else                { fill.style.background = 'linear-gradient(90deg,var(--pink),var(--yellow))'; vibeColor = 'var(--pink-soft)'; }
+  valEl.textContent = vPct + '%';
+  valEl.style.color = vibeColor;
+  // Rate vibe
+  const rateEl = document.getElementById('vibe-rate');
+  if (rateEl) {
+    const r = state._vibeRate || 0;
+    if (Math.abs(r) < 0.03) { rateEl.textContent = ''; }
+    else {
+      rateEl.textContent = (r > 0 ? '+' : '') + r.toFixed(1) + '/s';
+      rateEl.style.color = r > 0 ? 'var(--green)' : 'var(--red)';
+    }
+  }
+  // Food indicator + rate
   const foodEl = document.getElementById('food-indicator');
   if (foodEl) {
     const fp = Math.round(Math.max(0, state.food_stock) / CFG.FOOD_STOCK_MAX * 100);
-    foodEl.textContent = '🍽 ' + fp + '%';
+    const fr = state._foodRate || 0;
+    let rateStr = '';
+    if (Math.abs(fr) >= 0.03) rateStr = ' ' + (fr > 0 ? '+' : '') + fr.toFixed(1);
+    foodEl.textContent = '🍽 ' + fp + '%' + rateStr;
     foodEl.style.color = fp < 15 ? 'var(--red)' : fp < 35 ? 'var(--orange)' : 'var(--green)';
     foodEl.style.borderColor = fp < 15 ? 'rgba(192,57,43,0.5)' : 'rgba(127,255,90,0.3)';
   }
@@ -3526,7 +3556,7 @@ function renderHUD() {
   const h = state.hour % 24;
   const icon = state.isNight ? '🌙' : '☀';
   document.getElementById('hud-day').innerHTML = day + '<br><span style="color:var(--teal);font-size:6px;">' + icon + ' ' + String(h).padStart(2,'0') + 'h</span>';
-  // Refresh sidebar if open (keeps pax card colors in sync with vibe/fatigue)
+  // Refresh sidebar if open
   if (document.getElementById('sidebar').classList.contains('open')) renderSidebar();
 }
 
