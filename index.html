@@ -2456,8 +2456,9 @@ function getToxicCrieeMessage() {
 
 function applyToxicEffects() {
   const toxicZones = Object.entries(state.zones).filter(([, zs]) => zs.toxicBuilding);
-  if (!toxicZones.length) return;
   const activePax = PAX_DATA.filter(p => state.pax[p.id] && (state.pax[p.id].state === 'placed' || state.pax[p.id].state === 'available'));
+
+  // Drains des bâtiments toxiques (recalibrés : sensibles mais pas dévastateurs)
   toxicZones.forEach(([, zs]) => {
     const effect = zs.toxicBuilding?.effect || 'vibe_drain_slow';
     activePax.forEach(p => {
@@ -2465,28 +2466,41 @@ function applyToxicEffects() {
       if (!ps || ps.inCrisis) return;
       switch (effect) {
         case 'vibe_drain_fast':
-          ps.vibe = Math.max(0, ps.vibe - 0.25);
+          ps.vibe = Math.max(0, ps.vibe - 0.12);
           break;
         case 'pax_stress':
-          ps.vibe = Math.max(0, ps.vibe - 0.08);
-          ps.fatigue = Math.min(100, ps.fatigue + 0.14);
+          ps.vibe    = Math.max(0,   ps.vibe    - 0.04);
+          ps.fatigue = Math.min(100, ps.fatigue + 0.08);
           break;
         case 'welfare_fake':
-          ps.vibe = Math.max(0, ps.vibe - 0.08);
-          break;
         case 'welfare_drain':
-          ps.vibe = Math.max(0, ps.vibe - 0.1);
+          // Effet géré dans getWelfareRecoveryMult() — léger malus vibe en plus
+          ps.vibe = Math.max(0, ps.vibe - 0.04);
           break;
         case 'criee_toxic':
-          ps.vibe = Math.max(0, ps.vibe - 0.12);
+          ps.vibe = Math.max(0, ps.vibe - 0.06);
           break;
         case 'vibe_drain_slow':
         default:
-          ps.vibe = Math.max(0, ps.vibe - 0.15);
+          ps.vibe = Math.max(0, ps.vibe - 0.06);
           break;
       }
     });
   });
+
+  // Boost passif des bâtiments queers :
+  // chaque zone débloquée et non-toxique donne +0.02/tick à tous les pax
+  const queerZoneCount = Object.entries(state.zones).filter(([zid, zs]) =>
+    !zs.locked && !zs.toxicBuilding && zid !== 'camping'
+  ).length;
+  if (queerZoneCount > 0) {
+    const passiveBoost = queerZoneCount * 0.02;
+    activePax.forEach(p => {
+      const ps = state.pax[p.id];
+      if (!ps || ps.inCrisis) return;
+      ps.vibe = Math.min(100, ps.vibe + passiveBoost);
+    });
+  }
 }
 
 // ===== PRODUCTION TICK (v3) =====
