@@ -492,7 +492,16 @@ html,body{width:100%;height:100%;overflow:hidden;background:var(--dark);font-fam
 .pax-detail-bar-fill{height:100%;border-radius:4px;transition:width 0.3s;}
 .pax-detail-val{font-family:'Press Start 2P',monospace;font-size:7px;min-width:28px;text-align:left;}
 .zone-act-badge{font-size:9px;text-align:center;opacity:0.6;margin-top:1px;pointer-events:none;}
-#food-indicator{font-size:13px;white-space:nowrap;padding:2px 6px;background:rgba(0,0,0,0.3);border-radius:3px;border:1px solid rgba(127,255,90,0.3);}
+#food-indicator{font-size:13px;white-space:nowrap;padding:2px 6px;background:rgba(0,0,0,0.3);border-radius:3px;border:1px solid rgba(127,255,90,0.3);cursor:help;position:relative;}
+#food-indicator::after{
+  content: attr(data-tip);
+  position:absolute;top:calc(100% + 6px);left:50%;transform:translateX(-50%);
+  background:rgba(26,14,46,0.97);border:1.5px solid var(--green);border-radius:4px;
+  color:var(--cream);font-family:'DM Mono',monospace;font-size:11px;line-height:1.5;
+  padding:7px 10px;white-space:pre-line;min-width:220px;max-width:280px;
+  pointer-events:none;opacity:0;transition:opacity 0.15s;z-index:500;text-align:left;
+}
+#food-indicator:hover::after{opacity:1;}
 #boost-collectif-indicator{font-size:9px;white-space:nowrap;padding:2px 5px;background:rgba(255,233,63,0.15);border:1px solid var(--yellow);border-radius:3px;color:var(--yellow);animation:shimmer 1s infinite alternate;}
 
 /* ===== V2 ZONE STATES ===== */
@@ -3547,6 +3556,17 @@ function renderHUD() {
     foodEl.textContent = '🍽 ' + fp + '%' + rateStr;
     foodEl.style.color = fp < 15 ? 'var(--red)' : fp < 35 ? 'var(--orange)' : 'var(--green)';
     foodEl.style.borderColor = fp < 15 ? 'rgba(192,57,43,0.5)' : 'rgba(127,255,90,0.3)';
+    // Tooltip contextuel
+    const cantina = state.zones['cantina'];
+    const cantinaOcc = cantina && !cantina.locked ? cantina.occupants.length : -1;
+    let tip = '📦 Provisions : ' + fp + '%\n\n';
+    if (fp < 15)  tip += '⚠️ Critique ! Agis vite.\n';
+    else if (fp < 35) tip += '⚠️ Les provisions baissent.\n';
+    tip += '🍳 Place des pax à la Cantina\n   pour cuisiner (+60 à 13h & 20h)\n';
+    if (cantinaOcc === 0)  tip += '   → Cantina vide en ce moment !\n';
+    else if (cantinaOcc > 0) tip += '   → ' + cantinaOcc + ' pax en cuisine ✓\n';
+    tip += '\n💡 Les repas se servent à 13h et 20h.';
+    foodEl.dataset.tip = tip;
   }
   // Boost collectif
   const boostEl = document.getElementById('boost-collectif-indicator');
