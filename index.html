@@ -112,22 +112,14 @@ html,body{width:100%;height:100%;overflow:hidden;background:var(--dark);font-fam
 
 /* ===== ZONES CLIQUABLES sur la carte ===== */
 .zone{
-  position:absolute;border-radius:6px;cursor:pointer;
-  border:2px solid transparent;
-  transition:none;
+  position:absolute;
+  pointer-events:none; /* activé temporairement pendant drag-drop */
   display:flex;align-items:center;justify-content:center;
   flex-direction:column;gap:2px;
-  background:transparent;
 }
-/* Pas de hover visuel : le polygon .map-reveal gère l'interaction */
-.zone.active{border-color:transparent;background:transparent;}
-.zone.boosted{animation:zonePulse 0.5s ease-in-out 3;}
-@keyframes zonePulse{0%,100%{box-shadow:0 0 0 0 var(--pink);}50%{box-shadow:0 0 12px 4px var(--pink);}}
-.zone.drag-over{border:2px dashed var(--yellow)!important;background:rgba(255,233,63,0.18)!important;box-shadow:0 0 18px 4px var(--yellow);}
-/* Hover sur le polygon reveal → légère luminosité */
-.map-reveal[style*="pointer-events: auto"]:hover,
-.map-reveal-night[style*="pointer-events: auto"]:hover{filter:brightness(1.12) saturate(1.1);}
-.zone-label{
+.zone.drag-active{pointer-events:auto;} /* pendant le drag classique */
+.zone.drag-over{border:2px dashed var(--yellow);background:rgba(255,233,63,0.18);box-shadow:0 0 18px 4px var(--yellow);}
+.zone.carry-hover{box-shadow:0 0 22px 6px var(--yellow);background:rgba(255,233,63,0.15);}
   font-family:'Press Start 2P',monospace;font-size:7px;color:#fff;
   background:rgba(10,4,26,0.92);padding:3px 6px;border-radius:3px;
   white-space:nowrap;pointer-events:none;text-align:center;line-height:1.4;
@@ -744,16 +736,16 @@ html,body{width:100%;height:100%;overflow:hidden;background:var(--dark);font-fam
     <div class="night-glow teal" id="glow-pmu" style="left:421px;top:175px;"></div>
     -->
     <!-- Zones interactives (positionnées en % de 900x675) -->
-    <div class="zone" id="zone-camping" data-zone="camping" style="left:30px;top:470px;width:100px;height:80px;" onclick="openZone('camping')"></div>
-    <div class="zone" id="zone-playroom-ext" data-zone="playroom_ext" style="left:78px;top:196px;width:160px;height:130px;" onclick="openZone('playroom_ext')"></div>
-    <div class="zone" id="zone-tente-cer" data-zone="tente_cer" style="left:127px;top:396px;width:160px;height:150px;" onclick="openZone('tente_cer')"></div>
-    <div class="zone" id="zone-mixroom" data-zone="mixroom" style="left:325px;top:454px;width:170px;height:120px;" onclick="openZone('mixroom')"></div>
-    <div class="zone" id="zone-bat1" data-zone="bat1" style="left:410px;top:140px;width:150px;height:130px;" onclick="openZone('bat1')"></div>
-    <div class="zone" id="zone-bat2" data-zone="bat2" style="left:588px;top:188px;width:140px;height:130px;" onclick="openZone('bat2')"></div>
-    <div class="zone" id="zone-cantina" data-zone="cantina" style="left:720px;top:248px;width:130px;height:110px;" onclick="openZone('cantina')"></div>
-    <div class="zone" id="zone-welfare" data-zone="welfare" style="left:625px;top:478px;width:160px;height:120px;" onclick="openZone('welfare')"></div>
-    <div class="zone" id="zone-bulle-nego" data-zone="bulle_nego" style="left:447px;top:375px;width:70px;height:80px;" onclick="openZone('bulle_nego')"></div>
-    <div class="zone" id="zone-pmu" data-zone="pmu" style="left:377px;top:128px;width:70px;height:80px;" onclick="openZone('pmu')"></div>
+    <div class="zone" id="zone-camping" data-zone="camping" style="left:30px;top:470px;width:100px;height:80px;"></div>
+    <div class="zone" id="zone-playroom-ext" data-zone="playroom_ext" style="left:78px;top:196px;width:160px;height:130px;"></div>
+    <div class="zone" id="zone-tente-cer" data-zone="tente_cer" style="left:127px;top:396px;width:160px;height:150px;"></div>
+    <div class="zone" id="zone-mixroom" data-zone="mixroom" style="left:325px;top:454px;width:170px;height:120px;"></div>
+    <div class="zone" id="zone-bat1" data-zone="bat1" style="left:410px;top:140px;width:150px;height:130px;"></div>
+    <div class="zone" id="zone-bat2" data-zone="bat2" style="left:588px;top:188px;width:140px;height:130px;"></div>
+    <div class="zone" id="zone-cantina" data-zone="cantina" style="left:720px;top:248px;width:130px;height:110px;"></div>
+    <div class="zone" id="zone-welfare" data-zone="welfare" style="left:625px;top:478px;width:160px;height:120px;"></div>
+    <div class="zone" id="zone-bulle-nego" data-zone="bulle_nego" style="left:447px;top:375px;width:70px;height:80px;"></div>
+    <div class="zone" id="zone-pmu" data-zone="pmu" style="left:377px;top:128px;width:70px;height:80px;"></div>
   </div>
 </div>
 
@@ -2149,6 +2141,8 @@ function makePaxDraggable(el, paxId, emoji, excludeEl) {
     _dragPaxId = paxId;
     e.dataTransfer.setData('text/plain', paxId);
     e.dataTransfer.effectAllowed = 'move';
+    // Activer les zones comme drop targets pendant le drag
+    document.querySelectorAll('.zone').forEach(z => z.classList.add('drag-active'));
     const ghost = document.createElement('div');
     ghost.textContent = emoji;
     ghost.style.cssText = 'position:fixed;top:-100px;font-size:32px;';
@@ -2158,7 +2152,7 @@ function makePaxDraggable(el, paxId, emoji, excludeEl) {
   });
   el.addEventListener('dragend', () => {
     _dragPaxId = null;
-    document.querySelectorAll('.zone.drag-over').forEach(z => z.classList.remove('drag-over'));
+    document.querySelectorAll('.zone').forEach(z => { z.classList.remove('drag-over'); z.classList.remove('drag-active'); });
   });
 
   // ── Pointer/touch drag with movement threshold ──
