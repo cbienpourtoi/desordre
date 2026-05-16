@@ -2990,11 +2990,10 @@ function resolveAtelier() {
       queeriseInvader(invId, true);
     };
   } else {
-    const fb = inv.data.failBuilding || { name: 'Bâtiment toxique', emoji: '🏭', description: 'La Norme s\'installe.' };
     document.getElementById('atelier-result-title').textContent = 'PAS ENCORE...';
-    document.getElementById('atelier-result-emoji').textContent = fb.emoji || '🏭';
+    document.getElementById('atelier-result-emoji').textContent = '🏭';
     document.getElementById('atelier-result-msg').textContent =
-      `${inv.data.name} n'a pas accroché. ${fb.name} s'installe : ${fb.description}`;
+      `${inv.data.name} n'a pas accroché. La Norme s'installe quelque part...`;
     document.getElementById('atelier-result-btn').textContent = 'Ok...';
     document.getElementById('atelier-result-btn').onclick = () => {
       closeAtelierModal();
