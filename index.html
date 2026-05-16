@@ -402,6 +402,12 @@ html,body{width:100%;height:100%;overflow:hidden;background:var(--dark);font-fam
 @keyframes logoFloat{0%,100%{transform:translateY(0);}50%{transform:translateY(-8px);}}
 .start-sub{font-size:22px;color:var(--green);text-align:center;}
 .start-box{background:rgba(0,0,0,0.4);border:2px dashed var(--pink);border-radius:6px;padding:14px 18px;max-width:340px;font-family:'DM Mono',monospace;font-size:14px;line-height:1.7;color:var(--cream);text-align:center;}
+.start-pillar{
+  background:rgba(0,0,0,0.35);border:1px solid rgba(255,255,255,0.12);border-radius:8px;
+  padding:10px 14px;font-family:'DM Mono',monospace;text-align:center;flex:1;min-width:90px;max-width:120px;
+}
+.start-pillar span{font-family:'Press Start 2P',monospace;font-size:7px;color:var(--green);display:block;margin:4px 0 2px;}
+.start-pillar small{font-size:11px;color:rgba(255,255,255,0.55);line-height:1.3;}
 .start-btn{background:var(--green);color:var(--dark);border:none;padding:14px 32px;font-family:'Press Start 2P',monospace;font-size:13px;cursor:pointer;border-radius:4px;letter-spacing:1px;box-shadow:5px 5px 0 var(--pink);transition:all 0.1s;}
 .start-btn:hover{transform:translate(2px,2px);box-shadow:3px 3px 0 var(--pink);}
 
@@ -641,58 +647,21 @@ html,body{width:100%;height:100%;overflow:hidden;background:var(--dark);font-fam
 <div id="start-screen">
   <div class="start-logo">LE DÉSORDRE<br><span style="font-size:0.45em;color:var(--pink);">cultive le bordel</span></div>
 
-  <div class="start-box" style="max-width:380px;overflow-y:auto;max-height:55vh;text-align:left;">
-
-    <div style="font-family:'Press Start 2P',monospace;font-size:9px;color:var(--yellow);margin-bottom:10px;text-align:center;">COMMENT ÇA MARCHE ?</div>
-
-    <div style="margin-bottom:12px;">
-      <span style="color:var(--green);font-family:'Press Start 2P',monospace;font-size:7px;">🏕 AU DÉPART</span><br>
-      Tu as le camping et le Welfare. Les pax peuvent y attendre, mais s'y ennuient vite.<br>
-      <strong style="color:var(--pink);">Queerise des agents de la Norme</strong> pour débloquer de nouveaux espaces et agrandir le camp.
-    </div>
-
-    <div style="margin-bottom:12px;">
-      <span style="color:var(--green);font-family:'Press Start 2P',monospace;font-size:7px;">👥 GÉRER LES PAX</span><br>
-      Appuie sur 👥 pour voir tous les pax. Glisse leur emoji sur une zone, ou ouvre une zone → <strong>+ PAX</strong>.<br>
-      Chaque pax a une <strong>Vibe</strong>, une <strong>Fatigue</strong>, une <strong>Faim</strong> et un <strong>Ennui</strong>. Surveille tout ça.
-    </div>
-
-    <div style="margin-bottom:12px;">
-      <span style="color:var(--green);font-family:'Press Start 2P',monospace;font-size:7px;">🗺 LES ZONES</span><br>
-      • <strong>Playrooms / Tente / Mix-room</strong> — génèrent du Désordre 🌀<br>
-      • <strong>Cantina</strong> — nourrit toustes 🍽 (priorité !)<br>
-      • <strong>Chambres</strong> — récupère la fatigue 💤<br>
-      • <strong>Welfare</strong> — soigne les crises 💜<br>
-      • <strong>Bulle de Négo</strong> — booste le Désordre après passage 🤝
-    </div>
-
-    <div style="margin-bottom:12px;">
-      <span style="color:var(--green);font-family:'Press Start 2P',monospace;font-size:7px;">👔 LA NORME DÉBARQUE</span><br>
-      Des agents arrivent et font baisser le Désordre. <strong>Clique dessus</strong> pour lancer un <strong style="color:var(--pink);">atelier de queerisation</strong>.<br>
-      Si ça marche → nouveau bâtiment queer. Si ça rate → la Norme s'installe à la place.
-    </div>
-
-    <div style="margin-bottom:12px;">
-      <span style="color:var(--green);font-family:'Press Start 2P',monospace;font-size:7px;">🆘 CRISES</span><br>
-      Fatigue + faim + ennui qui débordent → crise (outline rouge). Envoie au <strong>Welfare</strong> immédiatement.<br>
-      Le journal 📖 t'alerte quand quelqu'un a besoin d'aide.
-    </div>
-
-    <div style="margin-bottom:4px;">
-      <span style="color:var(--yellow);font-family:'Press Start 2P',monospace;font-size:7px;">🏆 SCORE & OBJECTIF</span><br>
-      Le <strong>Désordre</strong> se calcule sur toute la partie : vibe × nombre de pax à chaque instant.<br>
-      <strong>Queerise 8 personnes</strong> pour déclencher la victoire et soumettre ton score ! 🌿
-    </div>
-
+  <div style="font-family:'DM Mono',monospace;font-size:15px;color:var(--cream);text-align:center;opacity:0.85;max-width:320px;line-height:1.6;">
+    Un camp queer kinky. Une semaine. Des agents de la Norme à queeriser.
   </div>
 
-  <button class="start-btn" onclick="startGame()">▶ COMMENCER</button>
-  <button class="start-btn" id="start-tuto-btn"
-    style="background:transparent;color:var(--purple);border:2px solid var(--purple);box-shadow:none;font-size:9px;padding:8px 20px;margin-top:-8px;"
-    onclick="startGame(); setTimeout(() => { localStorage.removeItem('tuto_done'); tutoStart(); }, 500);">
-    🌱 NOUVELLEAU ?
-  </button>
-  <div id="dev-commit-time" style="font-size:8px;color:rgba(255,255,255,0.3);margin-top:8px;font-family:monospace;"></div>
+  <div style="display:flex;gap:12px;flex-wrap:wrap;justify-content:center;max-width:380px;">
+    <div class="start-pillar">🌀<br><span>Désordre</span><br><small>Garde les pax heureux·ses</small></div>
+    <div class="start-pillar">🏗<br><span>Construis</span><br><small>Queerise pour agrandir</small></div>
+    <div class="start-pillar">🏆<br><span>Score</span><br><small>Vibe × pax × durée</small></div>
+  </div>
+
+  <button class="start-btn" onclick="startGame(); setTimeout(tutoStart, 500);">▶ JOUER</button>
+  <div style="font-size:11px;color:rgba(255,255,255,0.35);font-family:'DM Mono',monospace;margin-top:-8px;">
+    Première fois ? Le tutoriel se lance automatiquement.
+  </div>
+  <div id="dev-commit-time" style="font-size:8px;color:rgba(255,255,255,0.3);margin-top:4px;font-family:monospace;"></div>
 </div>
 
 <!-- HUD TOP -->
