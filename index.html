@@ -1660,6 +1660,9 @@ function showPaxDetail(paxId) {
   picker.style.cssText = 'display:none;background:#141a10;border:1px solid rgba(95,207,232,0.3);border-radius:3px;overflow:hidden;max-height:220px;overflow-y:auto;';
   const zoneIcon = zid => ({ playroom_ext:'⚡', tente_cer:'🎪', mixroom:'🌀', bat1:'💤', bat2:'🛖', cantina:'🍽', welfare:'💜', bulle_nego:'🤝', pmu:'🍺', camping:'🏕' }[zid] || '📍');
   Object.entries(ZONES).forEach(([zid, z]) => {
+    // Ne montrer que les zones débloquées et non-toxiques
+    if (state.zones[zid]?.locked) return;
+    if (state.zones[zid]?.toxicBuilding) return;
     const row = document.createElement('div');
     const isCurrent = ps.placedIn === zid;
     row.style.cssText = `padding:6px 10px;font-size:12px;cursor:pointer;color:${isCurrent ? 'var(--yellow)' : 'var(--cream)'};border-bottom:1px solid rgba(255,255,255,0.05);display:flex;justify-content:space-between;`;
@@ -2966,6 +2969,9 @@ function applyAllyEffect(inv) {
 }
 
 function buildToxicBuilding(inv) {
+  // Zones vitales protégées : ciblées en dernier
+  const VITAL_ZONES = new Set(['cantina', 'bat1', 'welfare']);
+
   const candidates = Object.keys(ZONES).filter(z => {
     const zs = state.zones[z];
     return !zs.locked && !zs.toxicBuilding && z !== 'welfare' && z !== 'camping';
@@ -2976,7 +2982,9 @@ function buildToxicBuilding(inv) {
     toast(`😤 ${inv.data.emoji} ${inv.data.name} repart — mais la Norme progresse.`);
     return;
   }
-  const target = pool[Math.floor(Math.random() * pool.length)];
+  // Préférer les zones non-vitales ; ne cibler les vitales que si rien d'autre
+  const nonVital = pool.filter(z => !VITAL_ZONES.has(z));
+  const target = (nonVital.length ? nonVital : pool)[Math.floor(Math.random() * (nonVital.length || pool.length))];
   const fb = ZONE_TOXIC_MAP[target] || { name: 'Bâtiment toxique', emoji: '🏭', effect: 'vibe_drain_slow', description: 'La Norme s\'est installée.' };
   state.zones[target].locked = false;
   state.zones[target].toxicBuilding = {
@@ -3798,6 +3806,9 @@ function renderSidebar() {
     const zoneIcon = zid => ({ playroom_ext:'⚡', tente_cer:'🎪', mixroom:'🌀', bat1:'💤', bat2:'🛖', cantina:'🍽', welfare:'💜', bulle_nego:'🤝', pmu:'🍺', camping:'🏕' }[zid] || '📍');
 
     Object.entries(ZONES).forEach(([zid, z]) => {
+      // Ne montrer que les zones débloquées et non-toxiques
+      if (state.zones[zid]?.locked) return;
+      if (state.zones[zid]?.toxicBuilding) return;
       const row = document.createElement('div');
       const occ = state.zones[zid].occupants.length;
       const isCurrent = ps.placedIn === zid;
