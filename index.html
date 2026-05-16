@@ -4413,6 +4413,8 @@ function setupMapInteraction() {
 
   wrapper.addEventListener('pointerdown', e => {
     if (e.pointerType === 'mouse' && _dragPaxId) return;
+    // Si le clic vient du zone-panel (UI fixe dans le DOM du wrapper), ne pas capturer
+    if (e.target.closest('#zone-panel')) return;
     const invaderEl = e.target.closest('.invader');
     const zoneEl    = e.target.closest('.zone');
     // Les .map-reveal reçoivent les clics (pointer-events:auto quand débloqués, .zone a pointer-events:none)
