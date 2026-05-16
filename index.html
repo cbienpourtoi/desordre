@@ -1012,11 +1012,11 @@ const ZONE_PROGRESSION = [
   { choice: ['cantina', 'bat1'] },           // Q1 : cuisine ou chambres ?
   { sibling: 0 },                             // Q2 : l'autre
   { choice: ['playroom_ext', 'tente_cer'] }, // Q3 : première playroom
-  { auto: 'bulle_nego' },                     // Q4 : négo arrive avec les playrooms
-  { sibling: 2 },                             // Q5 : l'autre playroom
-  { choice: ['mixroom', 'bat2'] },           // Q6 : deuxième espace fun
-  { auto: 'pmu' },                            // Q7 : buvette en fin de route
-  // Q8 → victoire, pas de zone
+  { sibling: 2 },                             // Q4 : l'autre playroom
+  { choice: ['mixroom', 'bat2'] },           // Q5 : espace fun ou hébergement
+  { sibling: 4 },                             // Q6 : l'autre
+  { auto: 'pmu' },                            // Q7 : buvette
+  { auto: 'bulle_nego' },                     // Q8 : la négo, tout à la fin
 ];
 
 // ===== BÂTIMENTS TOXIQUES PAR ZONE =====
@@ -1539,6 +1539,27 @@ function triggerCrisis(paxId) {
 
 function movePaxToZone(paxId, zoneId) {
   const ps = state.pax[paxId];
+  const zs = state.zones[zoneId];
+
+  // Bâtiment toxique : refus de placement + crise immédiate
+  if (zs?.toxicBuilding) {
+    const pData = PAX_DATA.find(p => p.id === paxId);
+    const tb = zs.toxicBuilding;
+    if (pData) {
+      toast(`🏭 ${pData.emoji} ${pData.name} entre dans ${tb.name}... et repart en crise !`);
+      logEvent('crise', `${pData.emoji} ${pData.name} a été exposé·e à ${tb.name}. Crise déclenchée.`);
+    }
+    // Force crise même si cooldown (le bâtiment toxique est violent)
+    ps.inCrisis = true;
+    ps.vibe = 0;
+    ps.lastCrisisAt = state.totalTicks;
+    ps.crisisAutoHandled = false;
+    state.stats.crisisTotal++;
+    renderZones();
+    if (document.getElementById('sidebar').classList.contains('open')) renderSidebar();
+    return;
+  }
+
   if (ps.placedIn && ps.placedIn !== zoneId) {
     state.zones[ps.placedIn].occupants = state.zones[ps.placedIn].occupants.filter(id => id !== paxId);
     if (state.selectedZone === ps.placedIn) openZone(ps.placedIn);
@@ -4216,20 +4237,25 @@ function renderQuestPanel() {
 
 // ===== END =====
 function checkEnd() {
-  if (state.stats.queerised >= 8) {
-    setTimeout(endGame, 1000);
+  if (state.stats.queerised >= 8 && !state._victoryAchieved) {
+    state._victoryAchieved = true;
+    toast('🌈 8 personnes queerisées ! Objectif atteint : tiens jusqu\'à dimanche !');
+    logEvent('queer', '🏆 Objectif atteint : 8 queerisations ! Le camp continue jusqu\'à dimanche.');
   }
 }
 function endGame() {
   if (state.gameEnded) return;
   state.gameEnded = true;
-  const titles = ['Architecte du Désordre', 'Maîtresse du Chaos Doux', 'Champion·ne du Soin', 'Reine du PMU', 'Légende du Désordre'];
+  const victory = state._victoryAchieved || state.stats.queerised >= 8;
+  const titles = victory
+    ? ['Architecte du Désordre 🌈', 'Maîtresse du Chaos Doux', 'Champion·ne du Soin', 'Légende du Désordre 🏆']
+    : ['Coordinateurice du Camp', 'Gardien·ne du Désordre', 'Apprenti·e du Chaos'];
   const title = titles[Math.floor(Math.random() * titles.length)];
   document.getElementById('end-vibe').textContent = Math.round(state.scoreTotal).toLocaleString('fr-FR') + ' pts';
   document.getElementById('end-crises').textContent = (state.stats.crisisResolved || 0) + '/' + (state.stats.crisisTotal || 0);
-  document.getElementById('end-queer').textContent = state.stats.queerised;
+  document.getElementById('end-queer').textContent = state.stats.queerised + (victory ? ' ✅' : '/8');
   document.getElementById('end-pax').textContent = state.unlockedPax.length;
-  document.getElementById('end-title-label').textContent = '🏆 ' + title;
+  document.getElementById('end-title-label').textContent = (victory ? '🏆 ' : '📋 ') + title;
   document.getElementById('end-screen').classList.add('show');
   fetchLeaderboard().then(scores => renderLeaderboardInEnd(scores));
 }
