@@ -4379,12 +4379,21 @@ function setupMapInteraction() {
     if (e.pointerType === 'mouse' && _dragPaxId) return;
     const invaderEl = e.target.closest('.invader');
     const zoneEl    = e.target.closest('.zone');
+    // Les .map-reveal reçoivent les clics (pointer-events:auto quand débloqués, .zone a pointer-events:none)
+    const revealEl  = e.target.closest('.map-reveal, .map-reveal-night');
     const onInvader = !!invaderEl;
-    const onZone    = !!zoneEl && !onInvader;
+    const onZone    = (!onInvader) && (!!zoneEl || (!!revealEl && revealEl.dataset.unlocked === '1'));
     const onInteractable = onInvader || onZone;
     lastDownOnInteractable = onInteractable;
     lastDownInvaderId = onInvader ? (invaderEl.dataset.invaderId ? Number(invaderEl.dataset.invaderId) : null) : null;
-    lastDownZoneId    = onZone    ? (zoneEl.dataset.zone || null) : null;
+    if (onZone && zoneEl) {
+      lastDownZoneId = zoneEl.dataset.zone || null;
+    } else if (onZone && revealEl) {
+      // id="reveal-welfare" → "welfare" ; id="reveal-night-welfare" → "welfare"
+      lastDownZoneId = (revealEl.id || '').replace('reveal-night-', '').replace('reveal-', '') || null;
+    } else {
+      lastDownZoneId = null;
+    }
     lastDownX = e.clientX; lastDownY = e.clientY;
     wrapper.setPointerCapture(e.pointerId);
     pts.set(e.pointerId, { x: e.clientX, y: e.clientY, onInteractable });
