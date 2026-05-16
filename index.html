@@ -485,12 +485,8 @@ html,body{width:100%;height:100%;overflow:hidden;background:var(--dark);font-fam
 
 /* ===== V2 ZONE STATES ===== */
 .zone.locked {
-  background: rgba(0,0,0,0.45) !important;
-  border-color: rgba(255,255,255,0.08) !important;
-  cursor: not-allowed;
-  filter: grayscale(0.7) brightness(0.5);
+  display: none !important;
 }
-.zone.locked .zone-label { opacity: 0.5; }
 .zone.toxic {
   background: rgba(192,57,43,0.15) !important;
   border-color: rgba(192,57,43,0.7) !important;
@@ -3402,18 +3398,12 @@ function renderZones() {
       el.classList.remove('locked', 'toxic');
     }
     el.innerHTML = '';
+    if (zstate.locked) return; // invisible — nothing to render
     // Label
     const label = document.createElement('div');
     label.className = 'zone-label';
     label.textContent = ZONES[zid].name;
     el.appendChild(label);
-    if (zstate.locked) {
-      const lck = document.createElement('div');
-      lck.style.cssText = 'font-size:16px;pointer-events:none;';
-      lck.textContent = '🔒';
-      el.appendChild(lck);
-      return; // skip rest of rendering for locked zone
-    }
     if (zstate.toxicBuilding) {
       const tb = zstate.toxicBuilding;
       const tbl = document.createElement('div');
