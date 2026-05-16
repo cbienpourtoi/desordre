@@ -2122,26 +2122,29 @@ function _clearAllDragGlows() {
 }
 
 function setupZoneDropTargets() {
-  // Utilise les map-reveal (clip-path polygon) comme drop targets — hit area = forme réelle du bâtiment
-  document.querySelectorAll('.map-reveal').forEach(revealEl => {
-    const zid = revealEl.id.replace('reveal-', '');
-    revealEl.addEventListener('dragover', e => {
-      if (!_dragPaxId || revealEl.dataset.unlocked !== '1') return;
+  // .zone divs comme drop targets HTML5 (fiable cross-browser)
+  // pointer-events activés uniquement pendant le drag via drag-active
+  document.querySelectorAll('.zone').forEach(zoneEl => {
+    const zid = zoneEl.dataset.zone;
+    zoneEl.addEventListener('dragover', e => {
+      if (!_dragPaxId) return;
       e.preventDefault();
       e.dataTransfer.dropEffect = 'move';
-      if (!revealEl.dataset.dragOver) {
+      if (!zoneEl.dataset.dragOver) {
         _clearAllDragGlows();
-        revealEl.dataset.dragOver = '1';
+        zoneEl.dataset.dragOver = '1';
         _dragRevealGlow(zid, true);
       }
     });
-    revealEl.addEventListener('dragleave', e => {
-      delete revealEl.dataset.dragOver;
-      _dragRevealGlow(zid, false);
+    zoneEl.addEventListener('dragleave', e => {
+      if (!e.relatedTarget || !zoneEl.contains(e.relatedTarget)) {
+        delete zoneEl.dataset.dragOver;
+        _dragRevealGlow(zid, false);
+      }
     });
-    revealEl.addEventListener('drop', e => {
+    zoneEl.addEventListener('drop', e => {
       e.preventDefault();
-      delete revealEl.dataset.dragOver;
+      delete zoneEl.dataset.dragOver;
       _dragRevealGlow(zid, false);
       if (_dragPaxId) dropPaxOnZone(_dragPaxId, zid);
       _dragPaxId = null;
@@ -2157,6 +2160,7 @@ function makePaxDraggable(el, paxId, emoji, excludeEl) {
     _dragPaxId = paxId;
     e.dataTransfer.setData('text/plain', paxId);
     e.dataTransfer.effectAllowed = 'move';
+    document.querySelectorAll('.zone').forEach(z => z.classList.add('drag-active'));
     const ghost = document.createElement('div');
     ghost.textContent = emoji;
     ghost.style.cssText = 'position:fixed;top:-100px;font-size:32px;';
@@ -2167,7 +2171,7 @@ function makePaxDraggable(el, paxId, emoji, excludeEl) {
   el.addEventListener('dragend', () => {
     _dragPaxId = null;
     _clearAllDragGlows();
-    document.querySelectorAll('.map-reveal[data-drag-over]').forEach(r => delete r.dataset.dragOver);
+    document.querySelectorAll('.zone').forEach(z => { delete z.dataset.dragOver; z.classList.remove('drag-active'); });
   });
 
   // ── Pointer/touch drag with movement threshold ──
