@@ -3280,6 +3280,7 @@ function closeAtelierModal() {
   const flow = _atelierFlow;
   document.getElementById('atelier-modal').classList.remove('show');
   _atelierFlow = null;
+  state.paused = false;
   // Restore invader atelierOpen flag if still present
   if (flow) {
     const inv = state.invaders.find(i => i.id === flow.invId);
