@@ -882,12 +882,7 @@ html,body{width:100%;height:100%;overflow:hidden;background:var(--dark);font-fam
     <div style="font-size:40px;margin-bottom:12px;">🆘</div>
     <div style="font-family:'Press Start 2P',monospace;font-size:10px;color:var(--pink);margin-bottom:16px;">QUELQU'UN EST EN CRISE</div>
     <div id="crisis-guidance-name" style="font-size:22px;color:var(--yellow);margin-bottom:12px;"></div>
-    <div style="font-size:17px;line-height:1.5;color:var(--cream);margin-bottom:18px;">
-      Quand un pax est en crise, leur vibe est bloquée à 0.<br><br>
-      👉 <strong>Glisse-lié vers le Welfare</strong> (espace violet sur la carte).<br><br>
-      Pour une récupération rapide, <strong>ajoute un·e autre pax au Welfare</strong> pour assurer le support émotionnel.<br><br>
-      Seul·e au Welfare → récupération lente. Avec du support → récupération rapide.
-    </div>
+    <div id="crisis-guidance-body" style="font-size:17px;line-height:1.5;color:var(--cream);margin-bottom:18px;"></div>
     <button onclick="closeCrisisGuidance()" style="font-family:'Press Start 2P',monospace;font-size:9px;background:var(--pink);color:white;border:none;padding:10px 20px;border-radius:6px;cursor:pointer;">J'AI COMPRIS !</button>
   </div>
 </div>
@@ -1529,8 +1524,12 @@ function triggerCrisis(paxId) {
   state.stats.crisisTotal++;
   const pData = PAX_DATA.find(p => p.id === paxId);
   if (pData) {
+    const welfareAvail = !state.zones['welfare']?.locked && !state.zones['welfare']?.toxicBuilding;
+    const crisisHint = welfareAvail
+      ? `${pData.emoji} ${pData.name} a besoin de soutien. Envoie-lié au Welfare.`
+      : `${pData.emoji} ${pData.name} est en crise. Pas de Welfare : mets-lié au Camping pour l'instant.`;
     toast(`🆘 ${pData.emoji} ${pData.name} est en crise !`);
-    logEvent('crise', `${pData.emoji} ${pData.name} a besoin de soutien émotionnel. Envoie-lié au Welfare.`);
+    logEvent('crise', crisisHint);
   }
   renderZones();
   if (document.getElementById('sidebar').classList.contains('open')) renderSidebar();
@@ -1596,7 +1595,16 @@ function handleCrisis(paxId, zid) {
     ps.vibe = Math.min(100, ps.vibe + 0.3 * welfareMult);
     if (ps.vibe >= 30) exitCrisis(paxId);
   } else {
-    ps.vibe = Math.max(0, ps.vibe - 0.4);
+    // Pas au welfare : récupération très lente au camping ou en chambre, sinon vibe stagne
+    const actMode = ZONES[zid]?.activityMode;
+    if (actMode === 'camping') {
+      ps.vibe = Math.min(100, ps.vibe + 0.08);
+      if (ps.vibe >= 30) exitCrisis(paxId);
+    } else if (actMode === 'repos') {
+      ps.vibe = Math.min(100, ps.vibe + 0.12);
+      if (ps.vibe >= 30) exitCrisis(paxId);
+    }
+    // Ailleurs : vibe reste à 0 (pas d'évolution)
   }
 }
 
@@ -1618,21 +1626,41 @@ function exitCrisis(paxId) {
 
 function showCrisisGuidance(paxId) {
   const pData = PAX_DATA.find(p => p.id === paxId);
+  const welfareAvail = !state.zones['welfare']?.locked && !state.zones['welfare']?.toxicBuilding;
+  const hasRepos = Object.entries(state.zones).some(([zid, zs]) => !zs.locked && !zs.toxicBuilding && ZONES[zid]?.activityMode === 'repos');
   const alreadyExplained = localStorage.getItem('crisis_explained');
   if (!alreadyExplained) {
-    // First time: pause + full modal
     state.paused = true;
     localStorage.setItem('crisis_explained', '1');
     const modal = document.getElementById('crisis-guidance-modal');
     const name = pData ? `${pData.emoji} ${pData.name}` : 'Ce pax';
     document.getElementById('crisis-guidance-name').textContent = name;
+    let body;
+    if (welfareAvail) {
+      body = `Quand un pax est en crise, leur vibe est bloquée à 0.<br><br>
+👉 <strong>Glisse-lié vers le Welfare</strong> (espace violet sur la carte).<br><br>
+Pour une récupération rapide, <strong>ajoute un·e autre pax au Welfare</strong> pour le support émotionnel.<br><br>
+Seul·e au Welfare : récupération lente. Avec du support : récupération rapide.`;
+    } else {
+      const repos = hasRepos ? 'Camping ou Chambres' : 'Camping';
+      body = `Quand un pax est en crise, leur vibe est bloquée à 0.<br><br>
+⚠️ <strong>Pas encore d'Espace Welfare</strong> ici.<br><br>
+Pour l'instant, mets-lié au <strong>${repos}</strong> : la récupération sera très lente, mais iel s'en sortira.<br><br>
+💜 Dès que tu peux construire un <strong>Espace Welfare</strong>, fais-le : c'est de loin le meilleur endroit pour soigner les crises.`;
+    }
+    document.getElementById('crisis-guidance-body').innerHTML = body;
     modal.classList.remove('hidden');
   } else {
-    // Subsequent crises: show persistent alert banner
     const banner = document.getElementById('crisis-alert-banner');
     if (pData) {
-      document.getElementById('crisis-alert-text').textContent =
-        `🆘 ${pData.emoji} ${pData.name} est en crise ! Glisse-lié au Welfare et ajoute un·e autre pax pour le support.`;
+      let txt;
+      if (welfareAvail) {
+        txt = `🆘 ${pData.emoji} ${pData.name} est en crise ! Glisse-lié au Welfare et ajoute un·e autre pax pour le support.`;
+      } else {
+        const repos = hasRepos ? 'Camping ou Chambres' : 'Camping';
+        txt = `🆘 ${pData.emoji} ${pData.name} est en crise ! Pas de Welfare : place-lié au ${repos}. Récupération lente mais possible.`;
+      }
+      document.getElementById('crisis-alert-text').textContent = txt;
     }
     banner.classList.remove('hidden');
     if (banner._hideTimer) clearTimeout(banner._hideTimer);
