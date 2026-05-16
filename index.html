@@ -881,15 +881,13 @@ html,body{width:100%;height:100%;overflow:hidden;background:var(--dark);font-fam
 </div>
 
 <!-- DEV PANEL (visible si ?dev=1 dans l'URL) -->
-<div id="dev-panel" style="display:none;position:fixed;bottom:60px;right:10px;z-index:9999;background:#0a0f07;border:2px solid #5fcfe8;border-radius:6px;padding:10px;font-family:monospace;font-size:11px;color:#7fff5a;gap:6px;display:flex;flex-direction:column;min-width:160px;">
-  <div style="color:#5fcfe8;font-weight:bold;margin-bottom:4px;">⚙️ DEV MODE</div>
+<div id="dev-panel" style="display:none;position:fixed;bottom:60px;right:10px;z-index:9999;background:#0a0f07;border:2px solid #5fcfe8;border-radius:6px;padding:10px;font-family:monospace;font-size:11px;color:#7fff5a;flex-direction:column;gap:6px;min-width:160px;">
+  <div style="color:#5fcfe8;font-weight:bold;margin-bottom:4px;">⚙️ DEV</div>
   <button onclick="devSpawnInvader()" style="background:#1a2f1a;border:1px solid #5fcfe8;color:#5fcfe8;padding:4px 8px;cursor:pointer;border-radius:3px;">👾 Spawn invader</button>
-  <button onclick="devFailInvader()" style="background:#1a2f1a;border:1px solid #e74c3c;color:#e74c3c;padding:4px 8px;cursor:pointer;border-radius:3px;">💥 Fail invader</button>
-  <button onclick="devQueerInvader()" style="background:#1a2f1a;border:1px solid #ffe93f;color:#ffe93f;padding:4px 8px;cursor:pointer;border-radius:3px;">🌈 Queer invader</button>
-  <button onclick="devNextZone()" style="background:#1a2f1a;border:1px solid #7fff5a;color:#7fff5a;padding:4px 8px;cursor:pointer;border-radius:3px;">🏗 Zone suivante</button>
-  <button onclick="devFillFood()" style="background:#1a2f1a;border:1px solid #ffe93f;color:#ffe93f;padding:4px 8px;cursor:pointer;border-radius:3px;">🍽 Remplir food</button>
-  <button onclick="devBoostVibe()" style="background:#1a2f1a;border:1px solid #ff69b4;color:#ff69b4;padding:4px 8px;cursor:pointer;border-radius:3px;">⚡ +Vibe pax</button>
-  <button onclick="devFastDay()" style="background:#1a2f1a;border:1px solid #aaa;color:#aaa;padding:4px 8px;cursor:pointer;border-radius:3px;">⏩ Jour rapide</button>
+  <button onclick="devFailInvader()" style="background:#1a2f1a;border:1px solid #e74c3c;color:#e74c3c;padding:4px 8px;cursor:pointer;border-radius:3px;">💥 Fail → bâtiment norme</button>
+  <button onclick="devQueerInvader()" style="background:#1a2f1a;border:1px solid #ffe93f;color:#ffe93f;padding:4px 8px;cursor:pointer;border-radius:3px;">🌈 Queer → zone</button>
+  <button onclick="devFillFood()" style="background:#1a2f1a;border:1px solid #ffe93f;color:#ffe93f;padding:4px 8px;cursor:pointer;border-radius:3px;">🍽 Nourriture max</button>
+  <button onclick="devFastDay()" id="dev-fastday-btn" style="background:#1a2f1a;border:1px solid #aaa;color:#aaa;padding:4px 8px;cursor:pointer;border-radius:3px;">⏩ Jour rapide</button>
 </div>
 
 <!-- QUEST PANEL -->
@@ -4131,55 +4129,59 @@ const DEV_MODE = new URLSearchParams(location.search).get('dev') === '1';
 if (DEV_MODE) {
   const panel = document.getElementById('dev-panel');
   if (panel) panel.style.display = 'flex';
+  // Invaders arrivent 5× plus vite
+  document.addEventListener('DOMContentLoaded', () => {}, false);
+}
+
+function _devEnsureStarted() {
+  if (!state.started) { startGame(); }
 }
 
 function devSpawnInvader() {
-  if (!state.started) return;
-  spawnInvader();
-  toast('⚙️ DEV — Invader spawné');
+  _devEnsureStarted();
+  setTimeout(() => { spawnInvader(); toast('⚙️ DEV — Invader spawné'); }, 100);
 }
 function devFailInvader() {
-  if (!state.started || !state.invaders.length) { toast('⚙️ Aucun invader actif'); return; }
-  const inv = state.invaders[0];
-  queeriseInvader(inv.id, false);
-  toast('⚙️ DEV — Échec forcé → bâtiment norme');
+  _devEnsureStarted();
+  setTimeout(() => {
+    if (!state.invaders.length) { toast('⚙️ Aucun invader — en spawn un d\'abord'); return; }
+    const inv = state.invaders[0];
+    // Fermer modale atelier si ouverte
+    closeAtelierModal && closeAtelierModal();
+    queeriseInvader(inv.id, false);
+    toast('⚙️ DEV — Échec → bâtiment norme');
+  }, 100);
 }
 function devQueerInvader() {
-  if (!state.started || !state.invaders.length) { toast('⚙️ Aucun invader actif'); return; }
-  const inv = state.invaders[0];
-  queeriseInvader(inv.id, true);
-  toast('⚙️ DEV — Queerisation forcée !');
-}
-function devNextZone() {
-  if (!state.started) return;
-  state._pendingZoneBuild = true;
-  showZoneBuildPicker();
-  toast('⚙️ DEV — Zone build picker ouvert');
+  _devEnsureStarted();
+  setTimeout(() => {
+    if (!state.invaders.length) { toast('⚙️ Aucun invader — en spawn un d\'abord'); return; }
+    const inv = state.invaders[0];
+    closeAtelierModal && closeAtelierModal();
+    queeriseInvader(inv.id, true);
+    toast('⚙️ DEV — Queerisation forcée !');
+  }, 100);
 }
 function devFillFood() {
-  if (!state.started) return;
+  _devEnsureStarted();
   state.food_stock = CFG.FOOD_STOCK_MAX;
   renderHUD();
   toast('⚙️ DEV — Nourriture max');
 }
-function devBoostVibe() {
-  if (!state.started) return;
-  PAX_DATA.forEach(p => { if (state.pax[p.id]) state.pax[p.id].vibe = 90; });
-  renderHUD();
-  toast('⚙️ DEV — Vibe pax → 90');
-}
 let _devFastDay = false;
 function devFastDay() {
-  if (!state.started) return;
+  _devEnsureStarted();
   _devFastDay = !_devFastDay;
+  const btn = document.getElementById('dev-fastday-btn');
   if (_devFastDay) {
-    // Multiplier dayProgress beaucoup plus vite
     window._devDayInterval = setInterval(() => {
-      if (state.started && !state.gameEnded) state.dayProgress += 0.003;
+      if (state.started && !state.gameEnded) state.dayProgress += 0.004;
     }, 100);
-    toast('⚙️ DEV — Jour rapide ON (×18)');
+    if (btn) { btn.textContent = '⏸ Stop jour rapide'; btn.style.borderColor = '#ff0'; }
+    toast('⚙️ DEV — Jour rapide ON');
   } else {
     clearInterval(window._devDayInterval);
+    if (btn) { btn.textContent = '⏩ Jour rapide'; btn.style.borderColor = '#aaa'; }
     toast('⚙️ DEV — Jour rapide OFF');
   }
 }
