@@ -2006,22 +2006,21 @@ function pickUpPax(paxId) {
   _carryGhost.style.cssText = 'position:fixed;font-size:36px;pointer-events:none;z-index:9999;transform:translate(-50%,-50%);transition:none;filter:drop-shadow(0 0 8px var(--yellow));';
   document.body.appendChild(_carryGhost);
   document.body.style.cursor = 'grabbing';
-  // Highlight carry-able zones
-  document.querySelectorAll('.zone').forEach(z => z.classList.add('carry-target'));
+  // Désactiver les rectangles .zone pour que les clics/hover tombent sur les polygons .map-reveal
+  document.querySelectorAll('.zone').forEach(z => z.style.pointerEvents = 'none');
 }
 
 function cancelCarry() {
   _carriedPaxId = null;
   if (_carryGhost) { _carryGhost.remove(); _carryGhost = null; }
   document.body.style.cursor = '';
-  document.querySelectorAll('.zone.carry-hover').forEach(z => {
-    const rev = document.getElementById('reveal-' + z.dataset.zone);
-    if (rev) rev.style.filter = '';
-    const revN = document.getElementById('reveal-night-' + z.dataset.zone);
-    if (revN) revN.style.filter = '';
+  // Nettoyer glow sur les reveals
+  document.querySelectorAll('.map-reveal, .map-reveal-night').forEach(el => el.style.filter = '');
+  // Réactiver les zones rectangles pour le drag-drop classique
+  document.querySelectorAll('.zone').forEach(z => {
+    z.style.pointerEvents = '';
+    z.classList.remove('carry-target', 'carry-hover');
   });
-  document.querySelectorAll('.zone.carry-target').forEach(z => z.classList.remove('carry-target'));
-  document.querySelectorAll('.zone.carry-hover').forEach(z => z.classList.remove('carry-hover'));
 }
 
 function applyNegoBoostOnArrival(paxId, zoneId) {
@@ -2062,35 +2061,43 @@ function dropPaxOnZone(paxId, zoneId) {
 }
 
 function setupCarryInteraction() {
+  let _hoverRevealId = null;
+
   function clearCarryHover() {
-    document.querySelectorAll('.zone.carry-hover').forEach(z => {
-      z.classList.remove('carry-hover');
-      // Retirer le glow du polygon reveal correspondant
-      const rev = document.getElementById('reveal-' + z.dataset.zone);
-      if (rev) rev.style.filter = '';
-      const revN = document.getElementById('reveal-night-' + z.dataset.zone);
-      if (revN) revN.style.filter = '';
-    });
+    if (_hoverRevealId) {
+      const r = document.getElementById(_hoverRevealId);
+      if (r) r.style.filter = '';
+      const prefix = _hoverRevealId.startsWith('reveal-night-') ? 'reveal-night-' : 'reveal-';
+      const zid = _hoverRevealId.replace('reveal-night-', '').replace('reveal-', '');
+      const other = document.getElementById(prefix === 'reveal-' ? 'reveal-night-' + zid : 'reveal-' + zid);
+      if (other) other.style.filter = '';
+      _hoverRevealId = null;
+    }
   }
-  function setCarryHover(zoneEl) {
-    zoneEl.classList.add('carry-hover');
-    // Glow sur le polygon du bâtiment
-    const zid = zoneEl.dataset.zone;
-    const rev = document.getElementById('reveal-' + zid);
-    if (rev && rev.dataset.unlocked === '1') rev.style.filter = 'brightness(1.25) saturate(1.3) drop-shadow(0 0 8px gold)';
-    const revN = document.getElementById('reveal-night-' + zid);
-    if (revN && revN.dataset.unlocked === '1' && state.isNight) revN.style.filter = 'brightness(1.25) saturate(1.3) drop-shadow(0 0 8px gold)';
+
+  function setCarryHover(revealEl) {
+    _hoverRevealId = revealEl.id;
+    const glow = 'brightness(1.25) saturate(1.3) drop-shadow(0 0 10px gold)';
+    revealEl.style.filter = glow;
+    const zid = revealEl.id.replace('reveal-night-', '').replace('reveal-', '');
+    // Glow aussi sur l'autre version (jour/nuit)
+    const twin = document.getElementById(
+      revealEl.classList.contains('map-reveal-night') ? 'reveal-' + zid : 'reveal-night-' + zid
+    );
+    if (twin && twin.dataset.unlocked === '1') twin.style.filter = glow;
   }
+
   // Ghost follows mouse during carry
   document.addEventListener('mousemove', e => {
     if (!_carryGhost) return;
     _carryGhost.style.left = e.clientX + 'px';
     _carryGhost.style.top  = e.clientY + 'px';
-    // Highlight zone under cursor
+    // Trouver le polygon reveal sous le curseur (zones sont pointer-events:none pendant carry)
     clearCarryHover();
     const under = document.elementFromPoint(e.clientX, e.clientY);
-    const zoneEl = under && under.closest('.zone');
-    if (zoneEl) setCarryHover(zoneEl);
+    if (under && (under.classList.contains('map-reveal') || under.classList.contains('map-reveal-night'))) {
+      setCarryHover(under);
+    }
   });
   // Ghost follows pointer during carry (touch)
   document.addEventListener('pointermove', e => {
@@ -2100,10 +2107,12 @@ function setupCarryInteraction() {
   });
   // Escape cancels carry
   document.addEventListener('keydown', e => { if (e.key === 'Escape') cancelCarry(); });
-  // Click on map background cancels carry (not on zones / pax cards)
+  // Click sur fond de carte (hors polygon) → cancel
   document.getElementById('map-wrapper').addEventListener('click', e => {
     if (!_carriedPaxId) return;
-    if (e.target.closest('.zone') || e.target.closest('.invader')) return;
+    // Si le clic est sur un reveal ou un invader, openZone/clickInvader gère le drop
+    if (e.target.closest('.invader')) return;
+    if (e.target.classList.contains('map-reveal') || e.target.classList.contains('map-reveal-night')) return;
     cancelCarry();
   });
 }
