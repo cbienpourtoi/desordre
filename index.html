@@ -2495,6 +2495,25 @@ function getCurrentTodSlot(hour) {
   return slot;
 }
 
+function getNormeMapSrc() {
+  return state.isNight ? 'maps/map_norme_nuit.png' : 'maps/map_norme_jour.png';
+}
+
+function updateRevealForZone(zid) {
+  const el = document.getElementById('reveal-' + zid);
+  if (!el || el.style.opacity === '0') return;
+  const isToxic = !!(state.zones[zid]?.toxicBuilding);
+  el.src = isToxic ? getNormeMapSrc() : (TOD_SLOTS[_todSlot]?.bat || 'maps/tod/bat_8h.png');
+  el.dataset.toxic = isToxic ? '1' : '0';
+}
+
+function updateAllToxicReveals() {
+  const normeSrc = getNormeMapSrc();
+  document.querySelectorAll('.map-reveal[data-toxic="1"]').forEach(el => {
+    el.src = normeSrc;
+  });
+}
+
 function updateMapTimeImages() {
   if (state.isNight) return;
   const h = state.hour || 8;
@@ -2510,11 +2529,12 @@ function updateMapTimeImages() {
   });
 
   // Reveals bâtiments : bref fondu pour masquer le swap de source
+  // Les zones toxiques gardent leur image norme, les autres suivent le tod
   const reveals = document.querySelectorAll('.map-reveal');
   reveals.forEach(el => { if (el.dataset.unlocked === '1') el.style.opacity = '0'; });
   setTimeout(() => {
     reveals.forEach(el => {
-      el.src = slot.bat;
+      if (el.dataset.toxic !== '1') el.src = slot.bat;
       if (el.dataset.unlocked === '1') el.style.opacity = '1';
     });
   }, 600);
@@ -2549,6 +2569,7 @@ function eventTick() {
     document.querySelectorAll('.map-reveal-night').forEach(el => {
       el.style.opacity = (state.isNight && el.dataset.unlocked === '1') ? '1' : '0';
     });
+    updateAllToxicReveals();
     updateCriee(state.isNight ? '🌙 La nuit tombe sur le Désordre. Les playrooms s\'animent.' : '☀️ Le soleil se lève. Bonjour la communauté.');
     toggleNightGlows(state.isNight); // no-op: glows disabled, map_nocturne.png handles atmosphere
   }
@@ -2784,6 +2805,7 @@ function buildToxicBuilding(inv) {
   const zoneName = ZONES[target].name;
   logEvent('alert', `🏭 ${fb.emoji} ${fb.name} construit à la place de ${zoneName}. ${kicked.length ? kicked.map(id => { const p = PAX_DATA.find(d=>d.id===id); return p ? p.emoji+' '+p.name : ''; }).join(', ') + ' ont été chassé·es.' : ''}`);
   toast(`🏭 ${inv.data.emoji} ${inv.data.name} a construit ${fb.emoji} ${fb.name} !`);
+  updateRevealForZone(target);
   renderZones();
   if (state.selectedZone === target) openZone(target);
 }
