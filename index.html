@@ -544,6 +544,29 @@ html,body{width:100%;height:100%;overflow:hidden;background:var(--dark);font-fam
 }
 .atelier-result-fill { height: 100%; border-radius: 5px; width: 0%; transition: width 0.9s ease; }
 .atelier-score-text { font-size: 12px; font-family: 'DM Mono', monospace; color: rgba(0,0,0,0.55); margin-bottom: 10px; }
+.atelier-reponse {
+  background: rgba(127,255,90,0.12);
+  border-left: 3px solid var(--green);
+  border-radius: 4px;
+  padding: 10px 12px;
+  margin: 8px 0;
+  font-size: 13px;
+  color: var(--dark);
+  line-height: 1.5;
+  font-style: italic;
+}
+.atelier-continue-btn {
+  width: 100%;
+  margin-top: 8px;
+  padding: 10px;
+  background: var(--purple);
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-family: 'Press Start 2P', monospace;
+  font-size: 8px;
+}
 
 /* Zone build picker */
 .zone-build-option {
@@ -775,6 +798,8 @@ html,body{width:100%;height:100%;overflow:hidden;background:var(--dark);font-fam
       <div id="atelier-q-header" style="font-family:'Press Start 2P',monospace;font-size:8px;color:var(--purple);margin-bottom:8px;"></div>
       <div class="atelier-q-text" id="atelier-q-text"></div>
       <div class="atelier-choices" id="atelier-choices"></div>
+      <div id="atelier-reponse" class="atelier-reponse" style="display:none;"></div>
+      <button id="atelier-continue-btn" class="atelier-continue-btn" style="display:none;">Continuer →</button>
     </div>
     <!-- Step 5: result -->
     <div id="atelier-step-result" style="display:none;text-align:center;">
@@ -956,73 +981,214 @@ const PAX_DATA = [
 
 // ===== INVADERS =====
 const INVADERS_DATA = [
-  { type:'patriarche',   emoji:'👴', name:'Le Patriarche',
-    quote:"J'ai toujours fait comme ça. Ça a marché pendant 50 ans.",
-    queerEmoji:'🌱', queerName:'Le Pater en Reconstruction',
-    queerMsg:"Il cuisinait en silence depuis le début. Il ne savait pas que c'était déjà de l'amour.",
-    savaisTu:"L'acceptation familiale est le facteur #1 de santé mentale des jeunes LGBTQ+.",
-    toxicType:'agence_immo' },
-  { type:'gardienne',    emoji:'🏛️', name:'La Gardienne des Bonnes Mœurs',
-    quote:"Les enfants ont besoin de repères, pas de confusion !",
-    queerEmoji:'🌸', queerName:'La Libertine Tardive',
-    queerMsg:"Elle a découvert que ses propres désirs étaient les plus tabous. Elle sourit pour la première fois.",
-    savaisTu:"La honte sexuelle a des effets physiologiques mesurables : immunité, tension, sommeil.",
-    toxicType:'ecole_commerce' },
-  { type:'tradwife',     emoji:'💍', name:'La Tradwife Millionnaire',
-    quote:"La féminité, c'est une force. Arrêtez de vous la faire voler.",
-    queerEmoji:'🌀', queerName:'La Créatrice de Contenu Chaos',
-    queerMsg:"Elle a arrêté de poster. Elle pleure. C'est de la joie.",
-    savaisTu:"Le mouvement tradwife prospère sur la détresse réelle des femmes épuisées.",
-    toxicType:'starbucks' },
-  { type:'proprio',      emoji:'🔑', name:"Le Proprio d'à Côté",
-    quote:"C'est ma propriété. Y'a des règles.",
-    queerEmoji:'🚪', queerName:"Le Voisin qui Frappe Avant d'Entrer",
-    queerMsg:"Il a toqué avant d'entrer. C'est un début. Même Aïoli a été surpris.",
-    savaisTu:"Être locataire LGBTQ+ augmente significativement le risque de discrimination au logement.",
-    toxicType:'airbnb' },
-  { type:'profbio',      emoji:'🧬', name:'La Prof de Bio Binaire',
-    quote:"XX ou XY. C'est la biologie, pas une opinion.",
-    queerEmoji:'✏️', queerName:'La Prof qui Réécrit Ses Cours',
-    queerMsg:"Elle a ajouté les manchots, les poissons-clowns et les grenouilles à son cours.",
-    savaisTu:"Plus de 1500 espèces animales pratiquent des comportements homosexuels documentés.",
-    toxicType:'ecole_commerce' },
-  { type:'masculiniste', emoji:'💪', name:'Le Masculiniste',
-    quote:"Les hommes aussi souffrent. Mais on n'a pas le droit de le dire.",
-    queerEmoji:'🤔', queerName:"L'Homme Qui Se Pose Des Questions",
-    queerMsg:"Il se pose des questions. C'est déjà beaucoup. Il reviendra.",
-    savaisTu:"Les hommes cisgenres ont les taux de suicide les plus élevés — conséquence de la norme de virilité.",
-    toxicType:'concessionnaire' },
-  { type:'papa',         emoji:'😔', name:'Le Papa Déçu',
-    quote:"J'aurais voulu des petits-enfants... normaux.",
-    queerEmoji:'💌', queerName:'Le Papa Qui Comprend',
-    queerMsg:"Il a envoyé un message. Trois mots : « Je suis là. » Son enfant a répondu en dix secondes.",
-    savaisTu:"Un simple message d'acceptation réduit de 40% le risque de dépression chez les jeunes LGBTQ+.",
-    toxicType:'wework' },
-  { type:'chroniqueur',  emoji:'📺', name:'Le Chroniqueur CNews',
-    quote:"La woke folie doit s'arrêter là.",
-    queerEmoji:'📻', queerName:'La Chroniqueuse Radio Féministe',
-    queerMsg:"Elle interviewe maintenant des personnes trans. L'audience monte.",
-    savaisTu:"La représentation médiatique positive réduit les actes de violence homophobes.",
-    toxicType:'club_entrepreneurs' },
-  { type:'allie',        emoji:'🙋', name:"L'Allié qui Mansplaine le Féminisme",
-    quote:"En tant qu'homme cisgendre, je pense qu'il est important que je dise...",
-    queerEmoji:'👂', queerName:"L'Allié qui Écoute",
-    queerMsg:"Il s'est tu. Longtemps. Puis il a posé une question. Une vraie.",
-    savaisTu:"L'écoute active reste l'acte le plus rare chez les « alliés ».",
-    toxicType:'wework' },
+  {
+    type: "patriarche",
+    emoji: "👴",
+    name: "Le Patriarche",
+    quote: "J'ai toujours fait comme ça. Ça a marché pendant 50 ans.",
+    queerEmoji: "🌱",
+    queerName: "Le Pater en Reconstruction",
+    queerMsg: "Il pleure facilement maintenant. Les gens trouvent ça beau.",
+    savaisTu: "L'acceptation familiale est le facteur #1 de santé mentale des personnes LGBTQ+. Pas les lois — les familles.",
+    failBuilding: {
+      name: "Salle de réunion familiale",
+      emoji: "🪑",
+      effect: "vibe_drain_slow",
+      description: "Une pièce où quelqu'un décide pour tout le monde."
+    },
+    successAlly: {
+      name: "Le Pater en Reconstruction",
+      emoji: "🌱",
+      effect: "pax_morale_boost",
+      duration: 90,
+      description: "Il pleure facilement maintenant. Les gens trouvent ça beau."
+    }
+  },
+  {
+    type: "gardienne",
+    emoji: "🚫",
+    name: "La Gardienne des Bonnes Mœurs",
+    quote: "Les enfants ont besoin de repères, pas de confusion !",
+    queerEmoji: "🌸",
+    queerName: "La Libertine Tardive",
+    queerMsg: "À 58 ans elle découvre qu'elle avait juste peur. Elle pose des questions un peu trop directes.",
+    savaisTu: "La honte sexuelle a des effets mesurables sur la santé physique : système immunitaire, tension, sommeil. Pas metaphoriquement — littéralement.",
+    failBuilding: {
+      name: "Permanence Bien-être™",
+      emoji: "🌈",
+      effect: "welfare_fake",
+      description: "Ça ressemble au Welfare mais ça ne soigne pas vraiment."
+    },
+    successAlly: {
+      name: "La Libertine Tardive",
+      emoji: "🌸",
+      effect: "criee_boost",
+      duration: 80,
+      description: "À 58 ans elle découvre qu'elle avait juste peur. Elle pose des questions un peu trop directes."
+    }
+  },
+  {
+    type: "tradwife",
+    emoji: "📸",
+    name: "La Tradwife Millionnaire",
+    quote: "La féminité, c'est une force. Arrêtez de vous la faire voler.",
+    queerEmoji: "🌀",
+    queerName: "La Créatrice de Contenu Chaos",
+    queerMsg: "Elle filme enfin le hors-champ. Ses abonné·es s'effondrent mais elle respire pour la première fois.",
+    savaisTu: "Le mouvement tradwife prospère sur la détresse réelle des femmes épuisées. La solution proposée est fausse, le problème sous-jacent, lui, est réel.",
+    failBuilding: {
+      name: "Studio de tournage @bonheur_authentique",
+      emoji: "🎬",
+      effect: "vibe_drain_slow",
+      description: "Tout le monde sourit sur la photo. Hors champ c'est le chaos."
+    },
+    successAlly: {
+      name: "La Créatrice de Contenu Chaos",
+      emoji: "🌀",
+      effect: "criee_boost",
+      duration: 70,
+      description: "Elle filme enfin le hors-champ. Ses abonné·es s'effondrent mais elle respire pour la première fois."
+    }
+  },
+  {
+    type: "proprio",
+    emoji: "🔑",
+    name: "Le Proprio d'à Côté",
+    quote: "C'est ma propriété. Y'a des règles.",
+    queerEmoji: "🥕",
+    queerName: "Le Voisin qui Frappe Avant d'Entrer",
+    queerMsg: "Il apporte des légumes du jardin et demande si il peut rester un peu.",
+    savaisTu: "En France, être locataire LGBTQ+ augmente significativement le risque de discrimination au logement. Les propriétaires peuvent légalement refuser sans motif officiel.",
+    failBuilding: {
+      name: "Résidence surveillée",
+      emoji: "📹",
+      effect: "pax_stress",
+      description: "Il a installé une caméra. Les pax se sentent observés."
+    },
+    successAlly: {
+      name: "Le Voisin qui Frappe Avant d'Entrer",
+      emoji: "🥕",
+      effect: "welfare_boost",
+      duration: 100,
+      description: "Il apporte des légumes du jardin et demande si il peut rester un peu."
+    }
+  },
+  {
+    type: "profbio",
+    emoji: "🧬",
+    name: "La Prof de Bio Binaire",
+    quote: "XX ou XY. C'est la biologie, pas une opinion.",
+    queerEmoji: "📚",
+    queerName: "La Prof qui Réécrit Ses Cours",
+    queerMsg: "Elle est en colère contre ses anciens manuels. Bonne colère.",
+    savaisTu: "Plus de 1500 espèces animales pratiquent des comportements homosexuels documentés. La nature est queer depuis toujours.",
+    failBuilding: {
+      name: "Salle de cours avec schéma XX/XY",
+      emoji: "📋",
+      effect: "vibe_drain_slow",
+      description: "Le schéma est accroché au mur. Elle le montre fièrement."
+    },
+    successAlly: {
+      name: "La Prof qui Réécrit Ses Cours",
+      emoji: "📚",
+      effect: "fun_facts_boost",
+      duration: 90,
+      description: "Elle est en colère contre ses anciens manuels. Bonne colère."
+    }
+  },
+  {
+    type: "masculiniste",
+    emoji: "💪",
+    name: "Le Masculiniste",
+    quote: "Les hommes aussi souffrent. Mais on n'a pas le droit de le dire.",
+    queerEmoji: "🤔",
+    queerName: "L'Homme qui Se Pose des Questions",
+    queerMsg: "Il a arrêté de crier. Il écoute. C'est déjà énorme.",
+    savaisTu: "Les hommes cisgenres ont les taux de suicide les plus élevés — conséquence directe de la norme de virilité qui interdit l'expression émotionnelle.",
+    failBuilding: {
+      name: "Forum d'entraide masculine",
+      emoji: "🖥️",
+      effect: "vibe_drain_fast",
+      description: "Les pax évitent la zone. L'énergie est lourde."
+    },
+    successAlly: {
+      name: "L'Homme qui Se Pose des Questions",
+      emoji: "🤔",
+      effect: "pax_morale_boost",
+      duration: 60,
+      description: "Il a arrêté de crier. Il écoute. C'est déjà énorme."
+    }
+  },
+  {
+    type: "papa",
+    emoji: "😔",
+    name: "Le Papa Déçu",
+    quote: "J'aurais voulu des petits-enfants... normaux.",
+    queerEmoji: "💌",
+    queerName: "Le Papa qui Comprend",
+    queerMsg: "Il a enfin envoyé le message. Juste 'je suis fier·ère de toi.' Tout le monde pleure.",
+    savaisTu: "Un simple message d'acceptation d'un parent réduit de 40% le risque de dépression chez les jeunes LGBTQ+.",
+    failBuilding: {
+      name: "Bureau du père de famille",
+      emoji: "🪞",
+      effect: "welfare_drain",
+      description: "Une pièce froide où quelqu'un attend des explications."
+    },
+    successAlly: {
+      name: "Le Papa qui Comprend",
+      emoji: "💌",
+      effect: "pax_morale_boost",
+      duration: 90,
+      description: "Il a enfin envoyé le message. Juste 'je suis fier·ère de toi.' Tout le monde pleure."
+    }
+  },
+  {
+    type: "chroniqueur",
+    emoji: "📺",
+    name: "Le Chroniqueur CNews",
+    quote: "La woke folie doit s'arrêter là.",
+    queerEmoji: "📻",
+    queerName: "La Chroniqueuse Radio Féministe",
+    queerMsg: "Changement de genre inclus. Record d'audience. Iel ne sait toujours pas comment c'est arrivé.",
+    savaisTu: "La représentation médiatique positive des personnes LGBTQ+ réduit les actes de violence homophobes et transphobes dans les zones d'audience.",
+    failBuilding: {
+      name: "Studio de débat",
+      emoji: "🎙️",
+      effect: "criee_toxic",
+      description: "Des messages toxiques apparaissent dans la Criée."
+    },
+    successAlly: {
+      name: "La Chroniqueuse Radio Féministe",
+      emoji: "📻",
+      effect: "criee_boost",
+      duration: 80,
+      description: "Changement de genre inclus. Record d'audience. Iel ne sait toujours pas comment c'est arrivé."
+    }
+  },
+  {
+    type: "allie",
+    emoji: "☝️",
+    name: "L'Allié qui Mansplaine le Féminisme",
+    quote: "En tant qu'homme cisgendre, je pense qu'il est important que je dise...",
+    queerEmoji: "👂",
+    queerName: "L'Allié qui Écoute",
+    queerMsg: "Il a fermé la bouche. C'est son plus grand accomplissement. Il le dit encore trop souvent.",
+    savaisTu: "Le « féminisme performatif » des hommes alliés est un des patterns les mieux documentés par les études de genre. L'écoute active reste l'acte le plus rare.",
+    failBuilding: {
+      name: "Conférence TED bienveillante",
+      emoji: "🎤",
+      effect: "vibe_drain_slow",
+      description: "Un seul pax parle. Les autres écoutent passivement."
+    },
+    successAlly: {
+      name: "L'Allié qui Écoute",
+      emoji: "👂",
+      effect: "pax_morale_boost",
+      duration: 70,
+      description: "Il a fermé la bouche. C'est son plus grand accomplissement. Il le dit encore trop souvent."
+    }
+  }
 ];
-
-// ===== BÂTIMENTS TOXIQUES =====
-// Chaque bâtiment corrompt une zone existante. Tous ont l'effet vibeBleed.
-const TOXIC_BUILDINGS = {
-  airbnb:           { name:'Chambres Airbnb',         emoji:'🛏️', effect:'vibeBleed', desc:'Les chambres sont désormais sur Airbnb. 120€/nuit, minimum 3 nuits.' },
-  starbucks:        { name:'Starbucks',                emoji:'🧋', effect:'vibeBleed', desc:'La cuisine collective est devenue un Starbucks. Tout le monde a un prénom, personne ne se connaît.' },
-  wework:           { name:'WeWork',                   emoji:'☕', effect:'vibeBleed', desc:'La mix-room est désormais un espace de coworking. Plantes plastiques. Isolation garantie.' },
-  club_entrepreneurs:{ name:'Club d\'Entrepreneurs',  emoji:'🤝', effect:'vibeBleed', desc:'Le PMU est devenu un club de networking. On parle de "scale" et de "disruption" à 7h du mat.' },
-  concessionnaire:  { name:'Concessionnaire Auto',     emoji:'🚗', effect:'vibeBleed', desc:'La playroom ext. est maintenant un parking exposition. Berlines diesel. Toi + une voiture = une identité.' },
-  ecole_commerce:   { name:'École de Commerce',        emoji:'🎓', effect:'vibeBleed', desc:'La tente cérémonie accueille désormais une prépa. Slides PowerPoint. Valeur ajoutée. Leadership.' },
-  agence_immo:      { name:'Agence Immobilière',       emoji:'🏡', effect:'vibeBleed', desc:'La playroom intérieure est transformée en agence. Le proprio est partout.' },
-};
 
 // ===== CRIÉE MESSAGES =====
 const CRIEE = [
@@ -1187,6 +1353,7 @@ const state = {
   boostCollectif: false,
   foodAlerted: { low:false, critical:false, empty:false },
   _stressToastAt: 0,
+  _allyBoosts: [],
 };
 
 
@@ -1252,11 +1419,9 @@ function handleCrisis(paxId, zid) {
   const ps = state.pax[paxId];
   const welfareOcc = state.zones['welfare'].occupants;
   const supportAvail = welfareOcc.some(oid => oid !== paxId && state.pax[oid] && !state.pax[oid].inCrisis);
-  // Cabinet RH: crisis recovery halved
-  const hasCrisisAmplify = Object.values(state.zones).some(zs => zs.toxicBuilding?.effect === 'crisisAmplify');
+  const welfareMult = getWelfareRecoveryMult();
 
   if (zid === 'welfare' && supportAvail) {
-    // Check caregiver burnout
     const caregiverId = welfareOcc.find(oid => oid !== paxId && state.pax[oid] && !state.pax[oid].inCrisis);
     if (caregiverId) {
       const cps = state.pax[caregiverId];
@@ -1267,14 +1432,12 @@ function handleCrisis(paxId, zid) {
         return;
       }
     }
-    ps.vibe = Math.min(100, ps.vibe + 1.4 * (hasCrisisAmplify ? 0.5 : 1.0));
+    ps.vibe = Math.min(100, ps.vibe + 1.4 * welfareMult);
     if (ps.vibe >= 30) exitCrisis(paxId);
   } else if (zid === 'welfare') {
-    // Welfare alone: slow self-recovery
-    ps.vibe = Math.min(100, ps.vibe + 0.3 * (hasCrisisAmplify ? 0.5 : 1.0));
+    ps.vibe = Math.min(100, ps.vibe + 0.3 * welfareMult);
     if (ps.vibe >= 30) exitCrisis(paxId);
   } else {
-    // Crisis elsewhere: getting worse
     ps.vibe = Math.max(0, ps.vibe - 0.4);
   }
 }
@@ -1939,6 +2102,7 @@ function makePaxDraggable(el, paxId, emoji, excludeEl) {
 function initState() {
   state.journal = [];
   state._journalUnread = 0;
+  state._allyBoosts = [];
   PAX_DATA.forEach(p => {
     state.pax[p.id] = {
       state: 'locked',
@@ -1999,15 +2163,71 @@ function startGame() {
   setTimeout(tutoStart, 400);
 }
 
+function getActiveAllyBoosts(type) {
+  return (state._allyBoosts || []).filter(boost => boost.endsAt > state.totalTicks && (!type || boost.type === type));
+}
+
+function hasActiveAllyBoost(type) {
+  return getActiveAllyBoosts(type).length > 0;
+}
+
+function getWelfareRecoveryMult() {
+  let mult = hasActiveAllyBoost('welfare_boost') ? 1.5 : 1;
+  const toxicEffects = Object.values(state.zones)
+    .map(zs => zs.toxicBuilding?.effect)
+    .filter(Boolean);
+  if (toxicEffects.includes('welfare_fake')) mult *= 0.5;
+  if (toxicEffects.includes('welfare_drain')) mult *= 0.7;
+  return mult;
+}
+
+function getCrieeBoostMessage() {
+  const boosts = getActiveAllyBoosts('criee_boost');
+  if (!boosts.length) return null;
+  const boost = boosts[Math.floor(Math.random() * boosts.length)];
+  return `📢 ${boost.ally.emoji} ${boost.ally.name} — ${boost.ally.description}`;
+}
+
+function getToxicCrieeMessage() {
+  const toxic = Object.values(state.zones)
+    .map(zs => zs.toxicBuilding)
+    .filter(tb => tb?.effect === 'criee_toxic');
+  if (!toxic.length) return null;
+  const tb = toxic[Math.floor(Math.random() * toxic.length)];
+  return `⚠️ ${tb.emoji} ${tb.name} — ${tb.desc}`;
+}
+
 function applyToxicEffects() {
-  const toxicZones = Object.entries(state.zones).filter(([z, zs]) => zs.toxicBuilding);
+  const toxicZones = Object.entries(state.zones).filter(([, zs]) => zs.toxicBuilding);
   if (!toxicZones.length) return;
   const activePax = PAX_DATA.filter(p => state.pax[p.id] && (state.pax[p.id].state === 'placed' || state.pax[p.id].state === 'available'));
-  // Each toxic building drains vibe slightly (vibeBleed)
-  toxicZones.forEach(() => {
+  toxicZones.forEach(([, zs]) => {
+    const effect = zs.toxicBuilding?.effect || 'vibe_drain_slow';
     activePax.forEach(p => {
       const ps = state.pax[p.id];
-      if (ps && !ps.inCrisis) ps.vibe = Math.max(0, ps.vibe - 0.15);
+      if (!ps || ps.inCrisis) return;
+      switch (effect) {
+        case 'vibe_drain_fast':
+          ps.vibe = Math.max(0, ps.vibe - 0.25);
+          break;
+        case 'pax_stress':
+          ps.vibe = Math.max(0, ps.vibe - 0.08);
+          ps.fatigue = Math.min(100, ps.fatigue + 0.14);
+          break;
+        case 'welfare_fake':
+          ps.vibe = Math.max(0, ps.vibe - 0.08);
+          break;
+        case 'welfare_drain':
+          ps.vibe = Math.max(0, ps.vibe - 0.1);
+          break;
+        case 'criee_toxic':
+          ps.vibe = Math.max(0, ps.vibe - 0.12);
+          break;
+        case 'vibe_drain_slow':
+        default:
+          ps.vibe = Math.max(0, ps.vibe - 0.15);
+          break;
+      }
     });
   });
 }
@@ -2016,6 +2236,7 @@ function applyToxicEffects() {
 function productionTick() {
   if (!state.started || state.gameEnded || state.paused) return;
   state.totalTicks++;
+  state._allyBoosts = (state._allyBoosts || []).filter(boost => boost.endsAt > state.totalTicks);
   applyToxicEffects();
 
   // Food stock: collective consumption
@@ -2085,6 +2306,7 @@ function productionTick() {
       if (actMode === 'repos' && zid === 'welfare') {
         const isSupportRole = occ.some(oid => oid !== paxId && state.pax[oid]?.inCrisis);
         if (isSupportRole) dFatigue = hasAffinity ? 0.4 : 0.6; // tiring to support others
+        else dFatigue *= getWelfareRecoveryMult();
       }
       if (dFatigue > 0) dFatigue *= CFG.DAY_FATIGUE_MULT[Math.min(state.day, 6)];
       ps.fatigue = Math.max(0, Math.min(100, ps.fatigue + dFatigue));
@@ -2092,6 +2314,9 @@ function productionTick() {
       // ── FOOD PRODUCTION (cantina) ──
       if (actMode === 'cuisine') {
         state.food_stock = Math.min(CFG.FOOD_STOCK_MAX, state.food_stock + 1.6);
+      }
+      if (actMode === 'repos' && zid === 'welfare' && !ps.inCrisis && hasActiveAllyBoost('welfare_boost')) {
+        ps.vibe = Math.min(100, ps.vibe + 0.04);
       }
 
       // ── ENNUI (S-curve) ──
@@ -2151,7 +2376,8 @@ function productionTick() {
 
         // Repos zones give a gentle vibe recovery (rest is good)
         if (actMode === 'repos' || actMode === 'nego') {
-          dVibe += 0.05; // slow passive recovery
+          const reposBoost = (actMode === 'repos' && zid === 'welfare') ? getWelfareRecoveryMult() : 1;
+          dVibe += 0.05 * reposBoost;
         }
 
         // Solitude (J1-3) — not in low-energy zones
@@ -2352,7 +2578,7 @@ function spawnInvader() {
   // Target = centre de la carte
   const tx = 400 + (Math.random() - 0.5) * 200;
   const ty = 300 + (Math.random() - 0.5) * 200;
-  const invObj = { id: Date.now(), type:inv.type, data:inv, x:sx, y:sy, tx, ty, health:100, toxicType:inv.toxicType, atelierOpen:false, el:null, barEl:null };
+  const invObj = { id: Date.now(), type:inv.type, data:inv, x:sx, y:sy, tx, ty, health:100, atelierOpen:false, el:null, barEl:null };
   state.invaders.push(invObj);
   renderInvader(invObj);
 }
@@ -2446,34 +2672,58 @@ function queeriseInvader(id, success = true) {
   if (inv.el) inv.el.remove();
   
   if (!success) {
-    // Atelier failed → build toxic
     buildToxicBuilding(inv);
     return;
   }
   
-  // Success confetti
   for (let i = 0; i < 6; i++) {
     setTimeout(() => spawnConfetti(inv.x + (Math.random()-0.5)*60, inv.y + (Math.random()-0.5)*60,
       ['🌈','🎉','💜','⭐','🦋','✨'][Math.floor(Math.random()*6)]), i * 80);
   }
+  applyAllyEffect(inv);
   state.stats.queerised++;
   logEvent('queer', `${inv.data.emoji} ${inv.data.name} devient ${inv.data.queerEmoji} ${inv.data.queerName} !`);
-  
-  // Show discovery + zone pick
   showDiscovery(inv.data, '');
-  
-  // Queue zone build picker after discovery modal closes
   state._pendingZoneBuild = true;
   checkEnd();
 }
 
+function applyAllyEffect(inv) {
+  const ally = inv.data?.successAlly;
+  if (!ally) return;
+  const duration = ally.duration || 60;
+
+  switch (ally.effect) {
+    case 'pax_morale_boost':
+      PAX_DATA.filter(p => state.pax[p.id]?.state === 'placed').forEach(p => {
+        state.pax[p.id].vibe = Math.min(100, state.pax[p.id].vibe + 15);
+      });
+      toast(`${ally.emoji} ${ally.name} — +15 Vibe pour tous les pax !`);
+      break;
+    case 'criee_boost':
+      state._allyBoosts = state._allyBoosts || [];
+      state._allyBoosts.push({ type: 'criee_boost', ally, endsAt: state.totalTicks + duration });
+      toast(`${ally.emoji} ${ally.name} — La Criée s'anime !`);
+      break;
+    case 'welfare_boost':
+      state._allyBoosts = state._allyBoosts || [];
+      state._allyBoosts.push({ type: 'welfare_boost', ally, endsAt: state.totalTicks + duration });
+      toast(`${ally.emoji} ${ally.name} — Le Welfare est boosté pour ${duration} ticks !`);
+      break;
+    case 'fun_facts_boost': {
+      const agentMsg = MSG.invaders[inv.type];
+      if (agentMsg?.savaisTu) updateCriee('📚 ' + agentMsg.savaisTu);
+      toast(`${ally.emoji} ${ally.name} — Un fun fact queer dans la Criée !`);
+      break;
+    }
+  }
+}
+
 function buildToxicBuilding(inv) {
-  // Find a lockable zone to corrupt (prefer unlocked, non-toxic)
   const candidates = Object.keys(ZONES).filter(z => {
     const zs = state.zones[z];
     return !zs.locked && !zs.toxicBuilding && z !== 'welfare' && z !== 'bulle_nego';
   });
-  // Fallback: any non-toxic zone
   const fallback = Object.keys(ZONES).filter(z => !state.zones[z].toxicBuilding && z !== 'welfare' && z !== 'bulle_nego');
   const pool = candidates.length ? candidates : fallback;
   if (!pool.length) {
@@ -2481,10 +2731,16 @@ function buildToxicBuilding(inv) {
     return;
   }
   const target = pool[Math.floor(Math.random() * pool.length)];
-  const tb = TOXIC_BUILDINGS[inv.toxicType] || TOXIC_BUILDINGS.open_space;
+  const fb = inv.data?.failBuilding || { name: 'Bâtiment toxique', emoji: '🏭', effect: 'vibe_drain_slow', description: 'La Norme s\'est installée.' };
   state.zones[target].locked = false;
-  state.zones[target].toxicBuilding = { type: inv.toxicType, ...tb, builtAt: state.totalTicks };
-  // Kick out pax from the zone
+  state.zones[target].toxicBuilding = {
+    type: fb.effect,
+    name: fb.name,
+    emoji: fb.emoji,
+    desc: fb.description,
+    effect: fb.effect,
+    builtAt: state.totalTicks
+  };
   const kicked = [...state.zones[target].occupants];
   kicked.forEach(paxId => {
     const ps = state.pax[paxId];
@@ -2492,48 +2748,48 @@ function buildToxicBuilding(inv) {
   });
   state.zones[target].occupants = [];
   const zoneName = ZONES[target].name;
-  logEvent('alert', `🏭 ${tb.emoji} ${tb.name} construit à la place de ${zoneName}. ${kicked.length ? kicked.map(id => { const p = PAX_DATA.find(d=>d.id===id); return p ? p.emoji+' '+p.name : ''; }).join(', ') + ' ont été chassé·es.' : ''}`);
-  toast(`🏭 ${inv.data.emoji} ${inv.data.name} a construit un ${tb.name} !`);
+  logEvent('alert', `🏭 ${fb.emoji} ${fb.name} construit à la place de ${zoneName}. ${kicked.length ? kicked.map(id => { const p = PAX_DATA.find(d=>d.id===id); return p ? p.emoji+' '+p.name : ''; }).join(', ') + ' ont été chassé·es.' : ''}`);
+  toast(`🏭 ${inv.data.emoji} ${inv.data.name} a construit ${fb.emoji} ${fb.name} !`);
   renderZones();
   if (state.selectedZone === target) openZone(target);
 }
 
 // ===== ATELIER FLOW =====
-let _atelierFlow = null; // { invId, options, pickedKey, qIdx, score, idealKey, passables }
+let _atelierFlow = null; // { invId, options, pickedKey, qIdx, score, weights, showingReponse }
 
 function openAtelierModal(invId) {
   const inv = state.invaders.find(i => i.id === invId);
   if (!inv) return;
-  const agentKey = inv.type;
-  const agentMsg = MSG.invaders[agentKey];
+  const agentMsg = MSG.invaders[inv.type];
   
-  // Set agent header
   document.getElementById('atelier-agent-emoji').textContent = inv.data.emoji;
   document.getElementById('atelier-agent-name').textContent = inv.data.name;
   document.getElementById('atelier-agent-quote').textContent = '« ' + inv.data.quote + ' »';
   
-  // Select ateliers: always include ideal, pick 2 more from passables+wildcard
-  const ideal = agentMsg?.atelierIdeal || 'lettre';
-  const passables = agentMsg?.atelierPassables || ['corps', 'oisivete'];
-  const wildcard = agentMsg?.atelierWildcard || 'drag';
-  const pool = [ideal];
-  const rest = [...passables, wildcard].sort(() => Math.random() - 0.5);
-  pool.push(...rest.slice(0, 2));
-  // Shuffle
-  pool.sort(() => Math.random() - 0.5);
+  const weights = agentMsg?.ateliers || { lettre: 40, corps: 40, oisivete: 40, drag: 40 };
+  const pool = [];
+  Object.entries(weights).forEach(([k, w]) => { for (let i = 0; i < w; i++) pool.push(k); });
+  const selected = [];
+  const usedKeys = new Set();
+  let attempts = 0;
+  while (selected.length < 4 && attempts < 500) {
+    const pick = pool[Math.floor(Math.random() * pool.length)];
+    if (!usedKeys.has(pick)) { selected.push(pick); usedKeys.add(pick); }
+    attempts++;
+  }
+  selected.sort(() => Math.random() - 0.5);
+  _atelierFlow = { invId, options: selected, pickedKey: null, qIdx: 0, score: 0, weights, showingReponse: false };
   
-  _atelierFlow = { invId, options: pool, pickedKey: null, qIdx: 0, score: 0, idealKey: ideal, passables };
-  
-  // Show step-pick, hide others
   document.getElementById('atelier-step-pick').style.display = '';
   document.getElementById('atelier-step-question').style.display = 'none';
   document.getElementById('atelier-step-result').style.display = 'none';
   document.getElementById('atelier-result-fill').style.width = '0%';
+  document.getElementById('atelier-reponse').style.display = 'none';
+  document.getElementById('atelier-continue-btn').style.display = 'none';
   
-  // Build atelier options grid
   const grid = document.getElementById('atelier-pick-grid');
   grid.innerHTML = '';
-  pool.forEach(key => {
+  selected.forEach(key => {
     const a = MSG.ateliers[key];
     if (!a) return;
     const div = document.createElement('div');
@@ -2555,77 +2811,86 @@ function pickAtelier(key) {
   _atelierFlow.pickedKey = key;
   _atelierFlow.qIdx = 0;
   _atelierFlow.score = 0;
+  _atelierFlow.showingReponse = false;
   showAtelierQuestion();
 }
 
 function showAtelierQuestion() {
   const { pickedKey, qIdx } = _atelierFlow;
   const atelier = MSG.ateliers[pickedKey];
-  if (!atelier || qIdx >= atelier.questions.length) { resolveAtelier(); return; }
-  const q = atelier.questions[qIdx];
+  const etapes = atelier?.etapes || [];
+  if (!atelier || qIdx >= etapes.length) { resolveAtelier(); return; }
+  const etape = etapes[qIdx];
   
-  // Switch views
   document.getElementById('atelier-step-pick').style.display = 'none';
   document.getElementById('atelier-step-question').style.display = '';
   document.getElementById('atelier-step-result').style.display = 'none';
   
-  // Progress dots
   const prog = document.getElementById('atelier-progress');
   prog.innerHTML = '';
-  atelier.questions.forEach((_, i) => {
+  etapes.forEach((_, i) => {
     const dot = document.createElement('div');
     dot.className = 'atelier-progress-dot' + (i < qIdx ? ' done' : i === qIdx ? ' current' : '');
     prog.appendChild(dot);
   });
   
-  // Question header
-  document.getElementById('atelier-q-header').textContent = atelier.nom + ' — ' + (qIdx + 1) + '/3';
-  document.getElementById('atelier-q-text').textContent = q.texte;
+  document.getElementById('atelier-q-header').textContent = atelier.nom + ' — ' + (qIdx + 1) + '/' + etapes.length;
+  document.getElementById('atelier-q-text').textContent = etape.question;
+  const reponseEl = document.getElementById('atelier-reponse');
+  reponseEl.style.display = 'none';
+  reponseEl.textContent = '';
+  const continueBtn = document.getElementById('atelier-continue-btn');
+  continueBtn.style.display = 'none';
+  continueBtn.onclick = null;
   
-  // Choices (shuffle order)
-  const choices = [...q.choix].sort(() => Math.random() - 0.5);
+  const choices = [...etape.choix].sort(() => Math.random() - 0.5);
   const choicesEl = document.getElementById('atelier-choices');
   choicesEl.innerHTML = '';
   choices.forEach(c => {
     const btn = document.createElement('button');
     btn.className = 'atelier-choice';
     btn.textContent = c.texte;
-    btn.onclick = () => answerQuestion(c.score, c.type);
+    btn.onclick = () => answerQuestion(c.score, c.type, c.reponse);
     choicesEl.appendChild(btn);
   });
 }
 
-function answerQuestion(score, type) {
+function answerQuestion(score, type, reponse) {
+  if (_atelierFlow.showingReponse) return;
   _atelierFlow.score += score;
-  _atelierFlow.qIdx++;
-  if (_atelierFlow.qIdx >= 3) {
-    resolveAtelier();
-  } else {
+  _atelierFlow.showingReponse = true;
+  document.querySelectorAll('#atelier-choices .atelier-choice').forEach(btn => { btn.disabled = true; });
+  const reponseEl = document.getElementById('atelier-reponse');
+  reponseEl.textContent = reponse || '';
+  reponseEl.style.display = '';
+  const continueBtn = document.getElementById('atelier-continue-btn');
+  continueBtn.style.display = '';
+  continueBtn.onclick = () => {
+    _atelierFlow.qIdx++;
+    _atelierFlow.showingReponse = false;
     showAtelierQuestion();
-  }
+  };
 }
 
 function resolveAtelier() {
-  const { invId, pickedKey, score, idealKey, passables } = _atelierFlow;
+  const { invId, pickedKey, score, weights } = _atelierFlow;
   const inv = state.invaders.find(i => i.id === invId);
   if (!inv) { state.paused = false; closeAtelierModal(); return; }
   
-  // Atelier match multiplier
-  let atelierMult = 0.5; // wildcard
-  if (pickedKey === idealKey) atelierMult = 1.0;
-  else if (passables && passables.includes(pickedKey)) atelierMult = 0.75;
-  
-  // Probability: 5% + (score/6)*80% * atelierMult
-  const scorePct = score / 6;
-  const prob = Math.max(0.05, Math.min(0.85, (0.05 + scorePct * 0.80) * atelierMult + (1 - atelierMult) * 0.05));
+  const PROBA_TABLE = [5, 5, 20, 40, 60, 78, 92];
+  const baseProba = (PROBA_TABLE[Math.min(score, 6)] ?? 5) / 100;
+  const pickedWeight = weights[pickedKey] ?? 40;
+  let bonus = 0;
+  if (pickedWeight >= 70) bonus = 0.08;
+  if (pickedWeight <= 20) bonus = -0.08;
+  const prob = Math.min(0.95, Math.max(0.03, baseProba + bonus));
   const success = Math.random() < prob;
   
-  // Show result screen
   document.getElementById('atelier-step-pick').style.display = 'none';
   document.getElementById('atelier-step-question').style.display = 'none';
   document.getElementById('atelier-step-result').style.display = '';
   
-  const matchLabel = pickedKey === idealKey ? 'Idéal ✨' : (passables?.includes(pickedKey) ? 'Passable' : 'Wildcard 🎲');
+  const matchLabel = pickedWeight >= 70 ? 'Idéal ✨' : (pickedWeight <= 20 ? 'Wildcard 🎲' : 'Passable');
   const pctDisplay = Math.round(prob * 100);
   document.getElementById('atelier-result-fill').style.width = '0%';
   document.getElementById('atelier-result-fill').style.background = success ? 'var(--green)' : 'var(--red)';
@@ -2637,21 +2902,22 @@ function resolveAtelier() {
     `Score : ${score}/6 · Atelier : ${matchLabel} · Probabilité : ${pctDisplay}%`;
   
   if (success) {
+    const ally = inv.data.successAlly || { name: inv.data.queerName, emoji: inv.data.queerEmoji, description: inv.data.queerMsg };
     document.getElementById('atelier-result-title').textContent = '★ TRANSFORMATION ★';
-    document.getElementById('atelier-result-emoji').textContent = inv.data.queerEmoji;
+    document.getElementById('atelier-result-emoji').textContent = ally.emoji || inv.data.queerEmoji;
     document.getElementById('atelier-result-msg').textContent =
-      inv.data.queerName + ' — ' + inv.data.queerMsg;
+      `${ally.name || inv.data.queerName} — ${ally.description || inv.data.queerMsg}`;
     document.getElementById('atelier-result-btn').textContent = '🌈 MAGNIFIQUE !';
     document.getElementById('atelier-result-btn').onclick = () => {
       closeAtelierModal();
       queeriseInvader(invId, true);
     };
   } else {
+    const fb = inv.data.failBuilding || { name: 'Bâtiment toxique', emoji: '🏭', description: 'La Norme s\'installe.' };
     document.getElementById('atelier-result-title').textContent = 'PAS ENCORE...';
-    document.getElementById('atelier-result-emoji').textContent = '🏭';
-    const tb = TOXIC_BUILDINGS[inv.data.toxicType] || TOXIC_BUILDINGS.open_space;
+    document.getElementById('atelier-result-emoji').textContent = fb.emoji || '🏭';
     document.getElementById('atelier-result-msg').textContent =
-      inv.data.name + ' n\'a pas accroché. Un ' + tb.name + ' va être construit.';
+      `${inv.data.name} n'a pas accroché. ${fb.name} s'installe : ${fb.description}`;
     document.getElementById('atelier-result-btn').textContent = 'Ok...';
     document.getElementById('atelier-result-btn').onclick = () => {
       closeAtelierModal();
@@ -3361,7 +3627,12 @@ function spawnConfetti(x, y, emoji) {
 
 // ===== CRIÉE =====
 function updateCriee(msg) {
-  const text = msg || CRIEE[Math.floor(Math.random() * CRIEE.length)];
+  const boostedMsg = getCrieeBoostMessage();
+  const toxicMsg = getToxicCrieeMessage();
+  const text = msg
+    || (toxicMsg && Math.random() < 0.45 ? toxicMsg : null)
+    || (boostedMsg && Math.random() < 0.7 ? boostedMsg : null)
+    || CRIEE[Math.floor(Math.random() * CRIEE.length)];
   document.getElementById('criee-text').textContent = text;
 }
 
