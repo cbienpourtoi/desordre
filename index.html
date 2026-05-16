@@ -69,7 +69,7 @@ html,body{width:100%;height:100%;overflow:hidden;background:var(--dark);font-fam
   width:900px;height:675px;
   image-rendering:auto;
   filter:var(--map-time-filter,none);
-  transition:filter 5s ease;
+  transition:filter 2s ease;
 }
 #map-img-night{
   position:absolute;top:0;left:0;
@@ -78,7 +78,7 @@ html,body{width:100%;height:100%;overflow:hidden;background:var(--dark);font-fam
   image-rendering:auto;
   opacity:0;
   filter:var(--map-time-filter,none);
-  transition:opacity 8s ease, filter 5s ease;
+  transition:opacity 8s ease, filter 2s ease;
   pointer-events:none;
 }
 #map-img-night.night{opacity:1;}
@@ -91,7 +91,7 @@ html,body{width:100%;height:100%;overflow:hidden;background:var(--dark);font-fam
   image-rendering:auto;
   pointer-events:none;
   filter:var(--map-time-filter,none);
-  transition:opacity 1.2s ease, filter 5s ease;
+  transition:opacity 1.2s ease, filter 2s ease;
 }
 .map-reveal { opacity:0; }
 .map-reveal-night { opacity:0; }
@@ -2211,15 +2211,13 @@ function updateMapTimeFilter() {
   // Basé sur analyse colorimétrique : ΔSat=+19.4%, Δa*=+7.91, Δb*=+7.47
   const h = state.hour || 8;
   const t = state.isNight ? 0 : Math.max(0, Math.sin(Math.PI * (h - 8) / 24));
-  if (t < 0.005) {
-    document.documentElement.style.setProperty('--map-time-filter', 'none');
-  } else {
-    const sat    = (1 + 0.20 * t).toFixed(3);
-    const hueRot = (-8  * t).toFixed(1);
-    const bright = (1 + 0.04 * t).toFixed(3);
-    document.documentElement.style.setProperty('--map-time-filter',
-      `saturate(${sat}) hue-rotate(${hueRot}deg) brightness(${bright})`);
-  }
+  // Toujours fournir les 3 filtres avec leurs valeurs neutres à t=0
+  // pour que CSS puisse interpoler proprement entre les états
+  const sat    = (1 + 0.35 * t).toFixed(3);   // 1.0 → 1.35 (chaud = plus saturé)
+  const hueRot = (-15 * t).toFixed(1);          // 0° → -15° (vers jaune/orange)
+  const bright = (1 + 0.08 * t).toFixed(3);     // 1.0 → 1.08 (légèrement plus lumineux le soir)
+  document.documentElement.style.setProperty('--map-time-filter',
+    `saturate(${sat}) hue-rotate(${hueRot}deg) brightness(${bright})`);
 }
 
 function toggleNightGlows(isNight) {
