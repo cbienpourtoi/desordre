@@ -2187,7 +2187,10 @@ function initState() {
 
 function revealZoneOnMap(zid) {
   const day = document.getElementById('reveal-' + zid);
-  if (day) day.style.opacity = '1';
+  if (day) {
+    day.dataset.unlocked = '1';
+    day.style.opacity = '1';
+  }
   const night = document.getElementById('reveal-night-' + zid);
   if (night) {
     night.dataset.unlocked = '1';
@@ -2801,9 +2804,9 @@ function applyAllyEffect(inv) {
 function buildToxicBuilding(inv) {
   const candidates = Object.keys(ZONES).filter(z => {
     const zs = state.zones[z];
-    return !zs.locked && !zs.toxicBuilding && z !== 'welfare' && z !== 'bulle_nego' && z !== 'camping';
+    return !zs.locked && !zs.toxicBuilding && z !== 'welfare' && z !== 'camping';
   });
-  const fallback = Object.keys(ZONES).filter(z => !state.zones[z].toxicBuilding && z !== 'welfare' && z !== 'bulle_nego' && z !== 'camping');
+  const fallback = Object.keys(ZONES).filter(z => !state.zones[z].toxicBuilding && z !== 'welfare' && z !== 'camping');
   const pool = candidates.length ? candidates : fallback;
   if (!pool.length) {
     toast(`😤 ${inv.data.emoji} ${inv.data.name} repart — mais la Norme progresse.`);
