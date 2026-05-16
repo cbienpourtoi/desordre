@@ -488,8 +488,8 @@ html,body{width:100%;height:100%;overflow:hidden;background:var(--dark);font-fam
   display: none !important;
 }
 .zone.toxic {
-  background: rgba(192,57,43,0.15) !important;
-  border-color: rgba(192,57,43,0.7) !important;
+  background: rgba(192,57,43,0.05) !important;
+  border-color: rgba(192,57,43,0.6) !important;
   animation: toxicPulse 2.5s ease-in-out infinite;
 }
 @keyframes toxicPulse {
@@ -2501,7 +2501,7 @@ function getNormeMapSrc() {
 
 function updateRevealForZone(zid) {
   const el = document.getElementById('reveal-' + zid);
-  if (!el || el.style.opacity === '0') return;
+  if (!el) return;
   const isToxic = !!(state.zones[zid]?.toxicBuilding);
   el.src = isToxic ? getNormeMapSrc() : (TOD_SLOTS[_todSlot]?.bat || 'maps/tod/bat_8h.png');
   el.dataset.toxic = isToxic ? '1' : '0';
@@ -2805,6 +2805,12 @@ function buildToxicBuilding(inv) {
   const zoneName = ZONES[target].name;
   logEvent('alert', `🏭 ${fb.emoji} ${fb.name} construit à la place de ${zoneName}. ${kicked.length ? kicked.map(id => { const p = PAX_DATA.find(d=>d.id===id); return p ? p.emoji+' '+p.name : ''; }).join(', ') + ' ont été chassé·es.' : ''}`);
   toast(`🏭 ${inv.data.emoji} ${inv.data.name} a construit ${fb.emoji} ${fb.name} !`);
+  // Révéler la zone sur la carte si elle ne l'était pas encore, puis basculer sur la carte norme
+  const revealEl = document.getElementById('reveal-' + target);
+  if (revealEl) {
+    revealEl.dataset.unlocked = '1';
+    revealEl.style.opacity = '1';
+  }
   updateRevealForZone(target);
   renderZones();
   if (state.selectedZone === target) openZone(target);
@@ -3471,19 +3477,18 @@ function renderZones() {
     }
     el.innerHTML = '';
     if (zstate.locked) return; // invisible — nothing to render
-    // Label
+    // Label : si zone toxique, montrer le nom du bâtiment norme (pas le nom queer)
     const label = document.createElement('div');
     label.className = 'zone-label';
-    label.textContent = ZONES[zid].name;
-    el.appendChild(label);
     if (zstate.toxicBuilding) {
       const tb = zstate.toxicBuilding;
-      const tbl = document.createElement('div');
-      tbl.className = 'zone-toxic-label';
-      tbl.textContent = tb.emoji + ' ' + tb.name;
-      el.appendChild(tbl);
-      // Still show pax if any (shouldn't be any, but just in case)
-    }
+      label.textContent = tb.emoji + ' ' + tb.name;
+      label.style.color = 'var(--red)';
+      el.appendChild(label);
+      // Pas de pax dans une zone toxique — stop ici
+    } else {
+      label.textContent = ZONES[zid].name;
+      el.appendChild(label);
     // Pax dots
     if (zstate.occupants.length > 0) {
       const row = document.createElement('div');
@@ -3523,6 +3528,7 @@ function renderZones() {
     const zoneCap = ZONES[zid].cap;
     cap.textContent = zoneCap >= 12 ? (zstate.occupants.length || '') : zstate.occupants.length + '/' + zoneCap;
     el.appendChild(cap);
+    } // end else (non-toxic)
   });
 }
 
