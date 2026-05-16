@@ -2,14 +2,15 @@
 // Google Apps Script — Leaderboard API pour Le Désordre
 // 
 // SETUP :
-// 1. Aller sur https://script.google.com → Nouveau projet
-// 2. Coller ce code dans Code.gs
-// 3. Exécuter setupSheet() une fois (menu Exécuter)
-// 4. Déployer → Nouveau déploiement → Application Web
+// 1. Créer un Google Sheet, le nommer "Le Désordre - Scores"
+// 2. Dans le Sheet → Extensions → Apps Script
+// 3. Coller ce code dans Code.gs (remplacer tout)
+// 4. Exécuter setupSheet() une fois (menu Exécuter)
+// 5. Déployer → Nouveau déploiement → Application Web
 //    - Exécuter en tant que : Moi
 //    - Qui a accès : Tout le monde
-// 5. Copier l'URL de déploiement
-// 6. La coller dans index.html → LEADERBOARD_URL
+// 6. Copier l'URL de déploiement
+// 7. La coller dans index.html → LEADERBOARD_URL
 // ============================================================
 
 const SHEET_NAME = 'Scores';
@@ -26,6 +27,15 @@ function setupSheet() {
 }
 
 function doGet(e) {
+  // Action de reset protégée par confirmation (dev uniquement)
+  if (e.parameter.action === 'clear' && e.parameter.secret === 'desordre-reset') {
+    const sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName(SHEET_NAME);
+    if (sheet && sheet.getLastRow() > 1) {
+      sheet.deleteRows(2, sheet.getLastRow() - 1);
+    }
+    return jsonResponse({ ok: true, cleared: true });
+  }
+
   const sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName(SHEET_NAME);
   if (!sheet || sheet.getLastRow() < 2) {
     return jsonResponse([]);
