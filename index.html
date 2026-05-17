@@ -3962,6 +3962,10 @@ function renderSidebar() {
     const ps = state.pax[paxId];
     const wrap = document.createElement('div');
     wrap.style.cssText = 'margin-top:6px;';
+    // Stop all events from propagating to the card (prevent pickUpPax on button click)
+    wrap.onpointerdown = e => e.stopPropagation();
+    wrap.onmousedown = e => e.stopPropagation();
+    wrap.onclick = e => e.stopPropagation();
 
     const btn = document.createElement('button');
     btn.textContent = ps.placedIn ? '📍 Changer de lieu' : '📍 Envoyer vers...';
@@ -4000,7 +4004,16 @@ function renderSidebar() {
       picker.appendChild(free);
     }
 
-    btn.onclick = e => { e.stopPropagation(); const showing = picker.style.display === 'none'; picker.style.display = showing ? 'block' : 'none'; _pickerOpen = showing; };
+    btn.onclick = e => {
+      e.stopPropagation();
+      e.preventDefault();
+      const showing = picker.style.display === 'none';
+      picker.style.display = showing ? 'block' : 'none';
+      _pickerOpen = showing;
+    };
+    // Prevent drag/carry from starting on the button area
+    btn.onpointerdown = e => e.stopPropagation();
+    btn.onmousedown = e => e.stopPropagation();
     wrap.appendChild(picker);
     return wrap;
   }
