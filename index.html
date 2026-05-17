@@ -663,7 +663,7 @@ html,body{width:100%;height:100%;overflow:hidden;background:var(--dark);font-fam
     <div class="start-pillar">🏆<br><span>Score</span><br><small>Vibe × pax × durée</small></div>
   </div>
 
-  <button class="start-btn" onclick="startGame(); setTimeout(tutoStart, 500);">▶ JOUER</button>
+  <button class="start-btn" onclick="startGame();">▶ JOUER</button>
   <div style="font-size:11px;color:rgba(255,255,255,0.35);font-family:'DM Mono',monospace;margin-top:-8px;">
     Première fois ? Le tutoriel se lance automatiquement.
   </div>
@@ -1036,14 +1036,15 @@ const ZONES = {
 //   { auto: zoneId }       → construction automatique (pas de popup)
 //   { sibling: stepIdx }   → construit l'option non choisie à l'étape stepIdx
 const ZONE_PROGRESSION = [
-  { choice: ['cantina', 'bat1'] },           // Q1 : cuisine ou chambres ?
-  { sibling: 0 },                             // Q2 : l'autre
-  { choice: ['playroom_ext', 'tente_cer'] }, // Q3 : première playroom
-  { sibling: 2 },                             // Q4 : l'autre playroom
-  { choice: ['mixroom', 'bat2'] },           // Q5 : espace fun ou hébergement
-  { sibling: 4 },                             // Q6 : l'autre
-  { auto: 'pmu' },                            // Q7 : buvette
-  { auto: 'bulle_nego' },                     // Q8 : la négo, tout à la fin
+  { choice: ['cantina', 'bat1', 'welfare'] },  // Q1 : cuisine, chambres ou welfare ?
+  { choiceFrom: 0 },                           // Q2 : choix parmi les 2 restants
+  { sibling: 0 },                              // Q3 : le dernier auto
+  { choice: ['playroom_ext', 'tente_cer'] },   // Q4 : première playroom
+  { sibling: 3 },                              // Q5 : l'autre playroom
+  { choice: ['mixroom', 'bat2'] },             // Q6 : espace fun ou hébergement
+  { sibling: 5 },                              // Q7 : l'autre
+  { auto: 'pmu' },                             // Q8 : buvette
+  { auto: 'bulle_nego' },                      // Q9 : la négo, tout à la fin
 ];
 
 // ===== BÂTIMENTS TOXIQUES PAR ZONE =====
@@ -3437,8 +3438,15 @@ function showZoneBuildPicker() {
     return;
   }
 
+  // choiceFrom : comme choice, mais les options viennent des zones restantes d'une étape parente
+  let choicePool = step.choice;
+  if (step.choiceFrom !== undefined) {
+    const parentStep = ZONE_PROGRESSION[step.choiceFrom];
+    choicePool = (parentStep.choice || []).filter(z => state.zones[z]?.locked && !state.zones[z]?.toxicBuilding);
+  }
+
   // choice : afficher les options au joueur
-  const choices = (step.choice || []).filter(z => state.zones[z]?.locked && !state.zones[z]?.toxicBuilding);
+  const choices = (choicePool || []).filter(z => state.zones[z]?.locked && !state.zones[z]?.toxicBuilding);
   if (choices.length === 0) { state.paused = false; return; }
   if (choices.length === 1) { buildZone(choices[0]); state.paused = false; return; }
 
@@ -3785,7 +3793,7 @@ function tryAutoBoost(zid) {
 // ===== RENDER =====
 // Helper: refresh sidebar only if open (called after state changes)
 function refreshSidebarIfOpen() {
-  refreshSidebarIfOpen();
+  if (document.getElementById('sidebar').classList.contains('open')) renderSidebar();
 }
 
 function renderHUD() {
