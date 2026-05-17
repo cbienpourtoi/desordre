@@ -654,7 +654,7 @@ html,body{width:100%;height:100%;overflow:hidden;background:var(--dark);font-fam
   <div class="start-logo">LE DÉSORDRE<br><span style="font-size:0.45em;color:var(--pink);">cultive le bordel</span></div>
 
   <div style="font-family:'DM Mono',monospace;font-size:15px;color:var(--cream);text-align:center;opacity:0.85;max-width:320px;line-height:1.6;">
-    Un camp queer kinky. Une semaine. Des agents de la Norme à queeriser.
+    Un camp queer kinky. Une semaine. Des agents de l'Ordre à queeriser.
   </div>
 
   <div style="display:flex;gap:12px;flex-wrap:wrap;justify-content:center;max-width:380px;">
@@ -902,7 +902,7 @@ html,body{width:100%;height:100%;overflow:hidden;background:var(--dark);font-fam
 <!-- END SCREEN -->
 <div id="end-screen">
   <div class="end-title">🎉 LE DÉSORDRE<br>A TRIOMPHÉ 🎉</div>
-  <div class="end-title-label">La Norme s'enfuit en pleurant.<br>Tout le monde danse autour du compost.</div>
+  <div class="end-title-label">L'Ordre s'enfuit en pleurant.<br>Tout le monde danse autour du compost.</div>
   <div class="end-card">
     <div>Score Désordre : <span id="end-vibe">0</span></div>
     <div>Crises résolues : <span id="end-crises">0</span></div>
@@ -935,7 +935,7 @@ html,body{width:100%;height:100%;overflow:hidden;background:var(--dark);font-fam
   <div style="color:#5fcfe8;font-weight:bold;margin-bottom:4px;">⚙️ DEV</div>
   <div id="dev-version" style="font-size:10px;color:#aaa;line-height:1.5;"><span id="dev-deploy-status">vérification déploiement…</span></div>
   <button onclick="devSpawnInvader()" style="background:#1a2f1a;border:1px solid #5fcfe8;color:#5fcfe8;padding:4px 8px;cursor:pointer;border-radius:3px;">👾 Spawn invader</button>
-  <button onclick="devFailInvader()" style="background:#1a2f1a;border:1px solid #e74c3c;color:#e74c3c;padding:4px 8px;cursor:pointer;border-radius:3px;">💥 Fail → bâtiment norme</button>
+  <button onclick="devFailInvader()" style="background:#1a2f1a;border:1px solid #e74c3c;color:#e74c3c;padding:4px 8px;cursor:pointer;border-radius:3px;">💥 Fail → bâtiment ordre</button>
   <button onclick="devQueerInvader()" style="background:#1a2f1a;border:1px solid #ffe93f;color:#ffe93f;padding:4px 8px;cursor:pointer;border-radius:3px;">🌈 Queer → zone</button>
   <button onclick="devFillFood()" style="background:#1a2f1a;border:1px solid #ffe93f;color:#ffe93f;padding:4px 8px;cursor:pointer;border-radius:3px;">🍽 Nourriture max</button>
   <button onclick="devFastDay()" id="dev-fastday-btn" style="background:#1a2f1a;border:1px solid #aaa;color:#aaa;padding:4px 8px;cursor:pointer;border-radius:3px;">⏩ Jour rapide</button>
@@ -1048,7 +1048,7 @@ const ZONE_PROGRESSION = [
 ];
 
 // ===== BÂTIMENTS TOXIQUES PAR ZONE =====
-// Chaque zone a son bâtiment de la Norme fixe, indépendamment de l'invader.
+// Chaque zone a son bâtiment de l'Ordre fixe, indépendamment de l'invader.
 const ZONE_TOXIC_MAP = {
   welfare:      { name: 'Centre Commercial',        emoji: '🏬', effect: 'welfare_fake',    description: 'La consommation remplace le soin collectif.' },
   bat1:         { name: 'Airbnb',                   emoji: '🛏️', effect: 'welfare_drain',   description: 'L\'hébergement marchandisé. Pas de chambre pour toi.' },
@@ -1502,7 +1502,7 @@ const state = {
   pax: {},   // id → {state, vibe, faim, ennui, fatigue, placedIn, shiftTicks, solitudeTicks, inCrisis, lastCrisisAt, crisisAutoHandled}
   zones: {},
   invaders: [],
-  stats: { queerised:0, normeChased:0, crisisTotal:0, crisisResolved:0, maxVibe:0, builtZones:0 },
+  stats: { queerised:0, ordreChased:0, crisisTotal:0, crisisResolved:0, maxVibe:0, builtZones:0 },
   unlockedPax: [],
   selectedZone: null,
   boostCooldowns: {},
@@ -1544,9 +1544,9 @@ function getVibeGlobale() {
   } else {
     state.boostCollectif = false;
   }
-  // Pression norme: min(40%, agents × 8%)
-  const normePressure = Math.min(0.40, state.invaders.length * 0.08);
-  return Math.max(0, Math.min(100, avg * boostMult * (1 - normePressure)));
+  // Pression ordre: min(40%, agents × 8%)
+  const ordrePressure = Math.min(0.40, state.invaders.length * 0.08);
+  return Math.max(0, Math.min(100, avg * boostMult * (1 - ordrePressure)));
 }
 
 // ===== CRISIS SYSTEM =====
@@ -1961,8 +1961,8 @@ const TUTORIAL_STEPS = [
   },
   {
     target: null,
-    title: '👔 LES AGENTS DE LA NORME',
-    text: 'Des personnages vont débarquer sur la carte et faire baisser le Désordre.\n<strong style="color:var(--pink)">Clique dessus</strong> pour lancer un <strong>atelier de queerisation</strong> : choisis un cadre, réponds aux questions.\nSuccès → nouveau bâtiment queer débloqué. Échec → la Norme s\'installe à la place.',
+    title: '👔 LES AGENTS DE L\'ORDRE',
+    text: 'Des personnages vont débarquer sur la carte et faire baisser le Désordre.\n<strong style="color:var(--pink)">Clique dessus</strong> pour lancer un <strong>atelier de queerisation</strong> : choisis un cadre, réponds aux questions.\nSuccès → nouveau bâtiment queer débloqué. Échec → l\'Ordre s\'installe à la place.',
     pos: 'center',
   },
   {
@@ -1995,7 +1995,7 @@ function tutoNext() {
   if (_tutoStep >= TUTORIAL_STEPS.length) { tutoEnd(); return; }
   const step = TUTORIAL_STEPS[_tutoStep];
 
-  // Montrer le fake invader à l'étape 8 (agents de la norme)
+  // Montrer le fake invader à l'étape 8 (agents de l'ordre)
   if (_tutoStep === 8) tutoShowFakeInvader();
 
   const spotlight = document.getElementById('tuto-spotlight');
@@ -2823,31 +2823,31 @@ function getCurrentTodSlot(hour) {
   return slot;
 }
 
-function getNormeMapSrc() {
-  return state.isNight ? 'maps/map_norme_nuit.png' : 'maps/map_norme_jour.png';
+function getOrdreMapSrc() {
+  return state.isNight ? 'maps/map_ordre_nuit.png' : 'maps/map_ordre_jour.png';
 }
 
 function updateRevealForZone(zid) {
   const el = document.getElementById('reveal-' + zid);
   if (!el) return;
   const isToxic = !!(state.zones[zid]?.toxicBuilding);
-  // Reveal de jour : toujours la version jour (map norme jour ou bat TOD)
-  el.src = isToxic ? 'maps/map_norme_jour.png' : (TOD_SLOTS[_todSlot]?.bat || 'maps/tod/bat_8h.png');
+  // Reveal de jour : toujours la version jour (map ordre jour ou bat TOD)
+  el.src = isToxic ? 'maps/map_ordre_jour.png' : (TOD_SLOTS[_todSlot]?.bat || 'maps/tod/bat_8h.png');
   el.dataset.toxic = isToxic ? '1' : '0';
   // Reveal de nuit : synchroniser avec la bonne image nuit
   const nightEl = document.getElementById('reveal-night-' + zid);
   if (nightEl) {
-    nightEl.src = isToxic ? 'maps/map_norme_nuit.png' : 'maps/map_nocturne.png';
+    nightEl.src = isToxic ? 'maps/map_ordre_nuit.png' : 'maps/map_nocturne.png';
     nightEl.dataset.toxic = isToxic ? '1' : '0';
   }
 }
 
 function updateAllToxicReveals() {
   document.querySelectorAll('.map-reveal[data-toxic="1"]').forEach(el => {
-    el.src = 'maps/map_norme_jour.png';
+    el.src = 'maps/map_ordre_jour.png';
   });
   document.querySelectorAll('.map-reveal-night[data-toxic="1"]').forEach(el => {
-    el.src = 'maps/map_norme_nuit.png';
+    el.src = 'maps/map_ordre_nuit.png';
   });
 }
 
@@ -2962,7 +2962,7 @@ function onNewDay() {
   if (state.day === 4) {
     clearInterval(state.invaderTimer);
     state.invaderTimer = setInterval(spawnInvader, CFG.INVADER_INTERVAL_FRIDAY);
-    toast('🎉 VENDREDI ! Grande soirée Teuf : les agents de la Norme arrivent plus vite !');
+    toast('🎉 VENDREDI ! Grande soirée Teuf : les agents de l\'Ordre arrivent plus vite !');
   }
   setTimeout(() => {
     if (document.getElementById('quest-panel')?.classList.contains('open')) renderQuestPanel();
@@ -3141,13 +3141,13 @@ function buildToxicBuilding(inv) {
   const fallback = Object.keys(ZONES).filter(z => !state.zones[z].toxicBuilding && !state.zones[z].queerBuilt && z !== 'camping');
   const pool = candidates.length ? candidates : fallback;
   if (!pool.length) {
-    toast(`😤 ${inv.data.emoji} ${inv.data.name} repart, mais la Norme progresse.`);
+    toast(`😤 ${inv.data.emoji} ${inv.data.name} repart, mais l'Ordre progresse.`);
     return;
   }
   // Préférer les zones non-vitales ; ne cibler les vitales que si rien d'autre
   const nonVital = pool.filter(z => !VITAL_ZONES.has(z));
   const target = (nonVital.length ? nonVital : pool)[Math.floor(Math.random() * (nonVital.length || pool.length))];
-  const fb = ZONE_TOXIC_MAP[target] || { name: 'Bâtiment toxique', emoji: '🏭', effect: 'vibe_drain_slow', description: 'La Norme s\'est installée.' };
+  const fb = ZONE_TOXIC_MAP[target] || { name: 'Bâtiment toxique', emoji: '🏭', effect: 'vibe_drain_slow', description: 'L\'Ordre s\'est installé.' };
   state.zones[target].locked = false;
   state.zones[target].toxicBuilding = {
     type: fb.effect,
@@ -3166,7 +3166,7 @@ function buildToxicBuilding(inv) {
   const zoneName = ZONES[target].name;
   logEvent('alert', `🏭 ${fb.emoji} ${fb.name} construit à la place de ${zoneName}. ${kicked.length ? kicked.map(id => paxLabel(id)).join(', ') + ' ont été chassé·es.' : ''}`);
   toast(`🏭 ${inv.data.emoji} ${inv.data.name} a construit ${fb.emoji} ${fb.name} !`);
-  // Révéler la zone sur la carte — norme : pas de clic, juste l'image
+  // Révéler la zone sur la carte — ordre : pas de clic, juste l'image
   const revealEl = document.getElementById('reveal-' + target);
   if (revealEl) {
     revealEl.dataset.unlocked = '1';
@@ -3349,7 +3349,7 @@ function resolveAtelier() {
     document.getElementById('atelier-result-title').textContent = 'PAS ENCORE...';
     document.getElementById('atelier-result-emoji').textContent = '🏭';
     document.getElementById('atelier-result-msg').textContent =
-      `${inv.data.name} n'a pas accroché. La Norme s'installe quelque part...`;
+      `${inv.data.name} n'a pas accroché. L'Ordre s'installe quelque part...`;
     document.getElementById('atelier-result-btn').textContent = 'Ok...';
     document.getElementById('atelier-result-btn').onclick = () => {
       closeAtelierModal();
@@ -3403,7 +3403,7 @@ function buildZone(zid) {
   revealZoneOnMap(zid);
   const z = ZONES[zid];
   toast(`🏗️ ${z.name} vient d'être construit·e ! 🌈`);
-  logEvent('queer', `🏗️ ${z.name} construit·e. La Norme recule.`);
+  logEvent('queer', `🏗️ ${z.name} construit·e. L'Ordre recule.`);
   renderZones();
 }
 
@@ -3869,7 +3869,7 @@ function renderZones() {
     }
     el.innerHTML = '';
     if (zstate.locked) return;
-    // Zone norme : div invisible et inerte, l'image de la carte parle d'elle-même
+    // Zone ordre : div invisible et inerte, l'image de la carte parle d'elle-même
     if (zstate.toxicBuilding) return;
 
     // Pax dots
@@ -4617,7 +4617,7 @@ function devFailInvader() {
     // Fermer modale atelier si ouverte
     closeAtelierModal && closeAtelierModal();
     queeriseInvader(inv.id, false);
-    toast('⚙️ DEV : Échec → bâtiment norme');
+    toast('⚙️ DEV : Échec → bâtiment ordre');
   }, 100);
 }
 function devQueerInvader() {

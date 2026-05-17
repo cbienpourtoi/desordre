@@ -1206,6 +1206,6 @@ const MSG = {
   // ── 13. ÉCRAN DE FIN ─────────────────────────────────────────
   endScreen: {
     title:    "LE DÉSORDRE A TRIOMPHÉ",
-    subtitle: "La Norme s'enfuit en pleurant.\nTout le monde danse autour du compost.",
+    subtitle: "L'Ordre s'enfuit en pleurant.\nTout le monde danse autour du compost.",
   },
 };
