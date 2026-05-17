@@ -2482,14 +2482,36 @@ function initState() {
 }
 
 function revealZoneOnMap(zid) {
+  const setupRevealDrop = (el) => {
+    el.addEventListener('dragover', e => {
+      if (!_dragPaxId) return;
+      e.preventDefault();
+      e.stopPropagation();
+      e.dataTransfer.dropEffect = 'move';
+      _clearAllDragGlows();
+      _dragRevealGlow(zid, true);
+    });
+    el.addEventListener('dragleave', e => {
+      _dragRevealGlow(zid, false);
+    });
+    el.addEventListener('drop', e => {
+      e.preventDefault();
+      e.stopPropagation();
+      _dragRevealGlow(zid, false);
+      if (_dragPaxId) {
+        dropPaxOnZone(_dragPaxId, zid);
+        _dragPaxId = null;
+      }
+    });
+  };
   const day = document.getElementById('reveal-' + zid);
   if (day) {
     day.dataset.unlocked = '1';
     day.style.opacity = '1';
-    // Le polygon de la carte devient zone de clic (fallback hors du rect .zone)
     day.style.pointerEvents = 'auto';
     day.style.cursor = 'pointer';
     day.onclick = (e) => { e.stopPropagation(); openZone(zid); };
+    setupRevealDrop(day);
   }
   const night = document.getElementById('reveal-night-' + zid);
   if (night) {
@@ -2498,6 +2520,7 @@ function revealZoneOnMap(zid) {
     night.style.pointerEvents = 'auto';
     night.style.cursor = 'pointer';
     night.onclick = (e) => { e.stopPropagation(); openZone(zid); };
+    setupRevealDrop(night);
   }
 }
 
@@ -2997,6 +3020,9 @@ function onNewDay() {
 function spawnInvader() {
   if (!state.started || state.gameEnded || state.paused) return;
   if (state.invaders.length >= CFG.INVADER_MAX) return;
+  // Stop spawning once all buildable zones are constructed
+  const totalBuildable = ZONE_PROGRESSION.filter(s => s.auto || s.choice || s.choiceFrom !== undefined || s.sibling !== undefined).length;
+  if ((state.stats.builtZones || 0) >= totalBuildable) return;
   // Ne pas spawner un type déjà présent sur la carte
   const activeTypes = new Set(state.invaders.map(i => i.type));
   const pool = INVADERS_DATA.filter(i => !activeTypes.has(i.type));
@@ -3360,7 +3386,7 @@ function resolveAtelier() {
   
   if (success) {
     const ally = inv.data.successAlly || { name: inv.data.queerName, emoji: inv.data.queerEmoji, description: inv.data.queerMsg };
-    document.getElementById('atelier-result-title').textContent = '★ TRANSFORMATION ★';
+    document.getElementById('atelier-result-title').textContent = '★ TRANSITION ★';
     document.getElementById('atelier-result-emoji').textContent = ally.emoji || inv.data.queerEmoji;
     document.getElementById('atelier-result-msg').textContent =
       `${ally.name || inv.data.queerName} : ${ally.description || inv.data.queerMsg}`;
