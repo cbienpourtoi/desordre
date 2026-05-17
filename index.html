@@ -386,6 +386,12 @@ html,body{width:100%;height:100%;overflow:hidden;background:var(--dark);font-fam
   flex-shrink:0;
 }
 #hud-lb-btn:hover{background:rgba(95,207,232,0.2);}
+#hud-tuto-btn{
+  background:rgba(26,14,46,0.85);border:1.5px solid var(--green);
+  color:var(--green);font-size:14px;padding:4px 8px;border-radius:4px;cursor:pointer;
+  flex-shrink:0;font-family:'Press Start 2P',monospace;
+}
+#hud-tuto-btn:hover{background:rgba(0,255,100,0.15);}
 
 /* ===== START SCREEN ===== */
 #start-screen{
@@ -676,6 +682,7 @@ html,body{width:100%;height:100%;overflow:hidden;background:var(--dark);font-fam
   <div id="food-indicator" style="color:var(--green);">🍽 —</div>
   <div id="boost-collectif-indicator" style="display:none;">✨ BOOST</div>
   <div id="hud-day">LUN<br><span id="hud-time" style="color:var(--teal);font-size:6px;">☀ 08h</span></div>
+  <button id="hud-tuto-btn" onclick="tutoReplay()" title="Relancer le tutoriel">❓</button>
   <button id="hud-lb-btn" onclick="showLeaderboard()" title="Leaderboard">🏆</button>
 </div>
 
@@ -1970,6 +1977,10 @@ let _tutoStep = -1;
 
 function tutoStart() {
   if (localStorage.getItem('tuto_done') === '1') return;
+  tutoReplay();
+}
+
+function tutoReplay() {
   state.paused = true;
   _tutoStep = -1;
   tutoNext();
