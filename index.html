@@ -854,7 +854,7 @@ html,body{width:100%;height:100%;overflow:hidden;background:var(--dark);font-fam
   <div class="modal-card" style="border-color:var(--green);max-width:380px;">
     <span class="modal-emoji">🏗️</span>
     <div class="modal-title" style="color:var(--green);">CONSTRUIRE UN ESPACE</div>
-    <div style="font-family:'DM Mono',monospace;font-size:14px;margin-bottom:14px;text-align:center;color:var(--dark);">La transformation libère de l'énergie.<br>Quel espace prend vie ?</div>
+    <div style="font-family:'DM Mono',monospace;font-size:14px;margin-bottom:14px;text-align:center;color:var(--dark);">La transition libère de l'énergie.<br>Quel espace prend vie ?</div>
     <div id="zone-build-grid" style="display:flex;flex-direction:column;gap:8px;margin-bottom:12px;"></div>
     <button class="modal-btn" id="zone-build-confirm" onclick="confirmZoneBuild()" style="background:var(--green);color:var(--dark);">🌈 CONSTRUIRE !</button>
   </div>
@@ -2316,10 +2316,11 @@ function _findZoneAtPoint(clientX, clientY) {
 
 function setupZoneDropTargets() {
   const mapWrapper = document.getElementById('map-wrapper');
+  const mapViewport = document.getElementById('map-viewport');
 
-  mapWrapper.addEventListener('dragover', e => {
+  // Allow drops on the entire viewport area (not just mapWrapper)
+  const handleDragOver = e => {
     if (!_dragPaxId) return;
-    // Toujours autoriser le drop sur la carte (sinon curseur interdit)
     e.preventDefault();
     e.dataTransfer.dropEffect = 'move';
     const zid = _findZoneAtPoint(e.clientX, e.clientY);
@@ -2335,14 +2336,32 @@ function setupZoneDropTargets() {
         delete mapWrapper.dataset.dragOverZone;
       }
     }
-  });
-
-  mapWrapper.addEventListener('drop', e => {
+  };
+  const handleDrop = e => {
     e.preventDefault();
     const zid = _findZoneAtPoint(e.clientX, e.clientY);
     if (zid && _dragPaxId) {
       dropPaxOnZone(_dragPaxId, zid);
     }
+    delete mapWrapper.dataset.dragOverZone;
+    _clearAllDragGlows();
+    _dragPaxId = null;
+  };
+
+  mapWrapper.addEventListener('dragover', handleDragOver);
+  mapWrapper.addEventListener('drop', handleDrop);
+  mapViewport.addEventListener('dragover', handleDragOver);
+  mapViewport.addEventListener('drop', handleDrop);
+
+  // Global dragover to allow drops anywhere on the page (prevents no-drop cursor)
+  document.addEventListener('dragover', e => {
+    if (_dragPaxId) e.preventDefault();
+  });
+  document.addEventListener('drop', e => {
+    if (!_dragPaxId) return;
+    e.preventDefault();
+    const zid = _findZoneAtPoint(e.clientX, e.clientY);
+    if (zid) dropPaxOnZone(_dragPaxId, zid);
     delete mapWrapper.dataset.dragOverZone;
     _clearAllDragGlows();
     _dragPaxId = null;
@@ -2624,7 +2643,7 @@ function calcEnnui(ps, actMode, zid, hasAffinity) {
 
 // Sub-function: compute hunger delta from food stock
 function calcFaim(actMode) {
-  if (actMode === 'camping') return -0.08;
+  if (actMode === 'camping') return 0; // camping pax don't eat
   if (state.food_stock > 100) return -0.5;
   if (state.food_stock >= 50) return -0.15;
   if (state.food_stock >= 20) return 0.12;
@@ -2664,8 +2683,13 @@ function productionTick() {
   state._allyBoosts = (state._allyBoosts || []).filter(boost => boost.endsAt > state.totalTicks);
   applyToxicEffects();
 
-  // Food stock: collective consumption
-  const totalActive = PAX_DATA.filter(p => state.pax[p.id] && (state.pax[p.id].state === 'placed' || state.pax[p.id].state === 'available')).length;
+  // Food stock: collective consumption (camping pax don't eat from stock)
+  const totalActive = PAX_DATA.filter(p => {
+    const ps = state.pax[p.id];
+    if (!ps || ps.state === 'locked') return false;
+    if (ps.placedIn && ZONES[ps.placedIn]?.activityMode === 'camping') return false;
+    return ps.state === 'placed' || ps.state === 'available';
+  }).length;
   state.food_stock = Math.max(0, state.food_stock - CFG.FOOD_CONSUME_RATE * totalActive);
 
   // Per-pax simulation per zone
@@ -4048,7 +4072,20 @@ function renderSidebar() {
     const vibeBar = `<div style='margin-top:4px;background:#222;border-radius:3px;height:4px;width:100%;'><div style='height:4px;border-radius:3px;width:${vibePct}%;background:${vibeColor};transition:width 0.5s;'></div></div>`;
     const crisisTag = ps.inCrisis ? ' <span style="color:var(--red);font-family:\'Press Start 2P\',monospace;font-size:7px;">🆘 CRISE</span>' : '';
     const location = ps.placedIn ? '📍 ' + ZONES[ps.placedIn].name : '⌛ Disponible';
-    div.innerHTML = `<span style="font-size:24px">${p.emoji}</span> <strong style="font-family:'Press Start 2P',monospace;font-size:8px;color:var(--cream);">${p.name}</strong>${crisisTag}<br><span style="font-size:14px;color:var(--purple);">${arch.label}</span><br><span style="font-size:12px;opacity:0.6;">${location}</span>${vibeBar}`;
+    // Short status description based on dominant need
+    let statusDesc = '';
+    if (ps.inCrisis) statusDesc = '💔 en crise';
+    else if (ps.faim > 70) statusDesc = '🍽️ a très faim';
+    else if (ps.fatigue > 80) statusDesc = '😴 épuisé·e';
+    else if (ps.ennui > 70) statusDesc = '😑 s\'ennuie';
+    else if (ps.faim > 40) statusDesc = '🍽️ a faim';
+    else if (ps.fatigue > 55) statusDesc = '😴 fatigué·e';
+    else if (ps.ennui > 40) statusDesc = '😑 s\'ennuie un peu';
+    else if (ps.vibe > 75) statusDesc = '✨ se sent bien';
+    else if (ps.vibe > 50) statusDesc = '👍 ça va';
+    else statusDesc = '😐 moyen';
+    const statusLine = `<br><span style="font-size:11px;opacity:0.75;">${statusDesc}</span>`;
+    div.innerHTML = `<span style="font-size:24px">${p.emoji}</span> <strong style="font-family:'Press Start 2P',monospace;font-size:8px;color:var(--cream);">${p.name}</strong>${crisisTag}<br><span style="font-size:14px;color:var(--purple);">${arch.label}</span><br><span style="font-size:12px;opacity:0.6;">${location}</span>${statusLine}${vibeBar}`;
     const sendBtnEl = makeSendBtn(p.id);
     div.appendChild(sendBtnEl);
     if (ps.state !== 'locked') {
@@ -4057,13 +4094,22 @@ function renderSidebar() {
     return div;
   }
 
-  if (avail.length) {
-    sectionHeader(`DISPONIBLES (${avail.length})`, 'var(--yellow)');
-    avail.forEach(p => content.appendChild(makePaxCard(p)));
-  }
+  // Sort helper: sort pax by vibe ascending (worst first for quick action)
+  const byVibe = (a, b) => (state.pax[a.id].vibe || 0) - (state.pax[b.id].vibe || 0);
+  avail.sort(byVibe);
+  inCrisis.sort(byVibe);
+  working.sort(byVibe);
+  playing.sort(byVibe);
+  resting.sort(byVibe);
+
+  // Crisis section always on top when there are pax in crisis
   if (inCrisis.length) {
     sectionHeader(`🆘 EN CRISE (${inCrisis.length})`, 'var(--red)');
     inCrisis.forEach(p => content.appendChild(makePaxCard(p)));
+  }
+  if (avail.length) {
+    sectionHeader(`DISPONIBLES (${avail.length})`, 'var(--yellow)');
+    avail.forEach(p => content.appendChild(makePaxCard(p)));
   }
   if (working.length) {
     sectionHeader(`🔧 EN SHIFT (${working.length})`, 'var(--teal)');

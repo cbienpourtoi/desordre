@@ -273,7 +273,7 @@ const MSG = {
     drag: {
       id: "drag",
       nom: "Atelier drag",
-      description: "Transformation par le costume et le miroir.",
+      description: "Transition par le costume et le miroir.",
       emoji: "💄",
       etapes: [
         {
@@ -298,7 +298,7 @@ const MSG = {
               reponse: "Il recule d'un demi-pas. On a brûlé une étape. Il est là mais fermé."
             },
             {
-              texte: "Nuageon arrive avec une cape dorée et annonce 'tu es ici pour ta transformation, choisie par les étoiles'.",
+              texte: "Nuageon arrive avec une cape dorée et annonce 'tu es ici pour ta transition, choisie par les étoiles'.",
               type: "wtf",
               score: 1,
               reponse: "Il rit malgré lui. La tension tombe d'un cran. On peut travailler avec ça."
