@@ -3936,10 +3936,20 @@ function renderSidebar() {
   content.innerHTML = '';
 
   const avail    = PAX_DATA.filter(p => state.pax[p.id].state === 'available');
-  const inWelfare = PAX_DATA.filter(p => state.pax[p.id].placedIn === 'welfare');
-  const placed   = PAX_DATA.filter(p => state.pax[p.id].state === 'placed' && state.pax[p.id].placedIn !== 'welfare');
   const inCrisis = PAX_DATA.filter(p => state.pax[p.id].inCrisis);
   const locked   = PAX_DATA.filter(p => state.pax[p.id].state === 'locked');
+
+  // Catégoriser les pax placés par type d'activité
+  const working  = []; // cuisine, welfare (sans crise)
+  const resting  = []; // repos (chambres), camping
+  const playing  = []; // fun_high, fun_low, nego
+  PAX_DATA.filter(p => state.pax[p.id].state === 'placed' && !state.pax[p.id].inCrisis).forEach(p => {
+    const ps = state.pax[p.id];
+    const mode = ZONES[ps.placedIn]?.activityMode;
+    if (mode === 'cuisine' || (ps.placedIn === 'welfare' && !ps.inCrisis)) working.push(p);
+    else if (mode === 'repos' || mode === 'camping') resting.push(p);
+    else playing.push(p);
+  });
 
   function sectionHeader(label, color) {
     const h = document.createElement('div');
@@ -4035,20 +4045,24 @@ function renderSidebar() {
   }
 
   if (avail.length) {
-    sectionHeader('DISPONIBLES', 'var(--yellow)');
+    sectionHeader(`DISPONIBLES (${avail.length})`, 'var(--yellow)');
     avail.forEach(p => content.appendChild(makePaxCard(p)));
   }
   if (inCrisis.length) {
-    sectionHeader('🆘 EN CRISE', 'var(--red)');
+    sectionHeader(`🆘 EN CRISE (${inCrisis.length})`, 'var(--red)');
     inCrisis.forEach(p => content.appendChild(makePaxCard(p)));
   }
-  if (inWelfare.length) {
-    sectionHeader('💜 AU WELFARE', 'var(--teal)');
-    inWelfare.forEach(p => content.appendChild(makePaxCard(p)));
+  if (working.length) {
+    sectionHeader(`🔧 EN SHIFT (${working.length})`, 'var(--teal)');
+    working.forEach(p => content.appendChild(makePaxCard(p)));
   }
-  if (placed.length) {
-    sectionHeader('EN POSTE', 'var(--teal)');
-    placed.forEach(p => content.appendChild(makePaxCard(p)));
+  if (playing.length) {
+    sectionHeader(`🌀 S'AMUSENT (${playing.length})`, 'var(--pink)');
+    playing.forEach(p => content.appendChild(makePaxCard(p)));
+  }
+  if (resting.length) {
+    sectionHeader(`💤 SE REPOSENT (${resting.length})`, 'var(--green)');
+    resting.forEach(p => content.appendChild(makePaxCard(p)));
   }
   if (locked.length) {
     sectionHeader('🔒 À DÉBLOQUER', 'var(--red)');
